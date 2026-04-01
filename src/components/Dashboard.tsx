@@ -66,6 +66,8 @@ export default function Dashboard({ member, onSwapClick }: DashboardProps) {
     'S12': 'bg-green-100 text-green-700 border-green-200',
     'S13': 'bg-purple-100 text-purple-700 border-purple-200',
     'AL-S11': 'bg-orange-100 text-orange-700 border-orange-200',
+    'AL-S12': 'bg-orange-100 text-orange-700 border-orange-200',
+    'AL-S13': 'bg-orange-100 text-orange-700 border-orange-200',
     'S78': 'bg-yellow-100 text-yellow-700 border-yellow-200',
     'X': 'bg-gray-100 text-gray-500 border-gray-200',
     'A': 'bg-red-100 text-red-700 border-red-200',
@@ -155,6 +157,9 @@ export default function Dashboard({ member, onSwapClick }: DashboardProps) {
                   <span className={`inline-block px-2 py-1 rounded text-[10px] md:text-xs font-bold border ${shiftColors[shiftCode] || 'bg-gray-100'}`}>
                     {shiftCode}
                   </span>
+                  {shifts.find(s => s.date === format(day, 'yyyy-MM-dd'))?.isDoubleShift && (
+                    <span className="ml-1 inline-block px-1 py-0.5 bg-red-500 text-white text-[8px] rounded font-bold">2X</span>
+                  )}
                   {shifts.find(s => s.date === format(day, 'yyyy-MM-dd'))?.originalShiftCode && (
                     <div className="text-[8px] text-gray-400 line-through">
                       เดิม: {shifts.find(s => s.date === format(day, 'yyyy-MM-dd'))?.originalShiftCode}

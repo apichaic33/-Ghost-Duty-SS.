@@ -62,6 +62,8 @@ export default function TeamSchedule({ onSwapClick }: TeamScheduleProps) {
     'S12': 'bg-green-100 text-green-700',
     'S13': 'bg-purple-100 text-purple-700',
     'AL-S11': 'bg-orange-100 text-orange-700',
+    'AL-S12': 'bg-orange-100 text-orange-700',
+    'AL-S13': 'bg-orange-100 text-orange-700',
     'S78': 'bg-yellow-100 text-yellow-700',
     'X': 'bg-gray-50 text-gray-400',
     'A': 'bg-red-100 text-red-700',
@@ -187,7 +189,7 @@ export default function TeamSchedule({ onSwapClick }: TeamScheduleProps) {
         </div>
         <div className="flex items-center space-x-1">
           <div className="w-3 h-3 bg-orange-100 rounded"></div>
-          <span>AL: Spare</span>
+          <span>AL: Spare (S11, S12, S13)</span>
         </div>
         <div className="flex items-center space-x-1">
           <div className="w-3 h-3 bg-yellow-100 rounded"></div>

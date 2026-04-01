@@ -78,7 +78,8 @@ export function validateShifts(shifts: { date: string; shiftCode: ShiftCode }[])
     }
 
     if (consecutiveWorkDays > 8) {
-      warnings.push(`ทำงานติดต่อกันเกิน 8 วัน เริ่มตั้งแต่วันที่ ${shifts[i - 8].date}`);
+      const startOfSequence = shifts[i - consecutiveWorkDays + 1].date;
+      warnings.push(`ทำงานติดต่อกันเกิน 8 วัน เริ่มตั้งแต่วันที่ ${startOfSequence}`);
     }
 
     // Check S13 -> S11
