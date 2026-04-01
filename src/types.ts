@@ -16,10 +16,18 @@ export interface Member {
   lineToken?: string;
   quotaA: number;
   quotaH: number;
+  maxHolidays?: number; // Added for holiday setting
   shiftPattern: string; // Comma separated codes
   cycleStartDate: string; // YYYY-MM-DD
   role: 'admin' | 'user';
   notificationPreferences?: NotificationPreferences;
+}
+
+export interface ShiftProperty {
+  id: string; // ShiftCode
+  name: string; // e.g., "ดิวช่วย"
+  description?: string;
+  color?: string;
 }
 
 export interface Shift {

@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { doc, updateDoc } from 'firebase/firestore';
+import React, { useState, useEffect } from 'react';
+import { doc, updateDoc, collection, onSnapshot, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
-import { Member, NotificationPreferences } from '../types';
+import { Member, NotificationPreferences, ShiftProperty } from '../types';
 import { toast } from 'sonner';
-import { Key, Bell, User, CheckCircle2, XCircle } from 'lucide-react';
+import { Key, Bell, User, CheckCircle2, XCircle, Settings as SettingsIcon, Plus, Trash2 } from 'lucide-react';
 
 interface SettingsProps {
   member: Member;
@@ -17,6 +17,40 @@ export default function Settings({ member, setMember }: SettingsProps) {
     warnings: true,
     lineEnabled: true
   });
+  const [shiftProps, setShiftProps] = useState<ShiftProperty[]>([]);
+  const [newShiftProp, setNewShiftProp] = useState<Partial<ShiftProperty>>({ id: '', name: '', color: 'bg-blue-100 text-blue-700' });
+
+  useEffect(() => {
+    if (member.role === 'admin') {
+      const unsub = onSnapshot(collection(db, 'shiftProperties'), (snap) => {
+        setShiftProps(snap.docs.map(d => ({ id: d.id, ...d.data() } as ShiftProperty)));
+      });
+      return () => unsub();
+    }
+  }, [member.role]);
+
+  const handleAddShiftProp = async () => {
+    if (!newShiftProp.id || !newShiftProp.name) return;
+    try {
+      await setDoc(doc(db, 'shiftProperties', newShiftProp.id), {
+        name: newShiftProp.name,
+        color: newShiftProp.color
+      });
+      setNewShiftProp({ id: '', name: '', color: 'bg-blue-100 text-blue-700' });
+      toast.success('เพิ่มคุณสมบัติกะสำเร็จ');
+    } catch (e) {
+      toast.error('เกิดข้อผิดพลาด');
+    }
+  };
+
+  const handleDeleteShiftProp = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, 'shiftProperties', id));
+      toast.success('ลบคุณสมบัติกะสำเร็จ');
+    } catch (e) {
+      toast.error('เกิดข้อผิดพลาด');
+    }
+  };
 
   const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -149,6 +183,64 @@ export default function Settings({ member, setMember }: SettingsProps) {
           </div>
         </form>
       </div>
+
+      {member.role === 'admin' && (
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 max-w-2xl">
+          <div className="flex items-start space-x-4 mb-6">
+            <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+              <SettingsIcon size={20} />
+            </div>
+            <div className="flex-1">
+              <label className="block text-sm font-bold text-gray-700 mb-1">ตั้งค่าคุณสมบัติกะ</label>
+              <p className="text-xs text-gray-500 mb-4">กำหนดชื่อเรียกและสีของแต่ละรหัสกะ</p>
+              
+              <div className="space-y-4">
+                <div className="grid grid-cols-3 gap-2">
+                  <input 
+                    placeholder="รหัส (เช่น S78)" 
+                    value={newShiftProp.id}
+                    onChange={e => setNewShiftProp(prev => ({ ...prev, id: e.target.value.toUpperCase() }))}
+                    className="border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <input 
+                    placeholder="ชื่อเรียก (เช่น ดิวช่วย)" 
+                    value={newShiftProp.name}
+                    onChange={e => setNewShiftProp(prev => ({ ...prev, name: e.target.value }))}
+                    className="border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <button 
+                    onClick={handleAddShiftProp}
+                    className="bg-blue-600 text-white rounded-lg px-3 py-2 text-xs font-bold flex items-center justify-center space-x-1 hover:bg-blue-700"
+                  >
+                    <Plus size={14} />
+                    <span>เพิ่ม</span>
+                  </button>
+                </div>
+
+                <div className="divide-y divide-gray-100 border border-gray-100 rounded-xl overflow-hidden">
+                  {shiftProps.map(prop => (
+                    <div key={prop.id} className="flex items-center justify-between p-3 hover:bg-gray-50">
+                      <div className="flex items-center space-x-3">
+                        <span className="text-xs font-bold text-gray-400 w-10">{prop.id}</span>
+                        <span className="text-sm font-medium text-gray-700">{prop.name}</span>
+                      </div>
+                      <button 
+                        onClick={() => handleDeleteShiftProp(prop.id)}
+                        className="p-1 text-gray-300 hover:text-red-500 transition-colors"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  ))}
+                  {shiftProps.length === 0 && (
+                    <p className="p-4 text-center text-xs text-gray-400 italic">ยังไม่มีการตั้งค่าคุณสมบัติกะ</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

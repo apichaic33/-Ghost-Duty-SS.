@@ -3,7 +3,7 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMont
 import { ChevronLeft, ChevronRight, Search, Filter } from 'lucide-react';
 import { collection, onSnapshot, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
-import { Member, Shift, ShiftCode } from '../types';
+import { Member, Shift, ShiftCode, ShiftProperty } from '../types';
 import { generateSchedule } from '../lib/scheduleUtils';
 
 interface TeamScheduleProps {
@@ -14,6 +14,7 @@ export default function TeamSchedule({ onSwapClick }: TeamScheduleProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [members, setMembers] = useState<Member[]>([]);
   const [allShifts, setAllShifts] = useState<Shift[]>([]);
+  const [shiftProps, setShiftProps] = useState<ShiftProperty[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStation, setSelectedStation] = useState('All');
@@ -26,6 +27,11 @@ export default function TeamSchedule({ onSwapClick }: TeamScheduleProps) {
     // Fetch all members
     const unsubMembers = onSnapshot(collection(db, 'members'), (snap) => {
       setMembers(snap.docs.map(d => ({ id: d.id, ...d.data() } as Member)));
+    });
+
+    // Fetch shift properties
+    const unsubProps = onSnapshot(collection(db, 'shiftProperties'), (snap) => {
+      setShiftProps(snap.docs.map(d => ({ id: d.id, ...d.data() } as ShiftProperty)));
     });
 
     // Fetch all shifts for the current month
@@ -42,6 +48,7 @@ export default function TeamSchedule({ onSwapClick }: TeamScheduleProps) {
 
     return () => {
       unsubMembers();
+      unsubProps();
       unsubShifts();
     };
   }, [currentDate]);
@@ -83,7 +90,7 @@ export default function TeamSchedule({ onSwapClick }: TeamScheduleProps) {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">ภาพรวมกะทั้งทีม</h2>
+          <h2 className="text-2xl font-bold text-gray-800">ภาพรวมกะทั้งหมด</h2>
           <p className="text-gray-500">ตรวจสอบตารางการทำงานของนายสถานีทุกคน</p>
         </div>
         
@@ -175,30 +182,41 @@ export default function TeamSchedule({ onSwapClick }: TeamScheduleProps) {
       </div>
 
       <div className="flex flex-wrap gap-4 text-[10px] font-bold text-gray-500 bg-gray-50 p-4 rounded-xl border border-gray-200">
-        <div className="flex items-center space-x-1">
-          <div className="w-3 h-3 bg-blue-100 rounded"></div>
-          <span>S11: เช้า</span>
-        </div>
-        <div className="flex items-center space-x-1">
-          <div className="w-3 h-3 bg-green-100 rounded"></div>
-          <span>S12: บ่าย</span>
-        </div>
-        <div className="flex items-center space-x-1">
-          <div className="w-3 h-3 bg-purple-100 rounded"></div>
-          <span>S13: ดึก</span>
-        </div>
-        <div className="flex items-center space-x-1">
-          <div className="w-3 h-3 bg-orange-100 rounded"></div>
-          <span>AL: Spare (S11, S12, S13)</span>
-        </div>
-        <div className="flex items-center space-x-1">
-          <div className="w-3 h-3 bg-yellow-100 rounded"></div>
-          <span>S78: ช่วย</span>
-        </div>
-        <div className="flex items-center space-x-1">
-          <div className="w-3 h-3 bg-gray-100 rounded"></div>
-          <span>X: หยุด</span>
-        </div>
+        {shiftProps.length > 0 ? (
+          shiftProps.map(prop => (
+            <div key={prop.id} className="flex items-center space-x-1">
+              <div className={`w-3 h-3 rounded ${shiftColors[prop.id] || 'bg-gray-200'}`}></div>
+              <span>{prop.id}: {prop.name}</span>
+            </div>
+          ))
+        ) : (
+          <>
+            <div className="flex items-center space-x-1">
+              <div className="w-3 h-3 bg-blue-100 rounded"></div>
+              <span>S11: เช้า</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <div className="w-3 h-3 bg-green-100 rounded"></div>
+              <span>S12: บ่าย</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <div className="w-3 h-3 bg-purple-100 rounded"></div>
+              <span>S13: ดึก</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <div className="w-3 h-3 bg-orange-100 rounded"></div>
+              <span>AL: Spare (S11, S12, S13)</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <div className="w-3 h-3 bg-yellow-100 rounded"></div>
+              <span>S78: ช่วย</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <div className="w-3 h-3 bg-gray-100 rounded"></div>
+              <span>X: หยุด</span>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

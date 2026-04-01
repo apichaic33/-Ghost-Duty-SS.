@@ -20,7 +20,8 @@ export default function Members() {
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData.entries());
+    const data: any = Object.fromEntries(formData.entries());
+    if (data.maxHolidays) data.maxHolidays = Number(data.maxHolidays);
 
     try {
       if (editingMember) {
@@ -121,6 +122,10 @@ export default function Members() {
                   <label className="block text-xs font-bold text-gray-500 uppercase mb-1">โซน</label>
                   <input name="zone" defaultValue={editingMember?.zone} required className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-500" />
                 </div>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">จำนวนวันหยุดสูงสุด (ต่อรอบ)</label>
+                <input type="number" name="maxHolidays" defaultValue={editingMember?.maxHolidays || 4} required className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-500" />
               </div>
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1">รูปแบบกะ (Pattern)</label>
