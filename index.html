@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>ระบบยำกะผี (Yum Ka Phi)</title>
+    <script>
+      // Prevent zooming via keyboard shortcuts (Ctrl + / - / 0)
+      document.addEventListener('keydown', function(event) {
+        if (event.ctrlKey === true || event.metaKey === true) {
+          if (event.key === '+' || event.key === '-' || event.key === '=' || event.key === '0') {
+            event.preventDefault();
+          }
+        }
+      });
+
+      // Prevent zooming via mouse wheel (Ctrl + Wheel)
+      document.addEventListener('wheel', function(event) {
+        if (event.ctrlKey === true || event.metaKey === true) {
+          event.preventDefault();
+        }
+      }, { passive: false });
+
+      // Prevent double-tap to zoom on mobile
+      let lastTouchEnd = 0;
+      document.addEventListener('touchend', function(event) {
+        let now = (new Date()).getTime();
+        if (now - lastTouchEnd <= 300) {
+          event.preventDefault();
+        }
+        lastTouchEnd = now;
+      }, false);
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

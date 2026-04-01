@@ -1,0 +1,67 @@
+{
+  "entities": {
+    "Member": {
+      "title": "Member",
+      "description": "นายสถานี (Station Master)",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "name": { "type": "string", "description": "ชื่อ-นามสกุล" },
+        "station": { "type": "string", "description": "สถานีประจำ" },
+        "zone": { "type": "string", "description": "โซนสถานี" },
+        "lineToken": { "type": "string", "description": "Line Notify Token" },
+        "quotaA": { "type": "number", "description": "โควต้าวันลาพักร้อน (A)" },
+        "quotaH": { "type": "number", "description": "โควต้าวันหยุด (H)" },
+        "shiftPattern": { "type": "string", "description": "รูปแบบการรันกะ (Comma separated codes)" },
+        "cycleStartDate": { "type": "string", "format": "date", "description": "วันที่เริ่มนับกะวันแรก" },
+        "role": { "type": "string", "enum": ["admin", "user"], "description": "สิทธิ์การใช้งาน" }
+      },
+      "required": ["uid", "name", "station", "shiftPattern", "cycleStartDate"]
+    },
+    "Shift": {
+      "title": "Shift",
+      "description": "ตารางกะรายวัน",
+      "type": "object",
+      "properties": {
+        "memberId": { "type": "string", "description": "ID ของสมาชิก" },
+        "date": { "type": "string", "format": "date", "description": "วันที่ (YYYY-MM-DD)" },
+        "shiftCode": { "type": "string", "description": "รหัสกะปัจจุบัน" },
+        "originalShiftCode": { "type": "string", "description": "รหัสกะเดิมก่อนสลับ" },
+        "isDoubleShift": { "type": "boolean", "description": "สถานะควงกะ" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "วันที่อัปเดตล่าสุด" }
+      },
+      "required": ["memberId", "date", "shiftCode"]
+    },
+    "SwapRequest": {
+      "title": "SwapRequest",
+      "description": "คำขอสลับกะ/ควงกะ/แลกวันหยุด",
+      "type": "object",
+      "properties": {
+        "fromMemberId": { "type": "string", "description": "ผู้ส่งคำขอ" },
+        "toMemberId": { "type": "string", "description": "ผู้รับคำขอ (ถ้ามี)" },
+        "type": { "type": "string", "enum": ["swap", "double", "dayoff"], "description": "ประเภทคำขอ" },
+        "fromDate": { "type": "string", "format": "date", "description": "วันที่ต้องการแลก (ของผู้ขอ)" },
+        "toDate": { "type": "string", "format": "date", "description": "วันที่ต้องการแลก (ของผู้รับ)" },
+        "fromShiftCode": { "type": "string", "description": "กะของผู้ขอ" },
+        "toShiftCode": { "type": "string", "description": "กะของผู้รับ" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected", "cancelled"], "description": "สถานะคำขอ" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "วันที่สร้างคำขอ" }
+      },
+      "required": ["fromMemberId", "type", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/members/{memberId}": {
+      "schema": "Member",
+      "description": "ข้อมูลสมาชิก"
+    },
+    "/shifts/{shiftId}": {
+      "schema": "Shift",
+      "description": "ตารางกะทั้งหมด (shiftId = memberId_date)"
+    },
+    "/swapRequests/{requestId}": {
+      "schema": "SwapRequest",
+      "description": "รายการคำขอสลับกะ"
+    }
+  }
+}
