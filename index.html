@@ -3,13 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <base href="/" />
     <title>ระบบยำกะผี (Yum Ka Phi)</title>
     <script>
+      // Redirect if on GitHub Pages (stuck from previous deployment)
+      if (window.location.hostname.includes('github.io')) {
+        const aiStudioUrl = 'https://ais-dev-eiw3tx47esa2yoowgi32pi-305715865908.asia-southeast1.run.app';
+        window.location.href = aiStudioUrl;
+      }
+
       // Unregister all service workers to clear potential leftovers from GitHub Pages
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then(function(registrations) {
           for(let registration of registrations) {
-            registration.unregister();
+            registration.unregister().then(() => {
+              console.log('Service worker unregistered');
+              // Force reload after unregistering to ensure clean state
+              window.location.reload();
+            });
           }
         });
       }
