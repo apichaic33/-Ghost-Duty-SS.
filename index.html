@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>ระบบยำกะผี (Yum Ka Phi)</title>
     <script>
+      // Unregister all service workers to clear potential leftovers from GitHub Pages
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for(let registration of registrations) {
+            registration.unregister();
+          }
+        });
+      }
+
       // Prevent zooming via keyboard shortcuts (Ctrl + / - / 0)
       document.addEventListener('keydown', function(event) {
         if (event.ctrlKey === true || event.metaKey === true) {
