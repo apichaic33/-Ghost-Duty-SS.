@@ -30,9 +30,17 @@ export default function Members() {
         await updateDoc(doc(db, 'members', editingMember.id), data);
         toast.success('อัปเดตข้อมูลสำเร็จ');
       } else {
-        // In a real app, you'd need to create the user in Firebase Auth first
-        // or just add them to the database and they login later
-        toast.error('กรุณาให้สมาชิกเข้าสู่ระบบครั้งแรกเพื่อสร้างโปรไฟล์');
+        if (!data.uid) {
+          toast.error('กรุณาระบุ UID');
+          return;
+        }
+        const newMember = {
+          ...data,
+          role: 'user',
+          cycleStartDate: new Date().toISOString().split('T')[0]
+        };
+        await setDoc(doc(db, 'members', data.uid), newMember);
+        toast.success('เพิ่มสมาชิกสำเร็จ');
       }
       setShowModal(false);
       setEditingMember(null);
@@ -56,6 +64,13 @@ export default function Members() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-800">จัดการสมาชิก</h2>
+        <button 
+          onClick={() => { setEditingMember(null); setShowModal(true); }}
+          className="flex items-center space-x-2 bg-orange-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-orange-700 transition-colors shadow-sm"
+        >
+          <UserPlus size={18} />
+          <span>เพิ่มสมาชิกใหม่</span>
+        </button>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
@@ -111,6 +126,12 @@ export default function Members() {
           <div className="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl">
             <h3 className="text-xl font-bold mb-4">{editingMember ? 'แก้ไขสมาชิก' : 'เพิ่มสมาชิก'}</h3>
             <form onSubmit={handleSave} className="space-y-4">
+              {!editingMember && (
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">รหัสผู้ใช้ (UID)</label>
+                  <input name="uid" required placeholder="คัดลอกจากหน้าจอรออนุมัติของสมาชิก" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-500 font-mono" />
+                </div>
+              )}
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1">ชื่อ-นามสกุล</label>
                 <input name="name" defaultValue={editingMember?.name} required className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-500" />

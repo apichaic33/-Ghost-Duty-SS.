@@ -107,12 +107,19 @@ export default function App() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
         <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl text-center">
           <h1 className="text-2xl font-bold text-gray-800 mb-4">รอการอนุมัติ</h1>
-          <p className="text-gray-600 mb-6">บัญชีของคุณยังไม่ได้รับการลงทะเบียนในระบบ กรุณาติดต่อผู้ดูแลระบบ</p>
+          <p className="text-gray-600 mb-4">บัญชีของคุณยังไม่ได้รับการลงทะเบียนในระบบ กรุณาติดต่อผู้ดูแลระบบ</p>
+          
+          <div className="bg-gray-50 p-4 rounded-xl mb-6 text-left border border-gray-100">
+            <p className="text-[10px] text-gray-400 uppercase font-bold mb-1">รหัสผู้ใช้ของคุณ (UID)</p>
+            <code className="text-xs text-orange-600 break-all font-mono">{user.uid}</code>
+            <p className="text-[10px] text-gray-400 mt-2">* ส่งรหัสนี้ให้ผู้ดูแลระบบเพื่อเพิ่มชื่อเข้าสู่ระบบ</p>
+          </div>
+
           <button
             onClick={() => auth.signOut()}
-            className="text-orange-600 font-medium hover:underline"
+            className="text-orange-600 font-medium hover:underline flex items-center justify-center space-x-1 mx-auto"
           >
-            ออกจากระบบ
+            <span>ออกจากระบบ</span>
           </button>
         </div>
         <Toaster position="top-center" />
@@ -136,7 +143,7 @@ export default function App() {
         />
       )}
       {activeTab === 'members' && member.role === 'admin' && <Members />}
-      {activeTab === 'settings' && <Settings member={member} setMember={setMember} />}
+      {activeTab === 'settings' && member.role === 'admin' && <Settings member={member} setMember={setMember} />}
       <Toaster position="top-center" />
     </Layout>
   );
