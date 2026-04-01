@@ -43,6 +43,7 @@ export default function App() {
                zone: 'Central',
                quotaA: 10,
                quotaH: 13,
+               quotaX: 4,
                shiftPattern: 'S11,S11,S11,S11,S11,S11,X,X,S13,S13,S13,S13,S13,S13,X,X,S12,S12,X,X',
                cycleStartDate: new Date().toISOString().split('T')[0],
                role: 'admin'

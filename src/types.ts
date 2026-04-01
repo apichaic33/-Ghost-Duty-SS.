@@ -16,7 +16,7 @@ export interface Member {
   lineToken?: string;
   quotaA: number;
   quotaH: number;
-  maxHolidays?: number; // Added for holiday setting
+  quotaX: number; // Changed from maxHolidays
   shiftPattern: string; // Comma separated codes
   cycleStartDate: string; // YYYY-MM-DD
   role: 'admin' | 'user';

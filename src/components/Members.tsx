@@ -21,7 +21,9 @@ export default function Members() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data: any = Object.fromEntries(formData.entries());
-    if (data.maxHolidays) data.maxHolidays = Number(data.maxHolidays);
+    if (data.quotaA) data.quotaA = Number(data.quotaA);
+    if (data.quotaH) data.quotaH = Number(data.quotaH);
+    if (data.quotaX) data.quotaX = Number(data.quotaX);
 
     try {
       if (editingMember) {
@@ -123,9 +125,19 @@ export default function Members() {
                   <input name="zone" defaultValue={editingMember?.zone} required className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-500" />
                 </div>
               </div>
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">จำนวนวันหยุดสูงสุด (ต่อรอบ)</label>
-                <input type="number" name="maxHolidays" defaultValue={editingMember?.maxHolidays || 4} required className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-500" />
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">โควตา A</label>
+                  <input type="number" name="quotaA" defaultValue={editingMember?.quotaA || 0} required className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-500" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">โควตา H</label>
+                  <input type="number" name="quotaH" defaultValue={editingMember?.quotaH || 0} required className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-500" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">โควตา X (หยุด)</label>
+                  <input type="number" name="quotaX" defaultValue={editingMember?.quotaX || 4} required className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-500" />
+                </div>
               </div>
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1">รูปแบบกะ (Pattern)</label>
