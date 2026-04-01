@@ -184,14 +184,59 @@ export default function Dashboard({ member, onSwapClick }: DashboardProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-          <p className="text-xs text-gray-500 mb-1">โควต้าวันลาพักร้อน (A)</p>
-          <p className="text-xl font-bold text-gray-800">{member.quotaA} วัน</p>
+          <div className="flex justify-between items-start mb-2">
+            <p className="text-[10px] uppercase font-bold text-gray-400">วันลาพักร้อน (A)</p>
+            <span className="text-[10px] font-bold px-1.5 py-0.5 bg-red-50 text-red-600 rounded">โควตา {member.quotaA}</span>
+          </div>
+          <div className="flex items-baseline space-x-2">
+            <p className="text-2xl font-black text-gray-800">{days.filter(d => getShiftForDay(d) === 'A').length}</p>
+            <p className="text-xs text-gray-400">ใช้ไปแล้ว</p>
+          </div>
+          <div className="mt-2 h-1 w-full bg-gray-100 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-red-500 transition-all" 
+              style={{ width: `${Math.min(100, (days.filter(d => getShiftForDay(d) === 'A').length / (member.quotaA || 1)) * 100)}%` }}
+            />
+          </div>
+          <p className="text-[10px] text-gray-400 mt-2">คงเหลือ {Math.max(0, (member.quotaA || 0) - days.filter(d => getShiftForDay(d) === 'A').length)} วัน</p>
         </div>
+
         <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-          <p className="text-xs text-gray-500 mb-1">โควต้าวันหยุด (H)</p>
-          <p className="text-xl font-bold text-gray-800">{member.quotaH} วัน</p>
+          <div className="flex justify-between items-start mb-2">
+            <p className="text-[10px] uppercase font-bold text-gray-400">วันหยุดนักขัตฤกษ์ (H)</p>
+            <span className="text-[10px] font-bold px-1.5 py-0.5 bg-pink-50 text-pink-600 rounded">โควตา {member.quotaH}</span>
+          </div>
+          <div className="flex items-baseline space-x-2">
+            <p className="text-2xl font-black text-gray-800">{days.filter(d => getShiftForDay(d) === 'H').length}</p>
+            <p className="text-xs text-gray-400">ใช้ไปแล้ว</p>
+          </div>
+          <div className="mt-2 h-1 w-full bg-gray-100 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-pink-500 transition-all" 
+              style={{ width: `${Math.min(100, (days.filter(d => getShiftForDay(d) === 'H').length / (member.quotaH || 1)) * 100)}%` }}
+            />
+          </div>
+          <p className="text-[10px] text-gray-400 mt-2">คงเหลือ {Math.max(0, (member.quotaH || 0) - days.filter(d => getShiftForDay(d) === 'H').length)} วัน</p>
+        </div>
+
+        <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm col-span-2 md:col-span-1">
+          <div className="flex justify-between items-start mb-2">
+            <p className="text-[10px] uppercase font-bold text-gray-400">วันหยุดประจำสัปดาห์ (X)</p>
+            <span className="text-[10px] font-bold px-1.5 py-0.5 bg-gray-50 text-gray-600 rounded">โควตา {member.quotaX}</span>
+          </div>
+          <div className="flex items-baseline space-x-2">
+            <p className="text-2xl font-black text-gray-800">{days.filter(d => getShiftForDay(d) === 'X').length}</p>
+            <p className="text-xs text-gray-400">ใช้ไปแล้ว</p>
+          </div>
+          <div className="mt-2 h-1 w-full bg-gray-100 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-gray-400 transition-all" 
+              style={{ width: `${Math.min(100, (days.filter(d => getShiftForDay(d) === 'X').length / (member.quotaX || 1)) * 100)}%` }}
+            />
+          </div>
+          <p className="text-[10px] text-gray-400 mt-2">คงเหลือ {Math.max(0, (member.quotaX || 0) - days.filter(d => getShiftForDay(d) === 'X').length)} วัน</p>
         </div>
       </div>
     </div>

@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths } from 'date-fns';
 import { ChevronLeft, ChevronRight, Search, Filter, RefreshCw } from 'lucide-react';
-import { collection, onSnapshot, query, where, getDocs } from 'firebase/firestore';
+import { collection, onSnapshot, query, where, getDocs, doc, setDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Member, Shift, ShiftCode, ShiftProperty } from '../types';
 import { generateSchedule } from '../lib/scheduleUtils';
 import { toast } from 'sonner';
+import { X as CloseIcon } from 'lucide-react';
 
 interface TeamScheduleProps {
   onSwapClick: (data: any) => void;
+  isAdmin: boolean;
 }
 
-export default function TeamSchedule({ onSwapClick }: TeamScheduleProps) {
+export default function TeamSchedule({ onSwapClick, isAdmin }: TeamScheduleProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [members, setMembers] = useState<Member[]>([]);
   const [allShifts, setAllShifts] = useState<Shift[]>([]);
@@ -19,6 +21,7 @@ export default function TeamSchedule({ onSwapClick }: TeamScheduleProps) {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStation, setSelectedStation] = useState('All');
+  const [editingShift, setEditingShift] = useState<{ member: Member, date: string } | null>(null);
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
@@ -86,6 +89,28 @@ export default function TeamSchedule({ onSwapClick }: TeamScheduleProps) {
     const matchesStation = selectedStation === 'All' || m.station === selectedStation;
     return matchesSearch && matchesStation;
   });
+
+  const handleUpdateShift = async (code: ShiftCode) => {
+    if (!editingShift) return;
+    try {
+      const shiftId = `${editingShift.member.id}_${editingShift.date}`;
+      await setDoc(doc(db, 'shifts', shiftId), {
+        memberId: editingShift.member.id,
+        date: editingShift.date,
+        shiftCode: code,
+        updatedAt: new Date().toISOString(),
+        updatedBy: 'admin'
+      });
+      toast.success('อัปเดตข้อมูลกะสำเร็จ');
+      setEditingShift(null);
+    } catch (e) {
+      toast.error('เกิดข้อผิดพลาด');
+    }
+  };
+
+  const getUsage = (member: Member, code: ShiftCode) => {
+    return days.filter(d => getShiftForMemberDay(member, d) === code).length;
+  };
 
   return (
     <div className="space-y-6">
@@ -156,6 +181,9 @@ export default function TeamSchedule({ onSwapClick }: TeamScheduleProps) {
               <th className="sticky left-0 z-10 bg-gray-50 px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase border-r border-gray-200 min-w-[150px]">
                 นายสถานี
               </th>
+              <th className="px-2 py-3 text-center text-[10px] font-bold text-gray-500 uppercase border-r border-gray-100 min-w-[80px]">
+                ใช้ A/H/X
+              </th>
               {days.map(day => (
                 <th key={day.toISOString()} className="px-2 py-3 text-center text-[10px] font-bold text-gray-400 uppercase min-w-[40px] border-r border-gray-100">
                   {format(day, 'd')}
@@ -171,16 +199,29 @@ export default function TeamSchedule({ onSwapClick }: TeamScheduleProps) {
                   <p className="text-sm font-bold text-gray-800 truncate">{member.name}</p>
                   <p className="text-[10px] text-gray-400">{member.station}</p>
                 </td>
+                <td className="px-2 py-3 border-r border-gray-100 text-center bg-gray-50/30">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[9px] font-bold text-red-600">A: {getUsage(member, 'A')}/{member.quotaA}</span>
+                    <span className="text-[9px] font-bold text-pink-600">H: {getUsage(member, 'H')}/{member.quotaH}</span>
+                    <span className="text-[9px] font-bold text-gray-500">X: {getUsage(member, 'X')}/{member.quotaX}</span>
+                  </div>
+                </td>
                 {days.map(day => {
                   const code = getShiftForMemberDay(member, day);
                   return (
                     <td key={day.toISOString()} className="p-1 border-r border-gray-100 text-center">
                       <button 
-                        onClick={() => onSwapClick({
-                          toMemberId: member.id,
-                          toDate: format(day, 'yyyy-MM-dd'),
-                          type: 'swap'
-                        })}
+                        onClick={() => {
+                          if (isAdmin) {
+                            setEditingShift({ member, date: format(day, 'yyyy-MM-dd') });
+                          } else {
+                            onSwapClick({
+                              toMemberId: member.id,
+                              toDate: format(day, 'yyyy-MM-dd'),
+                              type: 'swap'
+                            });
+                          }
+                        }}
                         className={`w-full h-8 flex items-center justify-center rounded text-[10px] font-bold transition-transform active:scale-95 ${shiftColors[code] || 'bg-gray-100'}`}
                       >
                         {code}
@@ -231,6 +272,34 @@ export default function TeamSchedule({ onSwapClick }: TeamScheduleProps) {
           </>
         )}
       </div>
+
+      {editingShift && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold">แก้ไขกะการทำงาน</h3>
+              <button onClick={() => setEditingShift(null)} className="text-gray-400 hover:text-gray-600">
+                <CloseIcon size={20} />
+              </button>
+            </div>
+            <div className="mb-4">
+              <p className="text-sm font-bold text-gray-700">{editingShift.member.name}</p>
+              <p className="text-xs text-gray-500">วันที่: {format(new Date(editingShift.date), 'dd MMMM yyyy')}</p>
+            </div>
+            <div className="grid grid-cols-4 gap-2">
+              {['S11', 'S12', 'S13', 'S78', 'AL-S11', 'AL-S12', 'AL-S13', 'X', 'A', 'H'].map(code => (
+                <button
+                  key={code}
+                  onClick={() => handleUpdateShift(code as ShiftCode)}
+                  className={`py-2 rounded text-xs font-bold border ${shiftColors[code] || 'bg-gray-100 border-gray-200'}`}
+                >
+                  {code}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
