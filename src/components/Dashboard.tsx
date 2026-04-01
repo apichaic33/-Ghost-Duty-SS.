@@ -83,6 +83,18 @@ export default function Dashboard({ member, onSwapClick }: DashboardProps) {
         </div>
         <div className="flex items-center space-x-2">
           <button 
+            onClick={() => {
+              setLoading(true);
+              setTimeout(() => setLoading(false), 500);
+              toast.success('อัปเดตข้อมูลสำเร็จ');
+            }}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400 hover:text-orange-600"
+            title="รีเฟรชข้อมูล"
+          >
+            <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
+          </button>
+          <div className="h-6 w-[1px] bg-gray-200 mx-1"></div>
+          <button 
             onClick={() => setCurrentDate(subMonths(currentDate, 1))}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
           >

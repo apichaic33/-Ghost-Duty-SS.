@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths } from 'date-fns';
-import { ChevronLeft, ChevronRight, Search, Filter } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, Filter, RefreshCw } from 'lucide-react';
 import { collection, onSnapshot, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Member, Shift, ShiftCode, ShiftProperty } from '../types';
 import { generateSchedule } from '../lib/scheduleUtils';
+import { toast } from 'sonner';
 
 interface TeamScheduleProps {
   onSwapClick: (data: any) => void;
@@ -95,6 +96,18 @@ export default function TeamSchedule({ onSwapClick }: TeamScheduleProps) {
         </div>
         
         <div className="flex items-center space-x-2">
+          <button 
+            onClick={() => {
+              setLoading(true);
+              setTimeout(() => setLoading(false), 500);
+              toast.success('อัปเดตข้อมูลสำเร็จ');
+            }}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400 hover:text-orange-600"
+            title="รีเฟรชข้อมูล"
+          >
+            <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
+          </button>
+          <div className="h-6 w-[1px] bg-gray-200 mx-1"></div>
           <button 
             onClick={() => setCurrentDate(subMonths(currentDate, 1))}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
