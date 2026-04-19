@@ -113,6 +113,7 @@ export default function Members() {
             <tr>
               <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase">ชื่อ-นามสกุล</th>
               <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase">สถานี / โซน</th>
+              <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase">ตำแหน่ง</th>
               <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase">สิทธิ์</th>
               <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase text-right">จัดการ</th>
             </tr>
