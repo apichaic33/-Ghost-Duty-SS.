@@ -266,6 +266,106 @@ export default function Members() {
         </table>
       </div>
 
+      {/* Import from GAS Modal */}
+      {showImportModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white w-full max-w-2xl rounded-2xl p-6 shadow-2xl my-4">
+            <h3 className="text-xl font-bold mb-1">นำเข้าสมาชิกจาก GAS</h3>
+            <p className="text-xs text-gray-400 mb-4">ดึงรายชื่อจาก Employee Sheet แล้วบันทึกลง Firestore</p>
+
+            {/* URL Input */}
+            <div className="flex space-x-2 mb-4">
+              <input
+                type="url"
+                value={gasUrl}
+                onChange={(e) => setGasUrl(e.target.value)}
+                placeholder="https://script.google.com/macros/s/xxx/exec"
+                className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+              />
+              <button
+                onClick={fetchFromGas}
+                disabled={fetchLoading}
+                className="flex items-center space-x-1 px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              >
+                <RefreshCw size={14} className={fetchLoading ? 'animate-spin' : ''} />
+                <span>{fetchLoading ? 'กำลังดึง...' : 'ดึงข้อมูล'}</span>
+              </button>
+            </div>
+
+            {/* Member List */}
+            {gasMembers.length > 0 && (
+              <>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-bold text-gray-700">พบ {gasMembers.length} คน — เลือก {selectedEmpIds.size} คน</p>
+                  <button
+                    onClick={() => setSelectedEmpIds(
+                      selectedEmpIds.size === gasMembers.length
+                        ? new Set()
+                        : new Set(gasMembers.map(m => m.empId))
+                    )}
+                    className="text-xs text-blue-600 hover:underline"
+                  >
+                    {selectedEmpIds.size === gasMembers.length ? 'ยกเลิกทั้งหมด' : 'เลือกทั้งหมด'}
+                  </button>
+                </div>
+                <div className="max-h-64 overflow-y-auto border border-gray-100 rounded-xl divide-y divide-gray-50 mb-4">
+                  {gasMembers.map((m) => {
+                    const exists = members.some(ex => ex.uid === m.empId || ex.id === m.empId);
+                    return (
+                      <label key={m.empId} className="flex items-center px-4 py-3 hover:bg-gray-50 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedEmpIds.has(m.empId)}
+                          onChange={() => toggleSelectEmp(m.empId)}
+                          className="mr-3 accent-blue-600"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-800">{m.name}</p>
+                          <p className="text-xs text-gray-400">{m.empId} · {m.department}</p>
+                        </div>
+                        <div className="flex items-center space-x-2 ml-2 shrink-0">
+                          {m.position && (
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                              m.position === 'SS' ? 'bg-orange-50 text-orange-600 border-orange-200' :
+                              m.position === 'AStS' ? 'bg-cyan-50 text-cyan-600 border-cyan-200' :
+                              'bg-purple-50 text-purple-600 border-purple-200'
+                            }`}>{m.position}</span>
+                          )}
+                          {exists && (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-50 text-green-600 border border-green-200">มีแล้ว</span>
+                          )}
+                        </div>
+                      </label>
+                    );
+                  })}
+                </div>
+                <p className="text-[10px] text-gray-400 mb-4">
+                  สมาชิกที่ "มีแล้ว" จะอัปเดตเฉพาะชื่อ/ตำแหน่ง/สถานี · quotaA/H/X และรูปแบบกะจะไม่ถูกเขียนทับ
+                </p>
+              </>
+            )}
+
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => { setShowImportModal(false); setGasMembers([]); setGasUrl(''); }}
+                className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg"
+              >
+                ยกเลิก
+              </button>
+              {gasMembers.length > 0 && (
+                <button
+                  onClick={handleImport}
+                  disabled={importLoading || selectedEmpIds.size === 0}
+                  className="px-6 py-2 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {importLoading ? 'กำลังนำเข้า...' : `นำเข้า ${selectedEmpIds.size} คน`}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
           <div className="bg-white w-full max-w-2xl rounded-2xl p-6 shadow-2xl my-4">
