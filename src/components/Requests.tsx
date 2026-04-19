@@ -380,28 +380,28 @@ export default function Requests({ member, initialData, onClearInitialData }: Re
 
               <div className="flex items-center space-x-6 text-sm">
                 <div className="text-center">
-                  <p className="text-[10px] uppercase font-bold text-gray-400">กะเดิม</p>
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${shiftColors[req.fromShiftCode]}`}>
-                    {req.fromShiftCode}
+                  <p className="text-[10px] uppercase font-bold text-gray-400">กะผู้ขอ</p>
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${shiftColors[req.requesterShift] || 'bg-gray-100 text-gray-500 border-gray-200'}`}>
+                    {req.requesterShift}
                   </span>
-                  <p className="mt-1 font-medium text-xs">{req.fromDate}</p>
+                  <p className="mt-1 font-medium text-xs">{req.requesterDate}</p>
                 </div>
-                {req.toDate && (
+                {req.targetDate && (
                   <>
                     <ArrowRightLeft size={14} className="text-gray-300" />
                     <div className="text-center">
                       <p className="text-[10px] uppercase font-bold text-gray-400">กะที่แลก</p>
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${shiftColors[req.toShiftCode!]}`}>
-                        {req.toShiftCode}
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${shiftColors[req.targetShift!] || 'bg-gray-100 text-gray-500 border-gray-200'}`}>
+                        {req.targetShift}
                       </span>
-                      <p className="mt-1 font-medium text-xs">{req.toDate}</p>
+                      <p className="mt-1 font-medium text-xs">{req.targetDate}</p>
                     </div>
                   </>
                 )}
               </div>
 
               <div className="flex items-center space-x-2">
-                {req.fromMemberId !== member.id ? (
+                {req.requesterId !== member.id ? (
                   <>
                     <button 
                       onClick={() => handleAction(req, 'approved')}
