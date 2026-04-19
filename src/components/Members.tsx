@@ -100,6 +100,81 @@ export default function Members() {
     }
   };
 
+  const fetchFromGas = async () => {
+    if (!gasUrl.trim()) { toast.error('กรุณากรอก URL ของ GAS'); return; }
+    setFetchLoading(true);
+    setGasMembers([]);
+    try {
+      const sep = gasUrl.includes('?') ? '&' : '?';
+      const res = await fetch(gasUrl.trim() + sep + 'action=getAllMembers');
+      const json = await res.json();
+      if (json.status === 'success') {
+        setGasMembers(json.members);
+        setSelectedEmpIds(new Set(json.members.map((m: GasMember) => m.empId)));
+        if (json.members.length === 0) toast.info('ไม่พบรายชื่อพนักงานใน Sheet');
+      } else {
+        toast.error('GAS ตอบกลับข้อผิดพลาด: ' + json.message);
+      }
+    } catch {
+      toast.error('ไม่สามารถเชื่อมต่อ GAS ได้ — ตรวจสอบ URL และการ Deploy');
+    } finally {
+      setFetchLoading(false);
+    }
+  };
+
+  const toggleSelectEmp = (empId: string) => {
+    setSelectedEmpIds(prev => {
+      const next = new Set(prev);
+      next.has(empId) ? next.delete(empId) : next.add(empId);
+      return next;
+    });
+  };
+
+  const handleImport = async () => {
+    if (selectedEmpIds.size === 0) { toast.error('เลือกอย่างน้อย 1 คน'); return; }
+    setImportLoading(true);
+    const today = format(new Date(), 'yyyy-MM-dd');
+    let imported = 0;
+    let updated = 0;
+    try {
+      for (const m of gasMembers) {
+        if (!selectedEmpIds.has(m.empId)) continue;
+        const existing = members.find(ex => ex.uid === m.empId || ex.id === m.empId);
+        if (existing) {
+          await updateDoc(doc(db, 'members', existing.id), {
+            name: m.name,
+            ...(m.position && { position: m.position as Member['position'] }),
+            ...(m.department && { station: m.department }),
+          });
+          updated++;
+        } else {
+          await setDoc(doc(db, 'members', m.empId), {
+            uid: m.empId,
+            name: m.name,
+            position: (m.position as Member['position']) || undefined,
+            station: m.department || '',
+            zone: '',
+            quotaA: 0,
+            quotaH: 0,
+            quotaX: 4,
+            shiftPattern: '',
+            cycleStartDate: today,
+            role: 'member',
+          });
+          imported++;
+        }
+      }
+      toast.success(`นำเข้าสำเร็จ: ${imported} คนใหม่, ${updated} คนอัปเดต`);
+      setShowImportModal(false);
+      setGasMembers([]);
+      setGasUrl('');
+    } catch {
+      toast.error('เกิดข้อผิดพลาด');
+    } finally {
+      setImportLoading(false);
+    }
+  };
+
   const toggleRole = async (member: Member) => {
     try {
       await updateDoc(doc(db, 'members', member.id), {
