@@ -195,7 +195,7 @@ export default function Requests({ member, initialData, onClearInitialData }: Re
 
       await batch.commit();
 
-      const requesterMember = members.find(m => m.id === req.requesterId);
+      const requesterMember = members.find((m: Member) => m.id === req.requesterId);
       if (requesterMember) {
         const actionLabel = action === 'approved' ? 'อนุมัติ' : 'ปฏิเสธ';
         sendEmailNotification(
