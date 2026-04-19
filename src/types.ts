@@ -44,13 +44,18 @@ export interface Shift {
 
 export interface SwapRequest {
   id: string;
-  fromMemberId: string;
-  toMemberId?: string;
-  type: 'swap' | 'double' | 'dayoff';
-  fromDate: string;
-  toDate?: string;
-  fromShiftCode: ShiftCode;
-  toShiftCode?: ShiftCode;
+  requesterId: string;
+  requesterName: string;
+  targetId?: string;
+  targetName?: string;
+  type: 'swap' | 'cover';
   status: 'pending' | 'approved' | 'rejected' | 'cancelled';
+  requesterDate: string;
+  targetDate?: string;
+  requesterShift: string;
+  targetShift?: string;
+  reason?: string;
+  isHolidaySwap?: boolean;
+  returnDate?: string;
   createdAt: string;
 }
