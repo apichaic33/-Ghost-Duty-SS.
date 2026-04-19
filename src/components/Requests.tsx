@@ -258,20 +258,20 @@ export default function Requests({ member, initialData, onClearInitialData }: Re
                   <option value="cover">ควงกะ (Cover Shift)</option>
                 </select>
               </div>
-              {type !== 'double' && (
-                <div className="md:col-span-2">
-                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">แลกกับใคร</label>
-                  <select 
-                    value={toMemberId} 
-                    onChange={(e) => setToMemberId(e.target.value)}
-                    required
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 outline-none"
-                  >
-                    <option value="">เลือกสมาชิก</option>
-                    {members.map(m => <option key={m.id} value={m.id}>{m.name} ({m.station})</option>)}
-                  </select>
-                </div>
-              )}
+              <div className="md:col-span-2">
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+                  {type === 'cover' ? 'ควงกะแทนใคร' : 'สลับกับใคร'}
+                </label>
+                <select
+                  value={targetId}
+                  onChange={(e) => setTargetId(e.target.value)}
+                  required
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 outline-none"
+                >
+                  <option value="">เลือกสมาชิก</option>
+                  {members.map(m => <option key={m.id} value={m.id}>{m.name} ({m.station})</option>)}
+                </select>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
