@@ -277,35 +277,37 @@ export default function Requests({ member, initialData, onClearInitialData }: Re
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Requester Side */}
               <div className="space-y-3 p-4 bg-gray-50 rounded-xl border border-gray-100">
-                <p className="text-xs font-bold text-gray-400 uppercase">กะของคุณ</p>
-                <input 
-                  type="date" 
-                  value={fromDate}
-                  onChange={(e) => setFromDate(e.target.value)}
+                <p className="text-xs font-bold text-gray-400 uppercase">
+                  {type === 'cover' ? 'วันที่ควงกะ' : 'กะของคุณ'}
+                </p>
+                <input
+                  type="date"
+                  value={requesterDate}
+                  onChange={(e) => setRequesterDate(e.target.value)}
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 outline-none"
                 />
                 <div className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-200">
                   <span className="text-xs text-gray-500">กะปัจจุบัน:</span>
-                  <span className={`px-2 py-1 rounded text-xs font-bold border ${shiftColors[fromShiftCode]}`}>
-                    {fromShiftCode}
+                  <span className={`px-2 py-1 rounded text-xs font-bold border ${shiftColors[requesterShift] || 'bg-gray-100 text-gray-500 border-gray-200'}`}>
+                    {requesterShift}
                   </span>
                 </div>
               </div>
 
               {/* Target Side */}
-              {type !== 'double' && (
+              {type === 'swap' && (
                 <div className="space-y-3 p-4 bg-orange-50/30 rounded-xl border border-orange-100">
                   <p className="text-xs font-bold text-orange-400 uppercase">กะของเพื่อน</p>
-                  <input 
-                    type="date" 
-                    value={toDate}
-                    onChange={(e) => setToDate(e.target.value)}
+                  <input
+                    type="date"
+                    value={targetDate}
+                    onChange={(e) => setTargetDate(e.target.value)}
                     className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 outline-none"
                   />
                   <div className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-200">
                     <span className="text-xs text-gray-500">กะปัจจุบัน:</span>
-                    <span className={`px-2 py-1 rounded text-xs font-bold border ${shiftColors[toShiftCode]}`}>
-                      {toShiftCode}
+                    <span className={`px-2 py-1 rounded text-xs font-bold border ${shiftColors[targetShift] || 'bg-gray-100 text-gray-500 border-gray-200'}`}>
+                      {targetShift}
                     </span>
                   </div>
                 </div>
