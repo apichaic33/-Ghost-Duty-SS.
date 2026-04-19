@@ -5,8 +5,12 @@ import { Member, SwapRequest, Shift, ShiftCode } from '../types';
 import { format, addDays, parseISO } from 'date-fns';
 import { Send, Check, X, ArrowRightLeft, Repeat, Calendar as CalendarIcon, Info } from 'lucide-react';
 import { toast } from 'sonner';
-import axios from 'axios';
+import emailjs from '@emailjs/browser';
 import { getShiftCode } from '../lib/scheduleUtils';
+
+const EMAILJS_SERVICE_ID = 'service_yamka';
+const EMAILJS_TEMPLATE_ID = 'template_nfo6sld';
+const EMAILJS_PUBLIC_KEY = 'YY8IVNkVN-qhgglkU';
 
 interface RequestsProps {
   member: Member;
@@ -22,13 +26,13 @@ export default function Requests({ member, initialData, onClearInitialData }: Re
   const [loading, setLoading] = useState(true);
 
   // Form state
-  const [type, setType] = useState<'swap' | 'double' | 'dayoff'>(initialData?.type || 'swap');
-  const [toMemberId, setToMemberId] = useState(initialData?.toMemberId || '');
-  const [fromDate, setFromDate] = useState(initialData?.fromDate || format(new Date(), 'yyyy-MM-dd'));
-  const [toDate, setToDate] = useState(initialData?.toDate || initialData?.fromDate || format(new Date(), 'yyyy-MM-dd'));
-  
-  const [fromShiftCode, setFromShiftCode] = useState<ShiftCode>('X');
-  const [toShiftCode, setToShiftCode] = useState<ShiftCode>('X');
+  const [type, setType] = useState<'swap' | 'cover'>(initialData?.type || 'swap');
+  const [targetId, setTargetId] = useState(initialData?.targetId || '');
+  const [requesterDate, setRequesterDate] = useState(initialData?.requesterDate || format(new Date(), 'yyyy-MM-dd'));
+  const [targetDate, setTargetDate] = useState(initialData?.targetDate || initialData?.requesterDate || format(new Date(), 'yyyy-MM-dd'));
+
+  const [requesterShift, setRequesterShift] = useState<ShiftCode>('X');
+  const [targetShift, setTargetShift] = useState<ShiftCode>('X');
 
   // Clear initial data after use
   useEffect(() => {
@@ -93,28 +97,22 @@ export default function Requests({ member, initialData, onClearInitialData }: Re
     }
   }, [toDate, toMemberId, allShifts, members]);
 
-  const sendLineNotification = async (targetMember: Member, message: string, type: 'newRequests' | 'requestStatus') => {
-    if (!targetMember.lineToken) return;
-    
-    // Check preferences
-    const prefs = targetMember.notificationPreferences || {
-      newRequests: true,
-      requestStatus: true,
-      warnings: true,
-      lineEnabled: true
-    };
+  const sendEmailNotification = async (targetMember: Member, subject: string, message: string, notifType: 'newRequests' | 'requestStatus') => {
+    if (!targetMember.email) return;
 
-    if (!prefs.lineEnabled) return;
-    if (type === 'newRequests' && !prefs.newRequests) return;
-    if (type === 'requestStatus' && !prefs.requestStatus) return;
+    const prefs = targetMember.notificationPreferences || { newRequests: true, requestStatus: true, warnings: true, lineEnabled: true };
+    if (notifType === 'newRequests' && !prefs.newRequests) return;
+    if (notifType === 'requestStatus' && !prefs.requestStatus) return;
 
     try {
-      await axios.post('/api/notify', {
-        token: targetMember.lineToken,
-        message
-      });
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        { subject, to_email: targetMember.email, message },
+        EMAILJS_PUBLIC_KEY
+      );
     } catch (err) {
-      console.error('Failed to send Line notification');
+      console.error('Failed to send email notification');
     }
   };
 
@@ -139,8 +137,13 @@ export default function Requests({ member, initialData, onClearInitialData }: Re
       await addDoc(collection(db, 'swapRequests'), newRequest);
       
       if (targetMember) {
-        const msg = `🔔 คำขอ${type === 'swap' ? 'แลกกะ' : type === 'dayoff' ? 'แลกวันหยุด' : 'ควงกะ'}ใหม่!\nจาก: ${member.name}\nวันที่: ${fromDate} (${fromShiftCode})\nแลกกับ: ${toDate} (${toShiftCode})\nกรุณาตรวจสอบในระบบ`;
-        sendLineNotification(targetMember, msg, 'newRequests');
+        const typeLabel = type === 'swap' ? 'แลกกะ' : type === 'dayoff' ? 'แลกวันหยุด' : 'ควงกะ';
+        sendEmailNotification(
+          targetMember,
+          `คำขอ${typeLabel}ใหม่จาก ${member.name}`,
+          `คำขอ${typeLabel}ใหม่!\nจาก: ${member.name}\nวันที่: ${fromDate} (${fromShiftCode})\nแลกกับ: ${toDate} (${toShiftCode})\nกรุณาตรวจสอบในระบบ`,
+          'newRequests'
+        );
       }
 
       toast.success('ส่งคำขอเรียบร้อยแล้ว');
@@ -196,8 +199,13 @@ export default function Requests({ member, initialData, onClearInitialData }: Re
       
       const requester = members.find(m => m.id === req.fromMemberId);
       if (requester) {
-        const msg = `🔔 คำขอ${req.type} ของคุณได้รับการ${action === 'approved' ? 'อนุมัติ' : 'ปฏิเสธ'}\nโดย: ${member.name}`;
-        sendLineNotification(requester, msg, 'requestStatus');
+        const actionLabel = action === 'approved' ? 'อนุมัติ' : 'ปฏิเสธ';
+        sendEmailNotification(
+          requester,
+          `คำขอของคุณได้รับการ${actionLabel}`,
+          `คำขอ${req.type} ของคุณได้รับการ${actionLabel}\nโดย: ${member.name}`,
+          'requestStatus'
+        );
       }
 
       toast.success(`ดำเนินการ${action === 'approved' ? 'อนุมัติ' : 'ปฏิเสธ'}เรียบร้อย`);
