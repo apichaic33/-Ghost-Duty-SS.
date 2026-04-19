@@ -195,6 +195,17 @@ export default function Members() {
                   <input name="zone" defaultValue={editingMember?.zone} required
                     className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-500" />
                 </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">ตำแหน่ง (GAS)</label>
+                  <select name="position" defaultValue={editingMember?.position || ''}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-500">
+                    <option value="">— ไม่ระบุ —</option>
+                    <option value="SS">SS — นายสถานี</option>
+                    <option value="AStS">AStS — ผู้ช่วยนายสถานี</option>
+                    <option value="SP">SP — เจ้าหน้าที่สถานี</option>
+                  </select>
+                  <p className="text-[10px] text-gray-400 mt-1">ต้องตรงกับคอลัมน์ตำแหน่งใน Employee Sheet</p>
+                </div>
               </div>
 
               <div className="grid grid-cols-3 gap-4">
