@@ -44,19 +44,19 @@ export default function Requests({ member, initialData, onClearInitialData }: Re
   useEffect(() => {
     const q = query(
       collection(db, 'swapRequests'),
-      where('fromMemberId', '==', member.id),
+      where('requesterId', '==', member.id),
       where('status', '==', 'pending')
     );
     const q2 = query(
       collection(db, 'swapRequests'),
-      where('toMemberId', '==', member.id),
+      where('targetId', '==', member.id),
       where('status', '==', 'pending')
     );
 
     const unsub1 = onSnapshot(q, (snap) => {
       const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as SwapRequest));
       setRequests(prev => {
-        const others = prev.filter(r => r.toMemberId === member.id);
+        const others = prev.filter(r => r.targetId === member.id);
         return [...data, ...others].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
       });
     });
@@ -64,7 +64,7 @@ export default function Requests({ member, initialData, onClearInitialData }: Re
     const unsub2 = onSnapshot(q2, (snap) => {
       const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as SwapRequest));
       setRequests(prev => {
-        const mine = prev.filter(r => r.fromMemberId === member.id);
+        const mine = prev.filter(r => r.requesterId === member.id);
         return [...data, ...mine].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
       });
     });
