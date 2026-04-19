@@ -85,17 +85,17 @@ export default function Requests({ member, initialData, onClearInitialData }: Re
 
   // Update shift codes when inputs change
   useEffect(() => {
-    const code = getShiftCode(member, fromDate, allShifts);
-    setFromShiftCode(code);
-  }, [fromDate, allShifts, member]);
+    const code = getShiftCode(member, requesterDate, allShifts);
+    setRequesterShift(code);
+  }, [requesterDate, allShifts, member]);
 
   useEffect(() => {
-    const target = members.find(m => m.id === toMemberId);
+    const target = members.find(m => m.id === targetId);
     if (target) {
-      const code = getShiftCode(target, toDate, allShifts);
-      setToShiftCode(code);
+      const code = getShiftCode(target, targetDate, allShifts);
+      setTargetShift(code);
     }
-  }, [toDate, toMemberId, allShifts, members]);
+  }, [targetDate, targetId, allShifts, members]);
 
   const sendEmailNotification = async (targetMember: Member, subject: string, message: string, notifType: 'newRequests' | 'requestStatus') => {
     if (!targetMember.email) return;
