@@ -13,13 +13,15 @@ export interface Member {
   name: string;
   station: string;
   zone: string;
+  position?: 'SS' | 'AStS' | 'SP';
   lineToken?: string;
+  email?: string;
   quotaA: number;
   quotaH: number;
-  quotaX: number; // Changed from maxHolidays
+  quotaX: number;
   shiftPattern: string; // Comma separated codes
   cycleStartDate: string; // YYYY-MM-DD
-  role: 'admin' | 'user';
+  role: 'admin' | 'member';
   notificationPreferences?: NotificationPreferences;
 }
 
