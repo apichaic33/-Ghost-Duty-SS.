@@ -362,18 +362,18 @@ export default function Requests({ member, initialData, onClearInitialData }: Re
             <div key={req.id} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex items-center space-x-4">
                 <div className={`p-3 rounded-full ${
-                  req.type === 'swap' ? 'bg-blue-50 text-blue-600' : 
-                  req.type === 'double' ? 'bg-purple-50 text-purple-600' : 'bg-green-50 text-green-600'
+                  req.type === 'swap' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'
                 }`}>
-                  {req.type === 'swap' ? <ArrowRightLeft size={20} /> : 
-                   req.type === 'double' ? <Repeat size={20} /> : <CalendarIcon size={20} />}
+                  {req.type === 'swap' ? <ArrowRightLeft size={20} /> : <Repeat size={20} />}
                 </div>
                 <div>
                   <p className="font-bold text-gray-800">
-                    {req.type === 'swap' ? 'คำขอแลกกะ' : req.type === 'double' ? 'คำขอควงกะ' : 'คำขอแลกวันหยุด'}
+                    {req.type === 'swap' ? 'คำขอสลับกะ' : 'คำขอควงกะ'}
                   </p>
                   <p className="text-xs text-gray-500">
-                    {req.fromMemberId === member.id ? `ส่งถึง: ${members.find(m => m.id === req.toMemberId)?.name || 'ตัวเอง'}` : `จาก: ${members.find(m => m.id === req.fromMemberId)?.name}`}
+                    {req.requesterId === member.id
+                      ? `ส่งถึง: ${req.targetName || '—'}`
+                      : `จาก: ${req.requesterName}`}
                   </p>
                 </div>
               </div>
