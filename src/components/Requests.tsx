@@ -315,19 +315,19 @@ export default function Requests({ member, initialData, onClearInitialData }: Re
             </div>
 
             {/* Preview Section */}
-            {type === 'swap' && toMemberId && (
+            {type === 'swap' && targetId && (
               <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 flex items-center justify-center space-x-8">
                 <div className="text-center">
                   <p className="text-[10px] text-blue-400 font-bold uppercase mb-1">คุณจะได้กะ</p>
-                  <span className={`px-3 py-1 rounded text-sm font-bold border ${shiftColors[toShiftCode]}`}>
-                    {toShiftCode}
+                  <span className={`px-3 py-1 rounded text-sm font-bold border ${shiftColors[targetShift] || 'bg-gray-100 text-gray-500 border-gray-200'}`}>
+                    {targetShift}
                   </span>
                 </div>
                 <ArrowRightLeft className="text-blue-300" size={24} />
                 <div className="text-center">
                   <p className="text-[10px] text-blue-400 font-bold uppercase mb-1">เพื่อนจะได้กะ</p>
-                  <span className={`px-3 py-1 rounded text-sm font-bold border ${shiftColors[fromShiftCode]}`}>
-                    {fromShiftCode}
+                  <span className={`px-3 py-1 rounded text-sm font-bold border ${shiftColors[requesterShift] || 'bg-gray-100 text-gray-500 border-gray-200'}`}>
+                    {requesterShift}
                   </span>
                 </div>
               </div>
