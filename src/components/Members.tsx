@@ -2,10 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { collection, onSnapshot, doc, updateDoc, setDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Member } from '../types';
-import { UserPlus, Edit2, Shield, User } from 'lucide-react';
+import { UserPlus, Edit2, Shield, User, Download, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { th } from 'date-fns/locale';
+
+interface GasMember {
+  empId: string;
+  name: string;
+  position: string;
+  department: string;
+  status: string;
+  phone: string;
+}
 
 const SHIFT_COLORS: Record<string, string> = {
   'S11': 'bg-blue-100 text-blue-700 border-blue-300',
