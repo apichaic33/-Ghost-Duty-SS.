@@ -162,35 +162,31 @@ export default function Requests({ member, initialData, onClearInitialData }: Re
       batch.update(reqRef, { status: action });
 
       if (action === 'approved') {
-        if (req.type === 'swap' || req.type === 'dayoff') {
-          // Swap logic: Update shifts for both members
-          const fromShiftId = `${req.fromMemberId}_${req.fromDate}`;
-          const toShiftId = `${req.toMemberId}_${req.toDate}`;
+        if (req.type === 'swap') {
+          const requesterShiftId = `${req.requesterId}_${req.requesterDate}`;
+          const targetShiftId = `${req.targetId}_${req.targetDate}`;
 
-          // Create/Update fromMember's new shift
-          batch.set(doc(db, 'shifts', fromShiftId), {
-            memberId: req.fromMemberId,
-            date: req.fromDate,
-            shiftCode: req.toShiftCode,
-            originalShiftCode: req.fromShiftCode,
+          batch.set(doc(db, 'shifts', requesterShiftId), {
+            memberId: req.requesterId,
+            date: req.requesterDate,
+            shiftCode: req.targetShift,
+            originalShiftCode: req.requesterShift,
             updatedAt: new Date().toISOString()
           }, { merge: true });
 
-          // Create/Update toMember's new shift
-          batch.set(doc(db, 'shifts', toShiftId), {
-            memberId: req.toMemberId!,
-            date: req.toDate!,
-            shiftCode: req.fromShiftCode,
-            originalShiftCode: req.toShiftCode,
+          batch.set(doc(db, 'shifts', targetShiftId), {
+            memberId: req.targetId!,
+            date: req.targetDate!,
+            shiftCode: req.requesterShift,
+            originalShiftCode: req.targetShift,
             updatedAt: new Date().toISOString()
           }, { merge: true });
-        } else if (req.type === 'double') {
-          // Double shift logic for the requester
-          const shiftId = `${req.fromMemberId}_${req.fromDate}`;
+        } else if (req.type === 'cover') {
+          const shiftId = `${req.requesterId}_${req.requesterDate}`;
           batch.set(doc(db, 'shifts', shiftId), {
-            memberId: req.fromMemberId,
-            date: req.fromDate,
-            shiftCode: req.fromShiftCode, // Usually keep the code but flag as double
+            memberId: req.requesterId,
+            date: req.requesterDate,
+            shiftCode: req.requesterShift,
             isDoubleShift: true,
             updatedAt: new Date().toISOString()
           }, { merge: true });
@@ -198,14 +194,14 @@ export default function Requests({ member, initialData, onClearInitialData }: Re
       }
 
       await batch.commit();
-      
-      const requester = members.find(m => m.id === req.fromMemberId);
-      if (requester) {
+
+      const requesterMember = members.find(m => m.id === req.requesterId);
+      if (requesterMember) {
         const actionLabel = action === 'approved' ? 'อนุมัติ' : 'ปฏิเสธ';
         sendEmailNotification(
-          requester,
+          requesterMember,
           `คำขอของคุณได้รับการ${actionLabel}`,
-          `คำขอ${req.type} ของคุณได้รับการ${actionLabel}\nโดย: ${member.name}`,
+          `คำขอ${req.type === 'swap' ? 'สลับกะ' : 'ควงกะ'} ของคุณได้รับการ${actionLabel}\nโดย: ${member.name}`,
           'requestStatus'
         );
       }
