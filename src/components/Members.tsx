@@ -130,6 +130,17 @@ export default function Members() {
                   <p className="text-xs text-gray-400">{m.zone}</p>
                 </td>
                 <td className="px-6 py-4">
+                  {m.position ? (
+                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold border ${
+                      m.position === 'SS' ? 'bg-orange-50 text-orange-600 border-orange-200' :
+                      m.position === 'AStS' ? 'bg-cyan-50 text-cyan-600 border-cyan-200' :
+                      'bg-purple-50 text-purple-600 border-purple-200'
+                    }`}>{m.position}</span>
+                  ) : (
+                    <span className="text-xs text-gray-300">—</span>
+                  )}
+                </td>
+                <td className="px-6 py-4">
                   <button
                     onClick={() => toggleRole(m)}
                     className={`flex items-center space-x-1 px-2 py-1 rounded-full text-[10px] font-bold uppercase border ${
