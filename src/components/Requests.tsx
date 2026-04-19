@@ -254,9 +254,8 @@ export default function Requests({ member, initialData, onClearInitialData }: Re
                   onChange={(e) => setType(e.target.value as any)}
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 outline-none"
                 >
-                  <option value="swap">แลกกะ (Shift Swap)</option>
-                  <option value="double">ควงกะ (Double Shift)</option>
-                  <option value="dayoff">แลกวันหยุด (Day Off Swap)</option>
+                  <option value="swap">สลับกะ (Shift Swap)</option>
+                  <option value="cover">ควงกะ (Cover Shift)</option>
                 </select>
               </div>
               {type !== 'double' && (
