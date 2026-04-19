@@ -120,28 +120,30 @@ export default function Requests({ member, initialData, onClearInitialData }: Re
     e.preventDefault();
     
     try {
-      const targetMember = members.find(m => m.id === toMemberId);
-      
+      const targetMember = members.find(m => m.id === targetId);
+
       const newRequest: Partial<SwapRequest> = {
-        fromMemberId: member.id,
-        toMemberId: type === 'double' ? undefined : toMemberId,
+        requesterId: member.id,
+        requesterName: member.name,
+        targetId: type === 'cover' ? undefined : targetId,
+        targetName: type === 'cover' ? undefined : targetMember?.name,
         type,
-        fromDate,
-        toDate: type === 'swap' || type === 'dayoff' ? toDate : undefined,
-        fromShiftCode,
-        toShiftCode: type === 'double' ? undefined : toShiftCode,
+        requesterDate,
+        targetDate: type === 'swap' ? targetDate : undefined,
+        requesterShift,
+        targetShift: type === 'cover' ? undefined : targetShift,
         status: 'pending',
         createdAt: new Date().toISOString()
       };
 
       await addDoc(collection(db, 'swapRequests'), newRequest);
-      
+
       if (targetMember) {
-        const typeLabel = type === 'swap' ? 'แลกกะ' : type === 'dayoff' ? 'แลกวันหยุด' : 'ควงกะ';
+        const typeLabel = type === 'swap' ? 'แลกกะ' : 'ควงกะ';
         sendEmailNotification(
           targetMember,
           `คำขอ${typeLabel}ใหม่จาก ${member.name}`,
-          `คำขอ${typeLabel}ใหม่!\nจาก: ${member.name}\nวันที่: ${fromDate} (${fromShiftCode})\nแลกกับ: ${toDate} (${toShiftCode})\nกรุณาตรวจสอบในระบบ`,
+          `คำขอ${typeLabel}ใหม่!\nจาก: ${member.name}\nวันที่: ${requesterDate} (${requesterShift})\nแลกกับ: ${targetDate} (${targetShift})\nกรุณาตรวจสอบในระบบ`,
           'newRequests'
         );
       }
