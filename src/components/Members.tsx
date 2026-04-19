@@ -38,6 +38,14 @@ export default function Members() {
   const [selectedPos, setSelectedPos] = useState<number | null>(null);
   const [cycleStartDate, setCycleStartDate] = useState('');
 
+  // Import from GAS
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [gasUrl, setGasUrl] = useState('');
+  const [gasMembers, setGasMembers] = useState<GasMember[]>([]);
+  const [selectedEmpIds, setSelectedEmpIds] = useState<Set<string>>(new Set());
+  const [fetchLoading, setFetchLoading] = useState(false);
+  const [importLoading, setImportLoading] = useState(false);
+
   const today = new Date();
   const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
   const monthLabel = format(firstOfMonth, 'MMMM yyyy', { locale: th });
