@@ -86,7 +86,7 @@ export default function Members() {
   const toggleRole = async (member: Member) => {
     try {
       await updateDoc(doc(db, 'members', member.id), {
-        role: member.role === 'admin' ? 'user' : 'admin'
+        role: member.role === 'admin' ? 'member' : 'admin'
       });
       toast.success('เปลี่ยนสิทธิ์สำเร็จ');
     } catch {
