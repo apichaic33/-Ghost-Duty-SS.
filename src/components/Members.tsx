@@ -190,13 +190,22 @@ export default function Members() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-800">จัดการสมาชิก</h2>
-        <button
-          onClick={() => openModal(null)}
-          className="flex items-center space-x-2 bg-orange-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-orange-700 transition-colors shadow-sm"
-        >
-          <UserPlus size={18} />
-          <span>เพิ่มสมาชิกใหม่</span>
-        </button>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => setShowImportModal(true)}
+            className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-sm"
+          >
+            <Download size={18} />
+            <span>นำเข้าจาก GAS</span>
+          </button>
+          <button
+            onClick={() => openModal(null)}
+            className="flex items-center space-x-2 bg-orange-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-orange-700 transition-colors shadow-sm"
+          >
+            <UserPlus size={18} />
+            <span>เพิ่มสมาชิกใหม่</span>
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
