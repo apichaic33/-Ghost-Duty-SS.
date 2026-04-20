@@ -319,7 +319,7 @@ export default function Requests({ member, initialData, onClearInitialData }: Re
                 </div>
               </div>
 
-              {/* Target Side */}
+              {/* Target Side — swap */}
               {type === 'swap' && (
                 <div className="space-y-3 p-4 bg-orange-50/30 rounded-xl border border-orange-100">
                   <p className="text-xs font-bold text-orange-400 uppercase">กะของเพื่อน</p>
@@ -335,6 +335,22 @@ export default function Requests({ member, initialData, onClearInitialData }: Re
                       {targetShift}
                     </span>
                   </div>
+                </div>
+              )}
+
+              {/* Return Date — cover */}
+              {type === 'cover' && (
+                <div className="space-y-3 p-4 bg-purple-50/30 rounded-xl border border-purple-100">
+                  <p className="text-xs font-bold text-purple-500 uppercase">วันที่คืนกะ</p>
+                  <input
+                    type="date"
+                    value={returnDate}
+                    onChange={(e) => setReturnDate(e.target.value)}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 outline-none"
+                  />
+                  <p className="text-[10px] text-purple-500 bg-purple-50 px-2 py-1.5 rounded-lg border border-purple-100">
+                    ⚠️ วันคืนกะต้องอยู่ภายในเดือนนี้หรือเดือนถัดไป
+                  </p>
                 </div>
               )}
             </div>
