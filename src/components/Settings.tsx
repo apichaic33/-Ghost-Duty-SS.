@@ -20,6 +20,8 @@ export default function Settings({ member, setMember }: SettingsProps) {
   const [newShiftProp, setNewShiftProp] = useState<Partial<ShiftProperty>>({ id: '', name: '', color: 'bg-blue-100 text-blue-700' });
   const [gasUrl, setGasUrl] = useState('');
   const [gasUrlSaving, setGasUrlSaving] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState<{ imported: number; updated: number } | null>(null);
 
   useEffect(() => {
     if (member.role === 'admin') {
