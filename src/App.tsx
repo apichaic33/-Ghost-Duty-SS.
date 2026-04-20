@@ -39,6 +39,7 @@ export default function App() {
                id: u.uid,
                uid: u.uid,
                name: u.displayName || 'Admin',
+               email: u.email || '',
                station: 'HQ',
                zone: 'Central',
                quotaA: 10,
@@ -134,7 +135,7 @@ export default function App() {
       isAdmin={member.role === 'admin'}
     >
       {activeTab === 'dashboard' && <Dashboard member={member} onSwapClick={navigateToRequest} />}
-      {activeTab === 'team' && member.role === 'admin' && <TeamSchedule onSwapClick={navigateToRequest} isAdmin={true} />}
+      {activeTab === 'team' && <TeamSchedule member={member} onSwapClick={navigateToRequest} isAdmin={member.role === 'admin'} />}
       {activeTab === 'requests' && (
         <Requests 
           member={member} 
