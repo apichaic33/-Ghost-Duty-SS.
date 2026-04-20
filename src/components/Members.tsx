@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, onSnapshot, doc, updateDoc, setDoc } from 'firebase/firestore';
+import { collection, onSnapshot, doc, updateDoc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Member } from '../types';
 import { UserPlus, Edit2, Shield, User, Download, RefreshCw } from 'lucide-react';
