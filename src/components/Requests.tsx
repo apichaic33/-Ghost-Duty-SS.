@@ -69,9 +69,14 @@ export default function Requests({ member, initialData, onClearInitialData }: Re
       });
     });
 
-    // Load all members for selection
+    // Load members — same position only (admin sees all)
     getDocs(collection(db, 'members')).then(snap => {
-      setMembers(snap.docs.map(d => ({ id: d.id, ...d.data() } as Member)).filter(m => m.id !== member.id));
+      const all = snap.docs.map(d => ({ id: d.id, ...d.data() } as Member));
+      setMembers(all.filter(m => {
+        if (m.id === member.id) return false;
+        if (member.role === 'admin') return true;
+        return m.position === member.position;
+      }));
     });
 
     // Load shifts to calculate codes
