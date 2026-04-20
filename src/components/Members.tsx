@@ -195,7 +195,7 @@ export default function Members() {
         <h2 className="text-2xl font-bold text-gray-800">จัดการสมาชิก</h2>
         <div className="flex items-center space-x-2">
           <button
-            onClick={() => setShowImportModal(true)}
+            onClick={() => { setShowImportModal(true); if (gasUrl && gasMembers.length === 0) setTimeout(fetchFromGas, 50); }}
             className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-sm"
           >
             <Download size={18} />
