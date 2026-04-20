@@ -29,6 +29,7 @@ export default function Requests({ member, initialData, onClearInitialData }: Re
   const [type, setType] = useState<'swap' | 'cover'>(initialData?.type || 'swap');
   const [targetId, setTargetId] = useState(initialData?.targetId || '');
   const [requesterDate, setRequesterDate] = useState(initialData?.requesterDate || format(new Date(), 'yyyy-MM-dd'));
+  // When coming from TeamSchedule: targetDate is the date the user clicked on the other member
   const [targetDate, setTargetDate] = useState(initialData?.targetDate || initialData?.requesterDate || format(new Date(), 'yyyy-MM-dd'));
 
   const [requesterShift, setRequesterShift] = useState<ShiftCode>('X');
