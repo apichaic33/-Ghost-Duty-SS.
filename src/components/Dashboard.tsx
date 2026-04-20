@@ -23,10 +23,9 @@ const SHIFT_COLORS: Record<string, string> = {
 
 interface DashboardProps {
   member: Member;
-  onSwapClick: (data: any) => void;
 }
 
-export default function Dashboard({ member, onSwapClick }: DashboardProps) {
+export default function Dashboard({ member }: DashboardProps) {
   const today = new Date();
   const rangeStart = startOfMonth(today);
   const rangeEnd = endOfMonth(addMonths(today, 11));
