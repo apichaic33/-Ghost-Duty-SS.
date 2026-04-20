@@ -54,16 +54,14 @@ export default function Settings({ member, setMember }: SettingsProps) {
   const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const lineToken = formData.get('lineToken') as string;
     const name = formData.get('name') as string;
 
     try {
-      await updateDoc(doc(db, 'members', member.id), { 
-        lineToken, 
+      await updateDoc(doc(db, 'members', member.id), {
         name,
         notificationPreferences: prefs
       });
-      setMember({ ...member, lineToken, name, notificationPreferences: prefs });
+      setMember({ ...member, name, notificationPreferences: prefs });
       toast.success('บันทึกข้อมูลสำเร็จ');
     } catch (error) {
       toast.error('เกิดข้อผิดพลาด');
