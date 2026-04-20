@@ -270,7 +270,11 @@ export default function Requests({ member, initialData, onClearInitialData }: Re
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 outline-none"
                 >
                   <option value="">เลือกสมาชิก</option>
-                  {members.map(m => <option key={m.id} value={m.id}>{m.name} ({m.station})</option>)}
+                  {members.map(m => (
+                    <option key={m.id} value={m.id}>
+                      {m.name} {m.position ? `[${m.position}]` : ''} — {m.station}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
