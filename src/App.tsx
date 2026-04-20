@@ -135,7 +135,7 @@ export default function App() {
       isAdmin={member.role === 'admin'}
     >
       {activeTab === 'dashboard' && <Dashboard member={member} />}
-      {activeTab === 'team' && <TeamSchedule member={member} onSwapClick={navigateToRequest} isAdmin={member.role === 'admin'} />}
+      {activeTab === 'team' && <TeamSchedule member={member} isAdmin={member.role === 'admin'} />}
       {activeTab === 'requests' && (
         <Requests 
           member={member} 
