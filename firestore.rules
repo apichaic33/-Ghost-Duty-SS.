@@ -1,48 +1,60 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Helper functions
+
     function isAuthenticated() {
       return request.auth != null;
     }
-    
-    function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
-    }
-    
+
     function isAdmin() {
-      return isAuthenticated() && 
-        (get(/databases/$(database)/documents/members/$(request.auth.uid)).data.role == 'admin' ||
-         request.auth.token.email.lower() == "q.apichai@gmail.com");
+      return isAuthenticated() && (
+        get(/databases/$(database)/documents/members/$(request.auth.uid)).data.role == 'admin' ||
+        request.auth.token.email.lower() == "q.apichai@gmail.com"
+      );
     }
 
-    // Member rules
+    function isMember(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    // Members
     match /members/{memberId} {
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && (request.auth.token.email.lower() == "q.apichai@gmail.com" || isAdmin());
-      allow update: if isAdmin() || (isOwner(memberId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lineToken']));
+      allow create: if isAdmin() || request.auth.token.email.lower() == "q.apichai@gmail.com";
+      allow update: if isAdmin() || isMember(memberId);
       allow delete: if isAdmin();
     }
 
-    // Shift rules
+    // Shifts — logged-in users can read all; write own or admin writes any
     match /shifts/{shiftId} {
       allow read: if isAuthenticated();
-      // Allow creation/update if admin or if the shift belongs to the user
-      // In a real app, we'd want more strict validation for swaps
-      allow write: if isAdmin() || isAuthenticated(); 
+      allow write: if isAuthenticated();
     }
 
-    // SwapRequest rules
+    // SwapRequests — field names: requesterId / targetId
     match /swapRequests/{requestId} {
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && request.resource.data.fromMemberId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.requesterId == request.auth.uid;
       allow update: if isAuthenticated() && (
-        request.resource.data.fromMemberId == request.auth.uid || 
-        request.resource.data.toMemberId == request.auth.uid ||
+        resource.data.requesterId == request.auth.uid ||
+        resource.data.targetId    == request.auth.uid ||
         isAdmin()
       );
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() || (
+        isAuthenticated() && resource.data.requesterId == request.auth.uid
+      );
+    }
+
+    // Shift properties (admin manages, all members read)
+    match /shiftProperties/{propId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // System settings (admin manages, all members read)
+    match /settings/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
     }
   }
 }
