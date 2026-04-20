@@ -100,14 +100,24 @@ export default function Members() {
     }
   };
 
-  const fetchFromGas = async () => {
+  const fetchFromGas = () => {
     if (!gasUrl.trim()) { toast.error('กรุณากรอก URL ของ GAS'); return; }
     setFetchLoading(true);
     setGasMembers([]);
-    try {
-      const sep = gasUrl.includes('?') ? '&' : '?';
-      const res = await fetch(gasUrl.trim() + sep + 'action=getAllMembers');
-      const json = await res.json();
+
+    const cbName = '__gasCallback_' + Date.now();
+    const sep = gasUrl.includes('?') ? '&' : '?';
+    const script = document.createElement('script');
+    script.src = gasUrl.trim() + sep + 'action=getAllMembers&callback=' + cbName;
+
+    const cleanup = () => {
+      delete (window as any)[cbName];
+      document.body.removeChild(script);
+      setFetchLoading(false);
+    };
+
+    (window as any)[cbName] = (json: any) => {
+      cleanup();
       if (json.status === 'success') {
         setGasMembers(json.members);
         setSelectedEmpIds(new Set(json.members.map((m: GasMember) => m.empId)));
@@ -115,11 +125,14 @@ export default function Members() {
       } else {
         toast.error('GAS ตอบกลับข้อผิดพลาด: ' + json.message);
       }
-    } catch {
+    };
+
+    script.onerror = () => {
+      cleanup();
       toast.error('ไม่สามารถเชื่อมต่อ GAS ได้ — ตรวจสอบ URL และการ Deploy');
-    } finally {
-      setFetchLoading(false);
-    }
+    };
+
+    document.body.appendChild(script);
   };
 
   const toggleSelectEmp = (empId: string) => {
