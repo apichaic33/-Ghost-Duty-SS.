@@ -100,7 +100,7 @@ export default function Requests({ member, initialData, onClearInitialData }: Re
   const sendEmailNotification = async (targetMember: Member, subject: string, message: string, notifType: 'newRequests' | 'requestStatus') => {
     if (!targetMember.email) return;
 
-    const prefs = targetMember.notificationPreferences || { newRequests: true, requestStatus: true, warnings: true, lineEnabled: true };
+    const prefs = targetMember.notificationPreferences || { newRequests: true, requestStatus: true, warnings: true };
     if (notifType === 'newRequests' && !prefs.newRequests) return;
     if (notifType === 'requestStatus' && !prefs.requestStatus) return;
 
