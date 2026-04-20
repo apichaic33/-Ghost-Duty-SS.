@@ -6,25 +6,6 @@
     <base href="/" />
     <title>ระบบยำกะผี</title>
     <script>
-      // Redirect if on GitHub Pages (stuck from previous deployment)
-      if (window.location.hostname.includes('github.io')) {
-        const aiStudioUrl = 'https://ais-dev-eiw3tx47esa2yoowgi32pi-305715865908.asia-southeast1.run.app';
-        window.location.href = aiStudioUrl;
-      }
-
-      // Unregister all service workers to clear potential leftovers from GitHub Pages
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function(registrations) {
-          for(let registration of registrations) {
-            registration.unregister().then(() => {
-              console.log('Service worker unregistered');
-              // Force reload after unregistering to ensure clean state
-              window.location.reload();
-            });
-          }
-        });
-      }
-
       // Prevent zooming via keyboard shortcuts (Ctrl + / - / 0)
       document.addEventListener('keydown', function(event) {
         if (event.ctrlKey === true || event.metaKey === true) {
