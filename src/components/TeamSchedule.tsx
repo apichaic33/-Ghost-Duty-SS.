@@ -2,10 +2,10 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths, isToday } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight, RefreshCw, X as CloseIcon } from 'lucide-react';
-import { collection, onSnapshot, query, where, doc, setDoc } from 'firebase/firestore';
+import { collection, onSnapshot, query, where, doc, setDoc, addDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Member, Shift, ShiftCode, ShiftProperty } from '../types';
-import { generateSchedule } from '../lib/scheduleUtils';
+import { generateSchedule, getShiftCode } from '../lib/scheduleUtils';
 import { toast } from 'sonner';
 import emailjs from '@emailjs/browser';
 
@@ -28,7 +28,6 @@ const SHIFT_COLORS: Record<string, string> = {
 
 interface TeamScheduleProps {
   member: Member;
-  onSwapClick: (data: any) => void;
   isAdmin: boolean;
 }
 
@@ -38,7 +37,17 @@ interface SwapPopup {
   targetShift: string;
 }
 
-export default function TeamSchedule({ member, onSwapClick, isAdmin }: TeamScheduleProps) {
+interface RequestForm {
+  type: 'swap' | 'cover';
+  targetMember: Member;
+  targetDate: string;
+  targetShift: string;
+  requesterDate: string;
+  returnDate: string;
+  submitting: boolean;
+}
+
+export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [members, setMembers] = useState<Member[]>([]);
   const [allShifts, setAllShifts] = useState<Shift[]>([]);
@@ -47,6 +56,7 @@ export default function TeamSchedule({ member, onSwapClick, isAdmin }: TeamSched
   const [positionTab, setPositionTab] = useState<string>(member.position || 'All');
   const [editingShift, setEditingShift] = useState<{ member: Member; date: string } | null>(null);
   const [swapPopup, setSwapPopup] = useState<SwapPopup | null>(null);
+  const [requestForm, setRequestForm] = useState<RequestForm | null>(null);
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
@@ -71,14 +81,12 @@ export default function TeamSchedule({ member, onSwapClick, isAdmin }: TeamSched
     return () => { unsubMembers(); unsubProps(); unsubShifts(); };
   }, [currentDate]);
 
-  // O(1) lookup map for Firestore shifts
   const shiftsMap = useMemo(() => {
     const map = new Map<string, string>();
     for (const s of allShifts) map.set(`${s.memberId}_${s.date}`, s.shiftCode);
     return map;
   }, [allShifts]);
 
-  // Pre-generate all schedules once per render
   const generatedMap = useMemo(() => {
     const map = new Map<string, Map<string, string>>();
     for (const m of members) {
@@ -89,18 +97,85 @@ export default function TeamSchedule({ member, onSwapClick, isAdmin }: TeamSched
     return map;
   }, [members]);
 
-  const getShift = (m: Member, dateStr: string): string => {
-    return shiftsMap.get(`${m.id}_${dateStr}`) ?? generatedMap.get(m.id)?.get(dateStr) ?? 'X';
-  };
+  const getShift = (m: Member, dateStr: string): string =>
+    shiftsMap.get(`${m.id}_${dateStr}`) ?? generatedMap.get(m.id)?.get(dateStr) ?? 'X';
 
-  // Filter: non-admin sees only same station AND same position
+  // Non-admin: same position only. Admin: by positionTab
   const visibleMembers = useMemo(() => members.filter(m => {
     if (isAdmin) return positionTab === 'All' || m.position === positionTab;
-    return m.station === member.station && m.position === member.position;
-  }), [members, isAdmin, positionTab, member.station, member.position]);
+    return m.position === member.position;
+  }), [members, isAdmin, positionTab, member.position]);
 
   const getUsage = (m: Member, code: string) =>
     days.filter(d => getShift(m, format(d, 'yyyy-MM-dd')) === code).length;
+
+  const openRequestForm = (type: 'swap' | 'cover', popup: SwapPopup) => {
+    const today = format(new Date(), 'yyyy-MM-dd');
+    const defaultReturn = format(addMonths(new Date(), 1), 'yyyy-MM-dd');
+    setSwapPopup(null);
+    setRequestForm({
+      type,
+      targetMember: popup.targetMember,
+      targetDate: popup.targetDate,
+      targetShift: popup.targetShift,
+      requesterDate: today,
+      returnDate: defaultReturn,
+      submitting: false,
+    });
+  };
+
+  const submitRequest = async () => {
+    if (!requestForm) return;
+    const { type, targetMember, targetDate, targetShift, requesterDate, returnDate } = requestForm;
+
+    if (type === 'cover') {
+      const now = new Date();
+      const maxReturn = new Date(now.getFullYear(), now.getMonth() + 2, 0);
+      if (new Date(returnDate) > maxReturn) {
+        toast.error('วันคืนกะต้องอยู่ภายในเดือนถัดไป');
+        return;
+      }
+      if (new Date(returnDate) <= new Date(requesterDate)) {
+        toast.error('วันคืนกะต้องอยู่หลังวันควงกะ');
+        return;
+      }
+    }
+
+    const requesterShift = getShiftCode(member, requesterDate, allShifts);
+
+    setRequestForm(f => f ? { ...f, submitting: true } : null);
+    try {
+      await addDoc(collection(db, 'swapRequests'), {
+        requesterId: member.id,
+        requesterName: member.name,
+        targetId: targetMember.id,
+        targetName: targetMember.name,
+        type,
+        requesterDate,
+        targetDate: type === 'swap' ? targetDate : undefined,
+        returnDate: type === 'cover' ? returnDate : undefined,
+        requesterShift,
+        targetShift: type === 'swap' ? targetShift : undefined,
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+      });
+
+      if (targetMember.email) {
+        const label = type === 'swap' ? 'สลับกะ' : 'ควงกะ';
+        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+          subject: `คำขอ${label}ใหม่จาก ${member.name}`,
+          to_email: targetMember.email,
+          message: `คำขอ${label}ใหม่!\nจาก: ${member.name}\nวันที่: ${requesterDate} (${requesterShift})\nกรุณาตรวจสอบในระบบ`,
+        }, EMAILJS_PUBLIC_KEY).catch(() => {});
+      }
+
+      toast.success('ส่งคำขอเรียบร้อยแล้ว');
+      setRequestForm(null);
+    } catch {
+      toast.error('เกิดข้อผิดพลาด');
+      setRequestForm(f => f ? { ...f, submitting: false } : null);
+    }
+  };
 
   const handleUpdateShift = async (code: ShiftCode) => {
     if (!editingShift) return;
@@ -110,13 +185,13 @@ export default function TeamSchedule({ member, onSwapClick, isAdmin }: TeamSched
         date: editingShift.date,
         shiftCode: code,
         updatedAt: new Date().toISOString(),
-        updatedBy: 'admin'
+        updatedBy: 'admin',
       });
       if (editingShift.member.email) {
         emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
           subject: `Admin แก้ไขกะของคุณ วันที่ ${editingShift.date}`,
           to_email: editingShift.member.email,
-          message: `กะของคุณวันที่ ${editingShift.date} ถูกแก้ไขเป็น ${code} โดย Admin`
+          message: `กะของคุณวันที่ ${editingShift.date} ถูกแก้ไขเป็น ${code} โดย Admin`,
         }, EMAILJS_PUBLIC_KEY).catch(() => {});
       }
       toast.success('อัปเดตกะสำเร็จ');
@@ -131,9 +206,7 @@ export default function TeamSchedule({ member, onSwapClick, isAdmin }: TeamSched
         <div>
           <h2 className="text-2xl font-bold text-gray-800">กะทั้งหมด</h2>
           <p className="text-sm text-gray-500">
-            {isAdmin
-              ? 'ดูและแก้ไขตารางกะของทุกตำแหน่ง'
-              : `สถานี ${member.station} · ตำแหน่ง ${member.position || '—'}`}
+            {isAdmin ? 'ดูและแก้ไขตารางกะของทุกตำแหน่ง' : `ตำแหน่ง ${member.position || '—'}`}
           </p>
         </div>
         <div className="flex items-center space-x-2">
@@ -186,12 +259,8 @@ export default function TeamSchedule({ member, onSwapClick, isAdmin }: TeamSched
           <tbody className="divide-y divide-gray-100">
             {visibleMembers.map(m => {
               const isSelf = m.id === member.id;
-              const mA = getUsage(m, 'A');
-              const mH = getUsage(m, 'H');
-              const mX = getUsage(m, 'X');
               return (
                 <tr key={m.id} className={`hover:bg-gray-50/50 transition-colors ${isSelf ? 'bg-orange-50/20' : ''}`}>
-                  {/* Sticky name cell — fixed width, explicit bg */}
                   <td className={`sticky left-0 z-10 px-3 py-2 border-r border-gray-200 ${isSelf ? 'bg-orange-50/40' : 'bg-white'}`}
                     style={{ minWidth: 170, width: 170 }}>
                     <div className="flex items-center justify-between gap-1">
@@ -204,14 +273,14 @@ export default function TeamSchedule({ member, onSwapClick, isAdmin }: TeamSched
                             'bg-purple-50 text-purple-600 border-purple-200'
                           }`}>{m.position}</span>
                         )}
-                        {isSelf && <span className="text-[9px] font-bold text-orange-500 leading-none">★</span>}
+                        {isSelf && <span className="text-[9px] font-bold text-orange-500">★</span>}
                       </div>
                     </div>
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className="text-[9px] text-gray-400 truncate">{m.station}</span>
-                      <span className="text-[9px] text-red-500 font-bold">A:{mA}</span>
-                      <span className="text-[9px] text-pink-500 font-bold">H:{mH}</span>
-                      <span className="text-[9px] text-gray-400 font-bold">X:{mX}</span>
+                      <span className="text-[9px] text-red-500 font-bold">A:{getUsage(m, 'A')}</span>
+                      <span className="text-[9px] text-pink-500 font-bold">H:{getUsage(m, 'H')}</span>
+                      <span className="text-[9px] text-gray-400 font-bold">X:{getUsage(m, 'X')}</span>
                     </div>
                   </td>
                   {days.map(day => {
@@ -238,7 +307,7 @@ export default function TeamSchedule({ member, onSwapClick, isAdmin }: TeamSched
               );
             })}
             {visibleMembers.length === 0 && (
-              <tr><td colSpan={days.length + 1} className="py-12 text-center text-sm text-gray-400 italic">ไม่พบสมาชิกในสถานี/ตำแหน่งนี้</td></tr>
+              <tr><td colSpan={days.length + 1} className="py-12 text-center text-sm text-gray-400 italic">ไม่พบสมาชิกในตำแหน่งนี้</td></tr>
             )}
           </tbody>
         </table>
@@ -246,20 +315,18 @@ export default function TeamSchedule({ member, onSwapClick, isAdmin }: TeamSched
 
       {/* Legend */}
       <div className="flex flex-wrap gap-3 text-[10px] font-bold text-gray-500 bg-gray-50 p-3 rounded-xl border border-gray-200">
-        {shiftProps.length > 0 ? shiftProps.map(prop => (
-          <div key={prop.id} className="flex items-center space-x-1">
-            <div className={`w-3 h-3 rounded ${SHIFT_COLORS[prop.id] || 'bg-gray-200'}`} />
-            <span>{prop.id}: {prop.name}</span>
+        {shiftProps.length > 0 ? shiftProps.map(p => (
+          <div key={p.id} className="flex items-center space-x-1">
+            <div className={`w-3 h-3 rounded ${SHIFT_COLORS[p.id] || 'bg-gray-200'}`} />
+            <span>{p.id}: {p.name}</span>
           </div>
-        )) : (
-          [['S11','bg-blue-100','เช้า'],['S12','bg-green-100','บ่าย'],['S13','bg-purple-100','ดึก'],
-           ['AL','bg-orange-100','สำรอง'],['X','bg-gray-100','หยุด'],['H','bg-pink-100','นักขัตฤกษ์'],['A','bg-red-100','ลาพักร้อน']
-          ].map(([id, bg, label]) => (
-            <div key={id} className="flex items-center space-x-1">
-              <div className={`w-3 h-3 rounded ${bg}`} /><span>{id}: {label}</span>
-            </div>
-          ))
-        )}
+        )) : [['S11','bg-blue-100','เช้า'],['S12','bg-green-100','บ่าย'],['S13','bg-purple-100','ดึก'],
+               ['X','bg-gray-100','หยุด'],['H','bg-pink-100','นักขัตฤกษ์'],['A','bg-red-100','ลาพักร้อน']
+        ].map(([id, bg, label]) => (
+          <div key={id} className="flex items-center space-x-1">
+            <div className={`w-3 h-3 rounded ${bg}`} /><span>{id}: {label}</span>
+          </div>
+        ))}
       </div>
 
       {/* Admin: Edit Shift Modal */}
@@ -271,9 +338,7 @@ export default function TeamSchedule({ member, onSwapClick, isAdmin }: TeamSched
               <button onClick={() => setEditingShift(null)} className="text-gray-400 hover:text-gray-600"><CloseIcon size={20} /></button>
             </div>
             <p className="text-sm font-bold text-gray-700 mb-1">{editingShift.member.name}</p>
-            <p className="text-xs text-gray-500 mb-4">
-              {format(new Date(editingShift.date + 'T00:00:00'), 'd MMMM yyyy', { locale: th })}
-            </p>
+            <p className="text-xs text-gray-500 mb-4">{format(new Date(editingShift.date + 'T00:00:00'), 'd MMMM yyyy', { locale: th })}</p>
             <div className="grid grid-cols-4 gap-2">
               {(['S11','S12','S13','S78','AL-S11','AL-S12','AL-S13','X','A','H'] as ShiftCode[]).map(code => (
                 <button key={code} onClick={() => handleUpdateShift(code)}
@@ -286,7 +351,7 @@ export default function TeamSchedule({ member, onSwapClick, isAdmin }: TeamSched
         </div>
       )}
 
-      {/* Member: Swap/Cover Popup */}
+      {/* Member: Step 1 — choose type */}
       {swapPopup && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-end md:items-center justify-center p-4"
           onClick={() => setSwapPopup(null)}>
@@ -295,17 +360,12 @@ export default function TeamSchedule({ member, onSwapClick, isAdmin }: TeamSched
               <div>
                 <p className="text-xs text-gray-400 uppercase font-bold">เลือกประเภทคำขอ</p>
                 <p className="font-bold text-gray-800 text-sm mt-0.5">{swapPopup.targetMember.name}</p>
-                <p className="text-xs text-gray-500">
-                  {format(new Date(swapPopup.targetDate + 'T00:00:00'), 'd MMMM yyyy', { locale: th })}
-                </p>
+                <p className="text-xs text-gray-500">{format(new Date(swapPopup.targetDate + 'T00:00:00'), 'd MMMM yyyy', { locale: th })}</p>
               </div>
-              <span className={`px-3 py-1.5 rounded-lg text-sm font-bold ${SHIFT_COLORS[swapPopup.targetShift] || 'bg-gray-100'}`}>
-                {swapPopup.targetShift}
-              </span>
+              <span className={`px-3 py-1.5 rounded-lg text-sm font-bold ${SHIFT_COLORS[swapPopup.targetShift] || 'bg-gray-100'}`}>{swapPopup.targetShift}</span>
             </div>
             <div className="space-y-2">
-              <button
-                onClick={() => { onSwapClick({ type: 'swap', targetId: swapPopup.targetMember.id, targetName: swapPopup.targetMember.name, targetDate: swapPopup.targetDate, targetShift: swapPopup.targetShift }); setSwapPopup(null); }}
+              <button onClick={() => openRequestForm('swap', swapPopup)}
                 className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-700 font-medium text-sm transition-colors">
                 <span className="text-lg">⇄</span>
                 <div className="text-left">
@@ -313,8 +373,7 @@ export default function TeamSchedule({ member, onSwapClick, isAdmin }: TeamSched
                   <p className="text-[10px] text-orange-500">สลับกะระหว่างกัน</p>
                 </div>
               </button>
-              <button
-                onClick={() => { onSwapClick({ type: 'cover', targetId: swapPopup.targetMember.id, targetName: swapPopup.targetMember.name, targetDate: swapPopup.targetDate, targetShift: swapPopup.targetShift }); setSwapPopup(null); }}
+              <button onClick={() => openRequestForm('cover', swapPopup)}
                 className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-medium text-sm transition-colors">
                 <span className="text-lg">🔄</span>
                 <div className="text-left">
@@ -323,6 +382,63 @@ export default function TeamSchedule({ member, onSwapClick, isAdmin }: TeamSched
                 </div>
               </button>
               <button onClick={() => setSwapPopup(null)} className="w-full py-2 text-sm text-gray-400 hover:text-gray-600">ยกเลิก</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Member: Step 2 — fill in dates & submit */}
+      {requestForm && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center p-4"
+          onClick={() => setRequestForm(null)}>
+          <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl p-5" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <p className="text-xs text-gray-400 uppercase font-bold">
+                  {requestForm.type === 'swap' ? 'คำขอสลับกะ' : 'คำขอควงกะ'}
+                </p>
+                <p className="font-bold text-gray-800 text-sm mt-0.5">กับ {requestForm.targetMember.name}</p>
+              </div>
+              <span className={`px-3 py-1.5 rounded-lg text-sm font-bold ${SHIFT_COLORS[requestForm.targetShift] || 'bg-gray-100'}`}>{requestForm.targetShift}</span>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+                  {requestForm.type === 'swap' ? 'วันของคุณที่ต้องการแลก' : 'วันที่คุณต้องการควง'}
+                </label>
+                <input type="date" value={requestForm.requesterDate}
+                  onChange={e => setRequestForm(f => f ? { ...f, requesterDate: e.target.value } : null)}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 outline-none" />
+              </div>
+
+              {requestForm.type === 'swap' && (
+                <div className="bg-orange-50 rounded-lg px-3 py-2 text-xs text-orange-700">
+                  วันที่แลก: <span className="font-bold">{format(new Date(requestForm.targetDate + 'T00:00:00'), 'd MMM yyyy', { locale: th })}</span>
+                  {' '}กะ <span className={`px-1.5 py-0.5 rounded font-bold ${SHIFT_COLORS[requestForm.targetShift] || ''}`}>{requestForm.targetShift}</span>
+                </div>
+              )}
+
+              {requestForm.type === 'cover' && (
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">วันที่คืนกะ</label>
+                  <input type="date" value={requestForm.returnDate}
+                    onChange={e => setRequestForm(f => f ? { ...f, returnDate: e.target.value } : null)}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 outline-none" />
+                  <p className="text-[10px] text-purple-500 mt-1">⚠️ ต้องคืนภายในเดือนนี้หรือเดือนถัดไป</p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex space-x-2 mt-5">
+              <button onClick={() => setRequestForm(null)}
+                className="flex-1 py-2 text-sm text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors">
+                ยกเลิก
+              </button>
+              <button onClick={submitRequest} disabled={requestForm.submitting}
+                className={`flex-1 py-2 text-sm text-white font-bold rounded-lg transition-colors disabled:opacity-50 ${requestForm.type === 'swap' ? 'bg-orange-600 hover:bg-orange-700' : 'bg-purple-600 hover:bg-purple-700'}`}>
+                {requestForm.submitting ? 'กำลังส่ง...' : 'ยืนยันส่งคำขอ'}
+              </button>
             </div>
           </div>
         </div>
