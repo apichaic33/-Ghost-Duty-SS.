@@ -439,6 +439,17 @@ export default function Requests({ member, initialData, onClearInitialData }: Re
                     </div>
                   </>
                 )}
+                {req.type === 'cover' && req.returnDate && (
+                  <>
+                    <ArrowRightLeft size={14} className="text-gray-300" />
+                    <div className="text-center">
+                      <p className="text-[10px] uppercase font-bold text-purple-400">คืนกะวันที่</p>
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold border bg-purple-50 text-purple-700 border-purple-200">
+                        {req.returnDate}
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
 
               <div className="flex items-center space-x-2">
