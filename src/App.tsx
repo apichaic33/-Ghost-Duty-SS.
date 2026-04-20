@@ -134,7 +134,7 @@ export default function App() {
       setActiveTab={setActiveTab} 
       isAdmin={member.role === 'admin'}
     >
-      {activeTab === 'dashboard' && <Dashboard member={member} onSwapClick={navigateToRequest} />}
+      {activeTab === 'dashboard' && <Dashboard member={member} />}
       {activeTab === 'team' && <TeamSchedule member={member} onSwapClick={navigateToRequest} isAdmin={member.role === 'admin'} />}
       {activeTab === 'requests' && (
         <Requests 
