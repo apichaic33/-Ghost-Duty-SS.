@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { doc, updateDoc, collection, onSnapshot, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
+import { doc, updateDoc, collection, onSnapshot, setDoc, deleteDoc, getDoc, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Member, NotificationPreferences, ShiftProperty } from '../types';
 import { toast } from 'sonner';
