@@ -59,6 +59,47 @@ export default function Settings({ member, setMember }: SettingsProps) {
     finally { setGasUrlSaving(false); }
   };
 
+  const handleSyncFromGas = async () => {
+    if (!gasUrl.trim()) { toast.error('กรุณาบันทึก GAS URL ก่อน'); return; }
+    setSyncing(true);
+    setSyncResult(null);
+    try {
+      const sep = gasUrl.includes('?') ? '&' : '?';
+      const res = await fetch(gasUrl.trim() + sep + 'action=getAllMembers');
+      const json = await res.json();
+      if (json.status !== 'success') { toast.error('GAS ตอบกลับข้อผิดพลาด: ' + json.message); return; }
+
+      const snap = await getDocs(collection(db, 'members'));
+      const existing = snap.docs.map(d => ({ id: d.id, ...d.data() } as Member));
+      const today = new Date().toISOString().split('T')[0];
+
+      let imported = 0, updated = 0;
+      for (const m of json.members) {
+        const found = existing.find((ex: Member) => ex.uid === m.empId || ex.id === m.empId);
+        if (found) {
+          await updateDoc(doc(db, 'members', found.id), {
+            name: m.name,
+            ...(m.position && { position: m.position }),
+            ...(m.department && { station: m.department }),
+          });
+          updated++;
+        } else {
+          await setDoc(doc(db, 'members', m.empId), {
+            uid: m.empId, name: m.name,
+            position: m.position || undefined,
+            station: m.department || '', zone: '',
+            quotaA: 0, quotaH: 0, quotaX: 4,
+            shiftPattern: '', cycleStartDate: today, role: 'member',
+          });
+          imported++;
+        }
+      }
+      setSyncResult({ imported, updated });
+      toast.success(`Sync สำเร็จ: ${imported} คนใหม่, ${updated} คนอัปเดต`);
+    } catch { toast.error('เชื่อมต่อ GAS ไม่ได้ — ตรวจสอบ Deploy Settings'); }
+    finally { setSyncing(false); }
+  };
+
   const handleDeleteShiftProp = async (id: string) => {
     try {
       await deleteDoc(doc(db, 'shiftProperties', id));
