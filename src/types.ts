@@ -4,7 +4,6 @@ export interface NotificationPreferences {
   newRequests: boolean;
   requestStatus: boolean;
   warnings: boolean;
-  lineEnabled: boolean;
 }
 
 export interface Member {
