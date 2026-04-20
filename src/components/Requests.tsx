@@ -132,14 +132,29 @@ export default function Requests({ member, initialData, onClearInitialData }: Re
     try {
       const targetMember = members.find(m => m.id === targetId);
 
+      // Validate cover return date within this or next month
+      if (type === 'cover') {
+        const now = new Date();
+        const maxReturn = new Date(now.getFullYear(), now.getMonth() + 2, 0); // last day of next month
+        if (new Date(returnDate) > maxReturn) {
+          toast.error('วันคืนกะต้องอยู่ภายในเดือนถัดไป');
+          return;
+        }
+        if (new Date(returnDate) <= new Date(requesterDate)) {
+          toast.error('วันคืนกะต้องอยู่หลังวันควงกะ');
+          return;
+        }
+      }
+
       const newRequest: Partial<SwapRequest> = {
         requesterId: member.id,
         requesterName: member.name,
-        targetId: type === 'cover' ? undefined : targetId,
-        targetName: type === 'cover' ? undefined : targetMember?.name,
+        targetId: targetId || undefined,
+        targetName: targetMember?.name,
         type,
         requesterDate,
         targetDate: type === 'swap' ? targetDate : undefined,
+        returnDate: type === 'cover' ? returnDate : undefined,
         requesterShift,
         targetShift: type === 'cover' ? undefined : targetShift,
         status: 'pending',
