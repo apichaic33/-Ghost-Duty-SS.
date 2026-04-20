@@ -217,10 +217,17 @@ export default function Dashboard({ member, onSwapClick }: DashboardProps) {
 
             <div className="space-y-2">
               {selShift.code !== 'H' && (
-                <button onClick={() => markHoliday(selectedDay)}
+                <button onClick={() => markCode(selectedDay, 'H')}
                   className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-pink-50 hover:bg-pink-100 text-pink-700 font-medium text-sm transition-colors">
                   <span className="text-lg">🏖️</span>
                   <span>ใส่วันหยุดนักขัตฤกษ์ (H)</span>
+                </button>
+              )}
+              {selShift.code !== 'A' && (
+                <button onClick={() => markCode(selectedDay, 'A')}
+                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 font-medium text-sm transition-colors">
+                  <span className="text-lg">🌴</span>
+                  <span>ใส่วันลาพักร้อน (A)</span>
                 </button>
               )}
               {selShift.original && (
@@ -234,6 +241,11 @@ export default function Dashboard({ member, onSwapClick }: DashboardProps) {
                 className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-700 font-medium text-sm transition-colors">
                 <span className="text-lg">⇄</span>
                 <span>ขอสลับกะ</span>
+              </button>
+              <button onClick={() => { onSwapClick({ requesterDate: selectedDay, type: 'cover' }); setSelectedDay(null); }}
+                className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-medium text-sm transition-colors">
+                <span className="text-lg">🔄</span>
+                <span>ขอควงกะ</span>
               </button>
               <button onClick={() => setSelectedDay(null)}
                 className="w-full py-2 text-sm text-gray-400 hover:text-gray-600 transition-colors">
