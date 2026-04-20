@@ -237,16 +237,6 @@ export default function Dashboard({ member, onSwapClick }: DashboardProps) {
                   <span>คืนกะเดิม ({selShift.original})</span>
                 </button>
               )}
-              <button onClick={() => { onSwapClick({ requesterDate: selectedDay, type: 'swap' }); setSelectedDay(null); }}
-                className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-700 font-medium text-sm transition-colors">
-                <span className="text-lg">⇄</span>
-                <span>ขอสลับกะ</span>
-              </button>
-              <button onClick={() => { onSwapClick({ requesterDate: selectedDay, type: 'cover' }); setSelectedDay(null); }}
-                className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-medium text-sm transition-colors">
-                <span className="text-lg">🔄</span>
-                <span>ขอควงกะ</span>
-              </button>
               <button onClick={() => setSelectedDay(null)}
                 className="w-full py-2 text-sm text-gray-400 hover:text-gray-600 transition-colors">
                 ยกเลิก
