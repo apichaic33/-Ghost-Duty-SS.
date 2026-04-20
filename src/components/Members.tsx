@@ -56,6 +56,9 @@ export default function Members() {
     const unsubscribe = onSnapshot(collection(db, 'members'), (snap) => {
       setMembers(snap.docs.map(d => ({ id: d.id, ...d.data() } as Member)));
     });
+    getDoc(doc(db, 'settings', 'system')).then(snap => {
+      if (snap.exists() && snap.data().gasUrl) setGasUrl(snap.data().gasUrl);
+    });
     return () => unsubscribe();
   }, []);
 
