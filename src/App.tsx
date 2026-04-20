@@ -130,13 +130,7 @@ export default function App() {
     >
       {activeTab === 'dashboard' && <Dashboard member={member} />}
       {activeTab === 'team' && <TeamSchedule member={member} isAdmin={member.role === 'admin'} />}
-      {activeTab === 'requests' && (
-        <Requests 
-          member={member} 
-          initialData={initialRequestData} 
-          onClearInitialData={() => setInitialRequestData(null)} 
-        />
-      )}
+      {activeTab === 'requests' && <Requests member={member} />}
       {activeTab === 'members' && member.role === 'admin' && <Members />}
       {activeTab === 'settings' && member.role === 'admin' && <Settings member={member} setMember={setMember} />}
       <Toaster position="top-center" />
