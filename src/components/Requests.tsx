@@ -101,7 +101,7 @@ export default function Requests({ member }: RequestsProps) {
     catch { return d; }
   };
 
-  const RequestCard = ({ req, showActions }: { req: SwapRequest; showActions: boolean }) => (
+  const RequestCard: React.FC<{ req: SwapRequest; showActions: boolean }> = ({ req, showActions }) => (
     <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
         {/* Type + names */}
