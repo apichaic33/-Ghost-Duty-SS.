@@ -26,11 +26,6 @@ const SHIFT_COLORS: Record<string, string> = {
   'H': 'bg-pink-100 text-pink-700',
 };
 
-const POSITION_LABELS: Record<string, string> = {
-  'SS': 'นายสถานี',
-  'AStS': 'ผู้ช่วยนายสถานี',
-  'SP': 'เจ้าหน้าที่สถานี',
-};
 
 interface TeamScheduleProps {
   member: Member;
