@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { doc, updateDoc, collection, onSnapshot, setDoc, deleteDoc } from 'firebase/firestore';
+import { doc, updateDoc, collection, onSnapshot, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Member, NotificationPreferences, ShiftProperty } from '../types';
 import { toast } from 'sonner';
-import { Key, Bell, User, CheckCircle2, XCircle, Settings as SettingsIcon, Plus, Trash2 } from 'lucide-react';
+import { Bell, User, CheckCircle2, XCircle, Settings as SettingsIcon, Plus, Trash2, Link } from 'lucide-react';
 
 interface SettingsProps {
   member: Member;
@@ -18,13 +18,18 @@ export default function Settings({ member, setMember }: SettingsProps) {
   });
   const [shiftProps, setShiftProps] = useState<ShiftProperty[]>([]);
   const [newShiftProp, setNewShiftProp] = useState<Partial<ShiftProperty>>({ id: '', name: '', color: 'bg-blue-100 text-blue-700' });
+  const [gasUrl, setGasUrl] = useState('');
+  const [gasUrlSaving, setGasUrlSaving] = useState(false);
 
   useEffect(() => {
     if (member.role === 'admin') {
-      const unsub = onSnapshot(collection(db, 'shiftProperties'), (snap) => {
+      const unsubProps = onSnapshot(collection(db, 'shiftProperties'), (snap) => {
         setShiftProps(snap.docs.map(d => ({ id: d.id, ...d.data() } as ShiftProperty)));
       });
-      return () => unsub();
+      getDoc(doc(db, 'settings', 'system')).then(snap => {
+        if (snap.exists()) setGasUrl(snap.data().gasUrl || '');
+      });
+      return () => unsubProps();
     }
   }, [member.role]);
 
