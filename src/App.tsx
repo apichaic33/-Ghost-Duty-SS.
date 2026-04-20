@@ -16,12 +16,6 @@ export default function App() {
   const [member, setMember] = useState<Member | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [initialRequestData, setInitialRequestData] = useState<any>(null);
-
-  const navigateToRequest = (data: any) => {
-    setInitialRequestData(data);
-    setActiveTab('requests');
-  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
