@@ -112,40 +112,13 @@ export default function Settings({ member, setMember }: SettingsProps) {
               <Bell size={20} />
             </div>
             <div className="flex-1">
-              <label className="block text-sm font-bold text-gray-700 mb-1">การแจ้งเตือน Line Notify</label>
-              <p className="text-xs text-gray-500 mb-3">ใส่ Token เพื่อรับการแจ้งเตือนเมื่อมีการสลับกะ</p>
-              <input 
-                name="lineToken" 
-                defaultValue={member.lineToken} 
-                placeholder="ใส่ Line Notify Token ของคุณ"
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-500 font-mono"
-              />
-              <a 
-                href="https://notify-bot.line.me/my/" 
-                target="_blank" 
-                rel="noreferrer"
-                className="text-[10px] text-orange-600 hover:underline mt-1 inline-block"
-              >
-                วิธีขอ Token Line Notify
-              </a>
+              <label className="block text-sm font-bold text-gray-700 mb-1">การแจ้งเตือนทางอีเมล</label>
+              <p className="text-xs text-gray-500 mb-4">ระบบจะส่งอีเมลแจ้งเตือนตามที่ตั้งค่าไว้</p>
 
-              <div className="mt-6 space-y-4">
+              <div className="space-y-4">
                 <label className="block text-sm font-bold text-gray-700 mb-3">ตั้งค่าประเภทการแจ้งเตือน</label>
-                
-                <div className="space-y-2">
-                  <button
-                    type="button"
-                    onClick={() => togglePref('lineEnabled')}
-                    className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all ${prefs.lineEnabled ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className={prefs.lineEnabled ? 'text-green-600' : 'text-gray-400'}>
-                        {prefs.lineEnabled ? <CheckCircle2 size={18} /> : <XCircle size={18} />}
-                      </div>
-                      <span className={`text-sm font-medium ${prefs.lineEnabled ? 'text-green-900' : 'text-gray-500'}`}>เปิดใช้งาน Line Notify</span>
-                    </div>
-                  </button>
 
+                <div className="space-y-2">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                     {[
                       { key: 'newRequests', label: 'คำขอใหม่' },
