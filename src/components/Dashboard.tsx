@@ -58,17 +58,17 @@ export default function Dashboard({ member, onSwapClick }: DashboardProps) {
     return { code: (gen?.shiftCode as ShiftCode) || 'X' };
   };
 
-  const markHoliday = async (dateStr: string) => {
+  const markCode = async (dateStr: string, newCode: 'H' | 'A') => {
     const { code, original } = getShift(dateStr);
     try {
       await setDoc(doc(db, 'shifts', `${member.id}_${dateStr}`), {
         memberId: member.id,
         date: dateStr,
-        shiftCode: 'H',
-        originalShiftCode: code !== 'H' ? code : (original || code),
+        shiftCode: newCode,
+        originalShiftCode: code !== newCode ? code : (original || code),
         updatedAt: new Date().toISOString()
       }, { merge: true });
-      toast.success(`ใส่ H วันที่ ${dateStr}`);
+      toast.success(`ใส่ ${newCode} วันที่ ${dateStr}`);
       setSelectedDay(null);
     } catch { toast.error('เกิดข้อผิดพลาด'); }
   };
