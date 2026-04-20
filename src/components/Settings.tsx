@@ -47,6 +47,16 @@ export default function Settings({ member, setMember }: SettingsProps) {
     }
   };
 
+  const handleSaveGasUrl = async () => {
+    if (!gasUrl.trim()) { toast.error('กรุณากรอก URL'); return; }
+    setGasUrlSaving(true);
+    try {
+      await setDoc(doc(db, 'settings', 'system'), { gasUrl: gasUrl.trim() }, { merge: true });
+      toast.success('บันทึก GAS URL สำเร็จ');
+    } catch { toast.error('เกิดข้อผิดพลาด'); }
+    finally { setGasUrlSaving(false); }
+  };
+
   const handleDeleteShiftProp = async (id: string) => {
     try {
       await deleteDoc(doc(db, 'shiftProperties', id));
