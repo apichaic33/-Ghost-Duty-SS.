@@ -15,7 +15,6 @@ export default function Settings({ member, setMember }: SettingsProps) {
     newRequests: true,
     requestStatus: true,
     warnings: true,
-    lineEnabled: true
   });
   const [shiftProps, setShiftProps] = useState<ShiftProperty[]>([]);
   const [newShiftProp, setNewShiftProp] = useState<Partial<ShiftProperty>>({ id: '', name: '', color: 'bg-blue-100 text-blue-700' });
