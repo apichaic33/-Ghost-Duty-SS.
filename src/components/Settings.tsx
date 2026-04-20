@@ -171,6 +171,36 @@ export default function Settings({ member, setMember }: SettingsProps) {
 
       {member.role === 'admin' && (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 max-w-2xl">
+          {/* GAS URL */}
+          <div className="flex items-start space-x-4 mb-6 pb-6 border-b border-gray-100">
+            <div className="p-2 bg-green-50 text-green-600 rounded-lg">
+              <Link size={20} />
+            </div>
+            <div className="flex-1">
+              <label className="block text-sm font-bold text-gray-700 mb-1">URL ของ GAS (Google Apps Script)</label>
+              <p className="text-xs text-gray-500 mb-3">ตั้งค่าครั้งเดียว ระบบจะดึงรายชื่อสมาชิกจาก GAS โดยอัตโนมัติ</p>
+              <div className="flex space-x-2">
+                <input
+                  type="url"
+                  value={gasUrl}
+                  onChange={e => setGasUrl(e.target.value)}
+                  placeholder="https://script.google.com/macros/s/xxx/exec"
+                  className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-xs font-mono outline-none focus:ring-2 focus:ring-green-500"
+                />
+                <button
+                  onClick={handleSaveGasUrl}
+                  disabled={gasUrlSaving}
+                  className="px-4 py-2 bg-green-600 text-white text-xs font-bold rounded-lg hover:bg-green-700 disabled:opacity-50 whitespace-nowrap"
+                >
+                  {gasUrlSaving ? 'กำลังบันทึก...' : 'บันทึก URL'}
+                </button>
+              </div>
+              {gasUrl && (
+                <p className="text-[10px] text-green-600 mt-1">✓ ตั้งค่าแล้ว — หน้าจัดการสมาชิกจะใช้ URL นี้โดยอัตโนมัติ</p>
+              )}
+            </div>
+          </div>
+
           <div className="flex items-start space-x-4 mb-6">
             <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
               <SettingsIcon size={20} />
