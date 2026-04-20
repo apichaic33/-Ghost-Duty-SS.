@@ -13,7 +13,7 @@ interface LayoutProps {
 export default function Layout({ children, activeTab, setActiveTab, isAdmin }: LayoutProps) {
   const tabs = [
     { id: 'dashboard', label: 'ตารางกะ', icon: Calendar },
-    { id: 'team', label: 'ภาพรวมทั้งทีม', icon: Users },
+    { id: 'team', label: 'กะทั้งหมด', icon: Users },
     { id: 'requests', label: 'คำขอสลับกะ', icon: MessageSquare },
     { id: 'members', label: 'จัดการสมาชิก', icon: Users, adminOnly: true },
     { id: 'settings', label: 'ตั้งค่าระบบ', icon: Settings, adminOnly: true },
