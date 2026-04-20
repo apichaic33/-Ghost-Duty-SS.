@@ -239,7 +239,22 @@ export default function Settings({ member, setMember }: SettingsProps) {
                 </button>
               </div>
               {gasUrl && (
-                <p className="text-[10px] text-green-600 mt-1">✓ ตั้งค่าแล้ว — หน้าจัดการสมาชิกจะใช้ URL นี้โดยอัตโนมัติ</p>
+                <>
+                  <p className="text-[10px] text-green-600 mt-1">✓ ตั้งค่าแล้ว — หน้าจัดการสมาชิกจะใช้ URL นี้โดยอัตโนมัติ</p>
+                  <button
+                    onClick={handleSyncFromGas}
+                    disabled={syncing}
+                    className="mt-3 flex items-center space-x-2 px-4 py-2 bg-green-600 text-white text-xs font-bold rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
+                  >
+                    <RefreshCw size={14} className={syncing ? 'animate-spin' : ''} />
+                    <span>{syncing ? 'กำลัง Sync...' : 'Sync สมาชิกจาก GAS ทันที'}</span>
+                  </button>
+                  {syncResult && (
+                    <p className="text-[10px] text-green-700 mt-2 bg-green-50 px-3 py-1.5 rounded-lg border border-green-100">
+                      ✓ Sync เสร็จ — ใหม่ {syncResult.imported} คน · อัปเดต {syncResult.updated} คน
+                    </p>
+                  )}
+                </>
               )}
             </div>
           </div>
