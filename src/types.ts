@@ -23,6 +23,14 @@ export interface Member {
   notificationPreferences?: NotificationPreferences;
 }
 
+export interface ShiftPatternTemplate {
+  id: string;
+  name: string;
+  pattern: string; // comma-separated ShiftCodes
+  position?: 'SS' | 'AStS' | 'SP';
+  createdAt: string;
+}
+
 export interface ShiftProperty {
   id: string; // ShiftCode
   name: string; // e.g., "ดิวช่วย"
