@@ -238,7 +238,7 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-x-auto">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-x-auto pb-1">
         <table className="border-collapse text-xs" style={{ tableLayout: 'fixed', minWidth: '100%' }}>
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200">
