@@ -260,8 +260,8 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
               const isSelf = m.id === member.id;
               return (
                 <tr key={m.id} className={`hover:bg-gray-50/50 transition-colors ${isSelf ? 'bg-orange-50/20' : ''}`}>
-                  <td className={`sticky left-0 z-10 px-3 py-2 border-r border-gray-200 ${isSelf ? 'bg-orange-50/40' : 'bg-white'}`}
-                    style={{ minWidth: 170, width: 170 }}>
+                  <td className={`sticky left-0 z-10 px-3 py-2 border-r border-gray-200 ${isSelf ? 'bg-orange-50' : 'bg-white'}`}
+                    style={{ minWidth: 170, width: 170, boxShadow: '2px 0 4px -2px rgba(0,0,0,0.08)' }}>
                     <div className="flex items-center justify-between gap-1">
                       <p className="font-bold text-gray-800 truncate leading-tight" style={{ maxWidth: 100 }}>{m.name}</p>
                       <div className="flex items-center gap-0.5 shrink-0">
