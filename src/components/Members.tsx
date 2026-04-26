@@ -155,7 +155,7 @@ export default function Members() {
           await setDoc(doc(db, 'members', m.empId), {
             uid: m.empId,
             name: m.name,
-            position: (m.position as Member['position']) || undefined,
+            position: cleanPosition || undefined,
             station: m.department || '',
             zone: '',
             quotaA: 0,
