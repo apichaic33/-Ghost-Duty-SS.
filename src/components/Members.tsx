@@ -213,13 +213,19 @@ export default function Members() {
       </div>
 
       {/* Members grouped by position */}
-      {[
-        { pos: 'SS', label: 'นายสถานี (SS)', badge: 'bg-orange-50 text-orange-600 border-orange-200' },
-        { pos: 'AStS', label: 'ผู้ช่วยนายสถานี (AStS)', badge: 'bg-cyan-50 text-cyan-600 border-cyan-200' },
-        { pos: 'SP', label: 'เจ้าหน้าที่สถานี (SP)', badge: 'bg-purple-50 text-purple-600 border-purple-200' },
-        { pos: '', label: 'ไม่ระบุตำแหน่ง', badge: 'bg-gray-50 text-gray-500 border-gray-200' },
-      ].map(({ pos, label, badge }) => {
-        const group = members.filter(m => (m.position || '') === pos);
+      {(() => {
+        const knownPositions = ['SS', 'AStS', 'SP'];
+        const normalize = (p?: string) => (p || '').replace(/\.$/, '').trim();
+        const groups = [
+          { pos: 'SS', label: 'นายสถานี (SS)', badge: 'bg-orange-50 text-orange-600 border-orange-200' },
+          { pos: 'AStS', label: 'ผู้ช่วยนายสถานี (AStS)', badge: 'bg-cyan-50 text-cyan-600 border-cyan-200' },
+          { pos: 'SP', label: 'เจ้าหน้าที่สถานี (SP)', badge: 'bg-purple-50 text-purple-600 border-purple-200' },
+          { pos: '__other__', label: 'ไม่ระบุตำแหน่ง', badge: 'bg-gray-50 text-gray-500 border-gray-200' },
+        ];
+        return groups.map(({ pos, label, badge }) => {
+        const group = pos === '__other__'
+          ? members.filter(m => !knownPositions.includes(normalize(m.position)))
+          : members.filter(m => normalize(m.position) === pos);
         if (group.length === 0) return null;
         return (
           <div key={pos || 'none'} className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
