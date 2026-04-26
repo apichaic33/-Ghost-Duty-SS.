@@ -19,47 +19,46 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (u) => {
+    let unsubMember: (() => void) | null = null;
+
+    const unsubAuth = onAuthStateChanged(auth, async (u) => {
       setUser(u);
+      if (unsubMember) { unsubMember(); unsubMember = null; }
+
       if (u) {
         const docRef = doc(db, 'members', u.uid);
+        // Check if member doc exists first (for new admin bootstrap)
         const docSnap = await getDoc(docRef);
-        
-        if (docSnap.exists()) {
-          setMember({ id: docSnap.id, ...docSnap.data() } as Member);
-        } else {
-          // New user - allow basic setup if it's the first admin
-          if (u.email?.toLowerCase() === 'q.apichai@gmail.com') {
-             const newMember: Member = {
-               id: u.uid,
-               uid: u.uid,
-               name: u.displayName || 'Admin',
-               email: u.email || '',
-               station: 'HQ',
-               zone: 'Central',
-               quotaA: 10,
-               quotaH: 13,
-               quotaX: 4,
-               shiftPattern: 'S11,S11,S11,S11,S11,S11,X,X,S13,S13,S13,S13,S13,S13,X,X,S12,S12,X,X',
-               cycleStartDate: new Date().toISOString().split('T')[0],
-               role: 'admin'
-             };
-             try {
-               await setDoc(docRef, newMember);
-               setMember(newMember);
-             } catch (e) {
-               console.error("Error creating admin profile:", e);
-               toast.error("ไม่สามารถสร้างโปรไฟล์ผู้ดูแลระบบได้");
-             }
+        if (!docSnap.exists() && u.email?.toLowerCase() === 'q.apichai@gmail.com') {
+          const newMember: Member = {
+            id: u.uid, uid: u.uid,
+            name: u.displayName || 'Admin',
+            email: u.email || '',
+            station: 'HQ', zone: 'Central',
+            quotaA: 10, quotaH: 13, quotaX: 4,
+            shiftPattern: 'S11,S11,S11,S11,S11,S11,X,X,S13,S13,S13,S13,S13,S13,X,X,S12,S12,X,X',
+            cycleStartDate: new Date().toISOString().split('T')[0],
+            role: 'admin'
+          };
+          try { await setDoc(docRef, newMember); } catch (e) {
+            console.error('Error creating admin profile:', e);
+            toast.error('ไม่สามารถสร้างโปรไฟล์ผู้ดูแลระบบได้');
           }
         }
+
+        // Live listener — updates member state whenever Firestore doc changes
+        unsubMember = onSnapshot(docRef, (snap) => {
+          if (snap.exists()) setMember({ id: snap.id, ...snap.data() } as Member);
+          else setMember(null);
+          setLoading(false);
+        });
       } else {
         setMember(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => { unsubAuth(); if (unsubMember) unsubMember(); };
   }, []);
 
   const handleLogin = async () => {
