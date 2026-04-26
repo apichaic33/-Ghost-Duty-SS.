@@ -53,7 +53,8 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
   const [allShifts, setAllShifts] = useState<Shift[]>([]);
   const [shiftProps, setShiftProps] = useState<ShiftProperty[]>([]);
   const [loading, setLoading] = useState(true);
-  const [positionTab, setPositionTab] = useState<string>(member.position || 'All');
+  const normalizePos = (p?: string) => (p || '').replace(/\.$/, '').trim();
+  const [positionTab, setPositionTab] = useState<string>(normalizePos(member.position) || 'SS');
   const [editingShift, setEditingShift] = useState<{ member: Member; date: string } | null>(null);
   const [swapPopup, setSwapPopup] = useState<SwapPopup | null>(null);
   const [requestForm, setRequestForm] = useState<RequestForm | null>(null);
