@@ -179,6 +179,49 @@ export default function Members() {
     }
   };
 
+  // Duplicate detection
+  const [showDupModal, setShowDupModal] = useState(false);
+  const [selectedDups, setSelectedDups] = useState<Set<string>>(new Set());
+
+  const duplicateGroups = (() => {
+    const byName = new Map<string, Member[]>();
+    for (const m of members) {
+      const key = m.name.trim().toLowerCase();
+      byName.set(key, [...(byName.get(key) || []), m]);
+    }
+    return [...byName.values()].filter(g => g.length > 1);
+  })();
+
+  const openDupModal = () => {
+    // Pre-select empId docs (shorter IDs = imported from GAS, not real UID)
+    const toDelete = new Set<string>();
+    for (const group of duplicateGroups) {
+      // Sort: prefer Firebase UID (longer) as keeper, mark shorter empId for deletion
+      const sorted = [...group].sort((a, b) => b.id.length - a.id.length);
+      sorted.slice(1).forEach(m => toDelete.add(m.id));
+    }
+    setSelectedDups(toDelete);
+    setShowDupModal(true);
+  };
+
+  const handleDeleteDups = async () => {
+    if (selectedDups.size === 0) return;
+    if (!confirm(`ลบ ${selectedDups.size} รายการที่เลือกใช่ไหม?`)) return;
+    try {
+      await Promise.all([...selectedDups].map(id => deleteDoc(doc(db, 'members', id))));
+      toast.success(`ลบสำเร็จ ${selectedDups.size} รายการ`);
+      setShowDupModal(false);
+    } catch { toast.error('เกิดข้อผิดพลาด'); }
+  };
+
+  const toggleDup = (id: string) => {
+    setSelectedDups(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
   const toggleRole = async (member: Member) => {
     try {
       await updateDoc(doc(db, 'members', member.id), {
