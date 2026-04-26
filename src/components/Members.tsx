@@ -447,6 +447,18 @@ export default function Members() {
           <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl my-4">
             <div className="sticky top-0 bg-white rounded-t-2xl px-6 pt-6 pb-4 border-b border-gray-100 z-10">
               <h3 className="text-xl font-bold">{editingMember ? 'แก้ไขสมาชิก' : 'เพิ่มสมาชิก'}</h3>
+              {editingMember && (
+                <div className={`mt-1 flex items-center gap-2 text-[10px] font-mono px-2 py-1 rounded-lg w-fit ${
+                  editingMember.id === editingMember.uid
+                    ? 'bg-green-50 text-green-600'
+                    : 'bg-red-50 text-red-600'
+                }`}>
+                  <span>Doc ID: {editingMember.id}</span>
+                  {editingMember.id !== editingMember.uid && (
+                    <span className="font-bold not-italic">⚠ ไม่ใช่ Firebase UID — ควรลบ doc นี้แล้วแก้ doc UID แทน</span>
+                  )}
+                </div>
+              )}
             </div>
             <div className="px-6 pb-6">
             <h3 className="text-xl font-bold mb-4">{editingMember ? 'แก้ไขสมาชิก' : 'เพิ่มสมาชิก'}</h3>
