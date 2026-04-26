@@ -16,6 +16,7 @@ export default function Layout({ children, activeTab, setActiveTab, isAdmin }: L
     { id: 'team', label: 'กะทั้งหมด', icon: Users },
     { id: 'requests', label: 'คำขอสลับกะ', icon: MessageSquare },
     { id: 'members', label: 'จัดการสมาชิก', icon: Users, adminOnly: true },
+    { id: 'shiftpatterns', label: 'Shift Pattern', icon: LayoutGrid, adminOnly: true },
     { id: 'settings', label: 'ตั้งค่าระบบ', icon: Settings, adminOnly: true },
   ];
 
