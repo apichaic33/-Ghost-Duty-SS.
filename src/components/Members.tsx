@@ -143,10 +143,11 @@ export default function Members() {
       for (const m of gasMembers) {
         if (!selectedEmpIds.has(m.empId)) continue;
         const existing = members.find(ex => ex.uid === m.empId || ex.id === m.empId);
+        const cleanPosition = m.position?.replace(/\.$/, '').trim() as Member['position'];
         if (existing) {
           await updateDoc(doc(db, 'members', existing.id), {
             name: m.name,
-            ...(m.position && { position: m.position as Member['position'] }),
+            ...(cleanPosition && { position: cleanPosition }),
             ...(m.department && { station: m.department }),
           });
           updated++;
