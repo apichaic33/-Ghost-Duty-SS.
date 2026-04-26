@@ -64,9 +64,20 @@ export default function Members() {
 
   const openModal = (member: Member | null) => {
     setEditingMember(member);
-    setPatternInput(member?.shiftPattern || '');
-    setSelectedPos(null);
-    setCycleStartDate(member?.cycleStartDate || firstOfMonth.toISOString().split('T')[0]);
+    const pattern = member?.shiftPattern || '';
+    setPatternInput(pattern);
+    const existingCycleStart = member?.cycleStartDate || firstOfMonth.toISOString().split('T')[0];
+    setCycleStartDate(existingCycleStart);
+
+    // คำนวณ position ปัจจุบันจาก cycleStartDate ที่มีอยู่
+    if (member?.cycleStartDate && pattern) {
+      const patternArr = pattern.split(',').map(s => s.trim()).filter(Boolean);
+      const diff = differenceInDays(firstOfMonth, parseISO(member.cycleStartDate));
+      const pos = diff >= 0 ? diff % patternArr.length : null;
+      setSelectedPos(pos);
+    } else {
+      setSelectedPos(null);
+    }
     setShowModal(true);
   };
 
