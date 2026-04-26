@@ -70,9 +70,11 @@ export default function Members() {
     setCycleStartDate(existingCycleStart);
 
     // คำนวณ position ปัจจุบันจาก cycleStartDate ที่มีอยู่
+    // ใช้ parseISO สำหรับทั้งสองวันเพื่อให้ UTC-consistent
     if (member?.cycleStartDate && pattern) {
       const patternArr = pattern.split(',').map(s => s.trim()).filter(Boolean);
-      const diff = differenceInDays(firstOfMonth, parseISO(member.cycleStartDate));
+      const firstOfMonthStr = format(firstOfMonth, 'yyyy-MM-dd');
+      const diff = differenceInDays(parseISO(firstOfMonthStr), parseISO(member.cycleStartDate));
       const pos = diff >= 0 ? diff % patternArr.length : null;
       setSelectedPos(pos);
     } else {
