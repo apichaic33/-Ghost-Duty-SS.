@@ -520,9 +520,16 @@ export default function Members() {
               {/* Pattern Visualizer */}
               {patternArray.length > 0 && (
                 <div className="bg-orange-50 rounded-xl p-4 border border-orange-100">
-                  <p className="text-xs font-bold text-orange-700 uppercase mb-1">
-                    เลือกตำแหน่งที่ตรงกับวันที่ 1 {monthLabel}
-                  </p>
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-xs font-bold text-orange-700 uppercase">
+                      เลือกตำแหน่งที่ตรงกับวันที่ 1 {monthLabel}
+                    </p>
+                    {selectedPos !== null && editingMember?.cycleStartDate && (
+                      <span className="text-[10px] bg-orange-200 text-orange-800 px-2 py-0.5 rounded-full font-bold">
+                        ปัจจุบัน: position {selectedPos + 1} ({patternArray[selectedPos]})
+                      </span>
+                    )}
+                  </div>
 
                   {/* Usage Guide */}
                   <div className="bg-white rounded-lg px-3 py-2 border border-orange-100 mb-3 space-y-1">
