@@ -51,6 +51,12 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Shift pattern templates (admin manages, all members read)
+    match /shiftPatterns/{patternId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
     // System settings (admin manages, all members read)
     match /settings/{docId} {
       allow read: if isAuthenticated();
