@@ -48,13 +48,19 @@ export default function Dashboard({ member }: DashboardProps) {
     return () => unsub();
   }, [member.id]);
 
-  const generated = generateSchedule(member.id, member.shiftPattern, member.cycleStartDate, 2);
+  const generatedMap = useMemo(() => {
+    const schedule = generateSchedule(member.id, member.shiftPattern, member.cycleStartDate, 2);
+    return new Map(schedule.map(s => [s.date, s.shiftCode]));
+  }, [member.id, member.shiftPattern, member.cycleStartDate]);
+
+  const shiftsMap = useMemo(() =>
+    new Map(shifts.map(s => [s.date, s])),
+  [shifts]);
 
   const getShift = (dateStr: string): { code: ShiftCode; original?: ShiftCode; isDouble?: boolean } => {
-    const ex = shifts.find(s => s.date === dateStr);
+    const ex = shiftsMap.get(dateStr);
     if (ex) return { code: ex.shiftCode, original: ex.originalShiftCode, isDouble: ex.isDoubleShift };
-    const gen = generated.find(s => s.date === dateStr);
-    return { code: (gen?.shiftCode as ShiftCode) || 'X' };
+    return { code: (generatedMap.get(dateStr) as ShiftCode) || 'X' };
   };
 
   const markCode = async (dateStr: string, newCode: 'H' | 'A') => {
