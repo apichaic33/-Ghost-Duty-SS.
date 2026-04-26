@@ -9,6 +9,7 @@ import Requests from './components/Requests';
 import Members from './components/Members';
 import Settings from './components/Settings';
 import TeamSchedule from './components/TeamSchedule';
+import ShiftPatterns from './components/ShiftPatterns';
 import { Toaster, toast } from 'sonner';
 
 export default function App() {
