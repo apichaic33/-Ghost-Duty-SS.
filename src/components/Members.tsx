@@ -578,6 +578,55 @@ export default function Members() {
                 </button>
               </div>
             </form>
+            </div>{/* end scrollable content */}
+          </div>
+        </div>
+      )}
+
+      {/* Duplicate Members Modal */}
+      {showDupModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl">
+            <div className="px-6 pt-6 pb-4 border-b border-gray-100">
+              <div className="flex items-center gap-2">
+                <AlertTriangle size={18} className="text-red-500" />
+                <h3 className="text-lg font-bold">พบข้อมูลซ้ำ</h3>
+              </div>
+              <p className="text-xs text-gray-400 mt-1">เลือกรายการที่ต้องการลบ ระบบจะเก็บไว้เฉพาะที่ไม่ถูกเลือก</p>
+            </div>
+            <div className="px-6 py-4 max-h-96 overflow-y-auto space-y-4">
+              {duplicateGroups.map(group => (
+                <div key={group[0].name} className="border border-gray-200 rounded-xl overflow-hidden">
+                  <div className="bg-gray-50 px-4 py-2 text-xs font-bold text-gray-600">{group[0].name}</div>
+                  {group.map(m => (
+                    <button key={m.id} onClick={() => toggleDup(m.id)}
+                      className={`w-full flex items-center justify-between px-4 py-2.5 text-sm border-t border-gray-100 transition-colors ${
+                        selectedDups.has(m.id) ? 'bg-red-50 text-red-700' : 'hover:bg-gray-50 text-gray-700'
+                      }`}>
+                      <div className="text-left">
+                        <p className="font-mono text-[11px] text-gray-400">{m.id}</p>
+                        <p className="text-xs">{m.station} · {m.position || '—'} · {m.role}</p>
+                      </div>
+                      {selectedDups.has(m.id)
+                        ? <span className="text-[10px] font-bold text-red-500 bg-red-100 px-2 py-0.5 rounded-full">ลบ</span>
+                        : <span className="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">เก็บ</span>
+                      }
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
+            <div className="px-6 py-4 border-t border-gray-100 flex space-x-2">
+              <button onClick={() => setShowDupModal(false)}
+                className="flex-1 py-2 text-sm text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium">
+                ยกเลิก
+              </button>
+              <button onClick={handleDeleteDups} disabled={selectedDups.size === 0}
+                className="flex-1 py-2 text-sm text-white font-bold bg-red-600 hover:bg-red-700 rounded-lg disabled:opacity-40 flex items-center justify-center gap-2">
+                <Trash2 size={14} />
+                ลบ {selectedDups.size} รายการ
+              </button>
+            </div>
           </div>
         </div>
       )}
