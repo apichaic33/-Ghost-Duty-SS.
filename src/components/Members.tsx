@@ -238,6 +238,13 @@ export default function Members() {
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-800">จัดการสมาชิก</h2>
         <div className="flex items-center space-x-2">
+          {duplicateGroups.length > 0 && (
+            <button onClick={openDupModal}
+              className="flex items-center space-x-2 bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded-xl font-bold hover:bg-red-100 transition-colors shadow-sm">
+              <AlertTriangle size={16} />
+              <span>ข้อมูลซ้ำ ({duplicateGroups.length})</span>
+            </button>
+          )}
           <button
             onClick={() => { setShowImportModal(true); if (gasUrl && gasMembers.length === 0) setTimeout(fetchFromGas, 50); }}
             className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-sm"
