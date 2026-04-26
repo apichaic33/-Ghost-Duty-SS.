@@ -101,11 +101,10 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
   const getShift = (m: Member, dateStr: string): string =>
     shiftsMap.get(`${m.id}_${dateStr}`) ?? generatedMap.get(m.id)?.get(dateStr) ?? 'X';
 
-  // Non-admin: same position only. Admin: by positionTab
-  const visibleMembers = useMemo(() => members.filter(m => {
-    if (isAdmin) return positionTab === 'All' || m.position === positionTab;
-    return m.position === member.position;
-  }), [members, isAdmin, positionTab, member.position]);
+  // Both admin and member: filter by positionTab
+  const visibleMembers = useMemo(() => members.filter(m =>
+    normalizePos(m.position) === positionTab
+  ), [members, positionTab]);
 
   const getUsage = (m: Member, code: string) =>
     days.filter(d => getShift(m, format(d, 'yyyy-MM-dd')) === code).length;
