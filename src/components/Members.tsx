@@ -276,8 +276,8 @@ export default function Members() {
             </table>
           </div>
         );
-      })}
-      )()}
+      });
+      })()}
 
       {/* Import from GAS Modal */}
       {showImportModal && (
