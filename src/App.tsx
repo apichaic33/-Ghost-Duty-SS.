@@ -133,6 +133,7 @@ export default function App() {
       {activeTab === 'team' && <TeamSchedule member={member} isAdmin={member.role === 'admin'} />}
       {activeTab === 'requests' && <Requests member={member} />}
       {activeTab === 'members' && member.role === 'admin' && <Members />}
+      {activeTab === 'shiftpatterns' && member.role === 'admin' && <ShiftPatterns />}
       {activeTab === 'settings' && member.role === 'admin' && <Settings member={member} setMember={setMember} />}
       <Toaster position="top-center" />
     </Layout>
