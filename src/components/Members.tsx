@@ -48,7 +48,6 @@ export default function Members() {
 
   const today = new Date();
   const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-  const monthLabel = format(firstOfMonth, 'MMMM yyyy', { locale: th });
 
   const patternArray = patternInput.split(',').map(s => s.trim()).filter(Boolean);
 
