@@ -598,7 +598,7 @@ export default function Members() {
                         {patternArray[selectedPos]}
                       </div>
                       <span className="text-xs text-gray-600">
-                        วันที่ 1 {monthLabel} = ตำแหน่งที่ {selectedPos + 1} ของรอบ
+                        วันนี้ ({format(today, 'd MMM', { locale: th })}) = ตำแหน่งที่ {selectedPos + 1} ของรอบ
                       </span>
                       <span className="text-[10px] text-gray-400 ml-auto">
                         cycleStart: {cycleStartDate}
