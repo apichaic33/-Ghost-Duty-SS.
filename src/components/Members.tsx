@@ -551,13 +551,13 @@ export default function Members() {
                   <div className="bg-white rounded-lg px-3 py-2 border border-orange-100 mb-3 space-y-1">
                     <p className="text-[11px] font-bold text-gray-600">วิธีใช้</p>
                     <p className="text-[10px] text-gray-500">
-                      1. ดูว่าสมาชิกทำกะ<span className="font-bold text-gray-700">อะไรวันนี้</span> เช่น S12
+                      1. ดูว่าสมาชิกทำกะ<span className="font-bold text-gray-700">อะไรในวันที่ 1 {monthLabel}</span> เช่น S12
                     </p>
                     <p className="text-[10px] text-gray-500">
-                      2. นับว่าอยู่ในกะนั้น<span className="font-bold text-gray-700">วันที่เท่าไหร่ของกะ</span> เช่น ทำ S12 มาแล้ว 4 วัน = วันที่ 4 ของ S12
+                      2. นับว่าวันที่ 1 นั้นเป็น<span className="font-bold text-gray-700">วันที่เท่าไหร่ของกะ S12 ในรอบ</span> เช่น S12 วันที่ 5
                     </p>
                     <p className="text-[10px] text-gray-500">
-                      3. กดที่ช่อง S12 <span className="font-bold text-gray-700">ตำแหน่งที่ 4</span> ของ S12 ในรอบ
+                      3. กดที่ช่อง S12 <span className="font-bold text-gray-700">ตำแหน่งที่ 5</span> → ระบบจะแสดง S12 ต่ออีก 2 วัน (วันที่ 1–2) แล้วขึ้น XX
                     </p>
                     <p className="text-[10px] text-orange-500 font-medium pt-0.5">
                       → ระบบจะคำนวณ cycleStartDate ให้อัตโนมัติ
