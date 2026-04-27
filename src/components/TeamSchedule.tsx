@@ -55,9 +55,6 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
     const unsubMembers = onSnapshot(collection(db, 'members'), (snap) => {
       setMembers(snap.docs.map(d => ({ id: d.id, ...d.data() } as Member)));
     });
-    const unsubProps = onSnapshot(collection(db, 'shiftProperties'), (snap) => {
-      setShiftProps(snap.docs.map(d => ({ id: d.id, ...d.data() } as ShiftProperty)));
-    });
     const q = query(
       collection(db, 'shifts'),
       where('date', '>=', format(monthStart, 'yyyy-MM-dd')),
