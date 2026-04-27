@@ -64,7 +64,7 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
       setAllShifts(snap.docs.map(d => ({ id: d.id, ...d.data() } as Shift)));
       setLoading(false);
     });
-    return () => { unsubMembers(); unsubProps(); unsubShifts(); };
+    return () => { unsubMembers(); unsubShifts(); };
   }, [currentDate]);
 
   const shiftsMap = useMemo(() => {
