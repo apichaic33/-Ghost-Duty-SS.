@@ -347,7 +347,7 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
                 <p className="font-bold text-gray-800 text-sm mt-0.5">{swapPopup.targetMember.name}</p>
                 <p className="text-xs text-gray-500">{format(new Date(swapPopup.targetDate + 'T00:00:00'), 'd MMMM yyyy', { locale: th })}</p>
               </div>
-              <span className={`px-3 py-1.5 rounded-lg text-sm font-bold ${SHIFT_COLORS[swapPopup.targetShift] || 'bg-gray-100'}`}>{swapPopup.targetShift}</span>
+              <span className="px-3 py-1.5 rounded-lg text-sm font-bold" style={getOtherShiftStyle(swapPopup.targetShift)}>{swapPopup.targetShift}</span>
             </div>
             <div className="space-y-2">
               <button onClick={() => openRequestForm('swap', swapPopup)}
