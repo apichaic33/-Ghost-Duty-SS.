@@ -538,7 +538,7 @@ export default function Members() {
                 <div className="bg-orange-50 rounded-xl p-4 border border-orange-100">
                   <div className="flex items-center justify-between mb-1">
                     <p className="text-xs font-bold text-orange-700 uppercase">
-                      เลือกกะที่ตรงกับ<span className="text-orange-600"> วันนี้ ({format(today, 'd MMM yyyy', { locale: th })})</span>
+                      เลือกกะที่ตรงกับ<span className="text-orange-600"> วันที่ 1 {monthLabel}</span>
                     </p>
                     {selectedPos !== null && (
                       <span className="text-[10px] bg-orange-200 text-orange-800 px-2 py-0.5 rounded-full font-bold">
