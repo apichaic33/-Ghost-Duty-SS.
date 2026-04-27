@@ -38,12 +38,14 @@ export default function Settings({ member, setMember }: SettingsProps) {
   const handleAddShiftProp = async () => {
     if (!newShiftProp.id || !newShiftProp.name) return;
     try {
-      await setDoc(doc(db, 'shiftProperties', newShiftProp.id), {
+      await setDoc(doc(db, 'shiftProperties', newShiftProp.id.toUpperCase()), {
         name: newShiftProp.name,
-        color: newShiftProp.color
+        color: newShiftProp.color || '#ea580c',
+        timeSlot: newShiftProp.timeSlot || 'morning',
+        isMain: newShiftProp.isMain ?? true,
       });
-      setNewShiftProp({ id: '', name: '', color: 'bg-blue-100 text-blue-700' });
-      toast.success('เพิ่มคุณสมบัติกะสำเร็จ');
+      setNewShiftProp({ id: '', name: '', color: '#ea580c', timeSlot: 'morning', isMain: true });
+      toast.success('เพิ่มรหัสกะสำเร็จ');
     } catch (e) {
       toast.error('เกิดข้อผิดพลาด');
     }
