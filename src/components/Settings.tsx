@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { doc, updateDoc, collection, onSnapshot, setDoc, deleteDoc, getDoc, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
-import { Member, NotificationPreferences, ShiftProperty } from '../types';
+import { Member, NotificationPreferences, ShiftProperty, ShiftTimeSlot } from '../types';
 import { toast } from 'sonner';
 import { Bell, User, CheckCircle2, XCircle, Settings as SettingsIcon, Plus, Trash2, Link, RefreshCw } from 'lucide-react';
 
