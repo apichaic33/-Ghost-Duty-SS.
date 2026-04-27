@@ -14,16 +14,16 @@ const EMAILJS_TEMPLATE_ID = 'template_nfo6sld';
 const EMAILJS_PUBLIC_KEY = 'YY8IVNkVN-qhgglkU';
 
 const SHIFT_COLORS: Record<string, string> = {
-  'S11': 'bg-blue-100 text-blue-700',
-  'S12': 'bg-green-100 text-green-700',
-  'S13': 'bg-purple-100 text-purple-700',
-  'AL-S11': 'bg-orange-100 text-orange-700',
-  'AL-S12': 'bg-orange-100 text-orange-700',
-  'AL-S13': 'bg-orange-100 text-orange-700',
-  'S78': 'bg-yellow-100 text-yellow-700',
-  'X': 'bg-gray-50 text-gray-400',
-  'A': 'bg-red-100 text-red-700',
-  'H': 'bg-pink-100 text-pink-700',
+  'S11': 'bg-orange-50 text-orange-700',
+  'S12': 'bg-orange-50 text-orange-700',
+  'S13': 'bg-orange-50 text-orange-700',
+  'AL-S11': 'bg-amber-50 text-amber-600',
+  'AL-S12': 'bg-amber-50 text-amber-600',
+  'AL-S13': 'bg-amber-50 text-amber-600',
+  'S78': 'bg-orange-50 text-orange-700',
+  'X': 'bg-white text-gray-300',
+  'A': 'bg-red-50 text-red-500',
+  'H': 'bg-rose-50 text-rose-500',
 };
 
 interface TeamScheduleProps {
