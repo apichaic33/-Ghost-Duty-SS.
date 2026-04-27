@@ -329,7 +329,7 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
       <div className="flex flex-wrap gap-3 text-[10px] font-bold text-gray-500 bg-gray-50 p-3 rounded-xl border border-gray-200">
         {shiftProps.length > 0 ? shiftProps.map(p => (
           <div key={p.id} className="flex items-center space-x-1">
-            <div className={`w-3 h-3 rounded ${SHIFT_COLORS[p.id] || 'bg-gray-200'}`} />
+            <div className={`w-3 h-3 rounded ${SELF_COLORS[p.id] || 'bg-gray-200'}`} />
             <span>{p.id}: {p.name}</span>
           </div>
         )) : [['S11','bg-orange-50','เช้า'],['S12','bg-orange-50','บ่าย'],['S13','bg-orange-50','ดึก'],
