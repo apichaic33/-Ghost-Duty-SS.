@@ -575,7 +575,7 @@ export default function Members() {
 
                   {selectedPos !== null ? (
                     <div className="mt-3 flex items-center space-x-2 bg-white rounded-lg px-3 py-2 border border-orange-200">
-                      <div className={`px-2 py-0.5 rounded text-xs font-bold border ${SHIFT_COLORS[patternArray[selectedPos]] || ''}`}>
+                      <div className="px-2 py-0.5 rounded text-xs font-bold border" style={getShiftStyle(patternArray[selectedPos])}>
                         {patternArray[selectedPos]}
                       </div>
                       <span className="text-xs text-gray-600">
