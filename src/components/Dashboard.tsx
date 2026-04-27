@@ -9,16 +9,16 @@ import { generateSchedule } from '../lib/scheduleUtils';
 import { toast } from 'sonner';
 
 const SHIFT_COLORS: Record<string, string> = {
-  'S11': 'bg-blue-100 text-blue-700 border-blue-200',
-  'S12': 'bg-green-100 text-green-700 border-green-200',
-  'S13': 'bg-purple-100 text-purple-700 border-purple-200',
-  'AL-S11': 'bg-orange-100 text-orange-700 border-orange-200',
-  'AL-S12': 'bg-orange-100 text-orange-700 border-orange-200',
-  'AL-S13': 'bg-orange-100 text-orange-700 border-orange-200',
-  'S78': 'bg-yellow-100 text-yellow-700 border-yellow-200',
-  'X': 'bg-gray-100 text-gray-500 border-gray-200',
-  'A': 'bg-red-100 text-red-700 border-red-200',
-  'H': 'bg-pink-100 text-pink-700 border-pink-200',
+  'S11': 'bg-orange-50 text-orange-700 border-orange-200',
+  'S12': 'bg-orange-50 text-orange-700 border-orange-200',
+  'S13': 'bg-orange-50 text-orange-700 border-orange-200',
+  'AL-S11': 'bg-amber-50 text-amber-600 border-amber-200',
+  'AL-S12': 'bg-amber-50 text-amber-600 border-amber-200',
+  'AL-S13': 'bg-amber-50 text-amber-600 border-amber-200',
+  'S78': 'bg-orange-50 text-orange-700 border-orange-200',
+  'X': 'bg-white text-gray-300 border-gray-200',
+  'A': 'bg-red-50 text-red-500 border-red-200',
+  'H': 'bg-rose-50 text-rose-500 border-rose-200',
 };
 
 interface DashboardProps {
