@@ -134,17 +134,42 @@ export default function Dashboard({ member }: DashboardProps) {
         const diff = member.cycleStartDate ? differenceInDays(parseISO(todayStr), parseISO(member.cycleStartDate)) : null;
         const patternIdx = diff !== null && patternArr.length > 0 ? ((diff % patternArr.length) + patternArr.length) % patternArr.length : null;
         const expectedShift = patternIdx !== null ? patternArr[patternIdx] : '—';
+        const overrideShifts = shifts.filter(s => s.shiftCode !== 'A' && s.shiftCode !== 'H');
+
+        const clearOverrides = async () => {
+          if (!confirm(`ลบ shift override ${overrideShifts.length} รายการ (S11/S12/S13 เก่า) ใช่ไหม?\nปฏิทินจะคำนวณจาก pattern ใหม่ทั้งหมด`)) return;
+          try {
+            await Promise.all(overrideShifts.map(s => deleteDoc(doc(db, 'shifts', s.id))));
+            toast.success(`ล้าง override สำเร็จ ${overrideShifts.length} รายการ`);
+          } catch { toast.error('เกิดข้อผิดพลาด'); }
+        };
+
         return (
           <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-xs font-mono space-y-1">
-            <p className="text-yellow-700 font-bold text-[11px] uppercase mb-2">🔍 Debug — ข้อมูลจาก Firestore (member doc: {member.id})</p>
+            <p className="text-yellow-700 font-bold text-[11px] uppercase mb-2">🔍 Debug — Firestore doc: {member.id}</p>
             <p><span className="text-gray-500">shiftPattern:</span> <span className="text-gray-800 break-all">{member.shiftPattern || '—'}</span></p>
             <p><span className="text-gray-500">cycleStartDate:</span> <span className="text-gray-800">{member.cycleStartDate || '—'}</span></p>
             <p><span className="text-gray-500">patternLength:</span> <span className="text-gray-800">{patternArr.length} วัน</span></p>
             <div className="border-t border-yellow-200 pt-1 mt-1">
               <p><span className="text-gray-500">วันนี้ ({todayStr}):</span></p>
-              <p className="pl-2"><span className="text-gray-500">diff จาก cycleStart =</span> <span className="text-blue-700 font-bold">{diff ?? '—'} วัน</span></p>
-              <p className="pl-2"><span className="text-gray-500">patternIndex =</span> <span className="text-blue-700 font-bold">{patternIdx !== null ? `${patternIdx} (position ${(patternIdx ?? 0) + 1})` : '—'}</span></p>
-              <p className="pl-2"><span className="text-gray-500">กะที่ควรแสดง =</span> <span className={`font-bold ${SHIFT_COLORS[expectedShift]?.includes('blue') ? 'text-blue-700' : SHIFT_COLORS[expectedShift]?.includes('green') ? 'text-green-700' : SHIFT_COLORS[expectedShift]?.includes('purple') ? 'text-purple-700' : 'text-gray-700'}`}>{expectedShift}</span></p>
+              <p className="pl-2"><span className="text-gray-500">diff =</span> <span className="text-blue-700 font-bold">{diff ?? '—'} วัน</span> <span className="text-gray-500 ml-2">index =</span> <span className="text-blue-700 font-bold">{patternIdx !== null ? `${patternIdx} (pos ${patternIdx + 1})` : '—'}</span> <span className="text-gray-500 ml-2">→</span> <span className="font-bold text-blue-700">{expectedShift}</span></p>
+            </div>
+            <div className={`border-t pt-1 mt-1 ${overrideShifts.length > 0 ? 'border-red-300' : 'border-yellow-200'}`}>
+              <div className="flex items-center justify-between">
+                <p className={`font-bold ${overrideShifts.length > 0 ? 'text-red-600' : 'text-gray-500'}`}>
+                  Shift overrides (S11/S12/S13 เก่าใน Firestore): {overrideShifts.length} รายการ
+                  {overrideShifts.length > 0 && <span className="ml-1 text-red-500">← สาเหตุที่ปฏิทินผิด!</span>}
+                </p>
+                {overrideShifts.length > 0 && (
+                  <button onClick={clearOverrides}
+                    className="ml-2 px-3 py-1 bg-red-600 text-white text-[10px] font-bold rounded-lg hover:bg-red-700 shrink-0">
+                    ล้าง Override
+                  </button>
+                )}
+              </div>
+              {overrideShifts.length > 0 && (
+                <p className="text-red-400 text-[10px] mt-0.5">shift เหล่านี้ถูก save ไว้ใน Firestore และ override การคำนวณจาก pattern</p>
+              )}
             </div>
           </div>
         );
