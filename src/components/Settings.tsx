@@ -102,6 +102,33 @@ export default function Settings({ member, setMember }: SettingsProps) {
     finally { setSyncing(false); }
   };
 
+  const handleSeedShiftProps = async () => {
+    if (!confirm('Seed รหัสกะเริ่มต้น 10 รายการเข้า Firestore ใช่ไหม? (จะข้ามถ้ามีอยู่แล้ว)')) return;
+    const defaults: Array<{ id: string; name: string; color: string; timeSlot: string; isMain: boolean }> = [
+      { id: 'S11',    name: 'กะเช้า',              color: '#ea580c', timeSlot: 'morning',   isMain: true  },
+      { id: 'S12',    name: 'กะบ่าย',              color: '#ea580c', timeSlot: 'afternoon', isMain: true  },
+      { id: 'S13',    name: 'กะดึก',               color: '#ea580c', timeSlot: 'night',     isMain: true  },
+      { id: 'S78',    name: 'กะพิเศษ',             color: '#ea580c', timeSlot: 'morning',   isMain: true  },
+      { id: 'AL-S11', name: 'ลา + กะเช้า',         color: '#d97706', timeSlot: 'morning',   isMain: false },
+      { id: 'AL-S12', name: 'ลา + กะบ่าย',         color: '#d97706', timeSlot: 'afternoon', isMain: false },
+      { id: 'AL-S13', name: 'ลา + กะดึก',          color: '#d97706', timeSlot: 'night',     isMain: false },
+      { id: 'X',      name: 'วันหยุด',             color: '#9ca3af', timeSlot: 'rest',      isMain: true  },
+      { id: 'A',      name: 'ลาพักร้อน',           color: '#ef4444', timeSlot: 'leave',     isMain: false },
+      { id: 'H',      name: 'วันหยุดนักขัตฤกษ์',  color: '#f43f5e', timeSlot: 'holiday',   isMain: false },
+    ];
+    try {
+      const existingIds = new Set(shiftProps.map(p => p.id));
+      let added = 0;
+      for (const d of defaults) {
+        if (!existingIds.has(d.id)) {
+          await setDoc(doc(db, 'shiftProperties', d.id), d);
+          added++;
+        }
+      }
+      toast.success(added > 0 ? `Seed สำเร็จ ${added} รหัส` : 'มีครบแล้ว ไม่มีรหัสใหม่');
+    } catch { toast.error('เกิดข้อผิดพลาด'); }
+  };
+
   const handleDeleteShiftProp = async (id: string) => {
     try {
       await deleteDoc(doc(db, 'shiftProperties', id));
