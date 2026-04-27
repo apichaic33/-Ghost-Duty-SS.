@@ -37,9 +37,9 @@ interface RequestForm {
 
 export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const { shiftProps, getShiftStyle, getOtherShiftStyle, getColor } = useShiftProperties();
   const [members, setMembers] = useState<Member[]>([]);
   const [allShifts, setAllShifts] = useState<Shift[]>([]);
-  const [shiftProps, setShiftProps] = useState<ShiftProperty[]>([]);
   const [loading, setLoading] = useState(true);
   const normalizePos = (p?: string) => (p || '').replace(/\.$/, '').trim();
   const [positionTab, setPositionTab] = useState<string>(normalizePos(member.position) || 'SS');
