@@ -564,8 +564,8 @@ export default function Members() {
                         className={`flex flex-col items-center justify-center w-10 h-12 rounded-lg border text-[10px] font-bold transition-all
                           ${selectedPos === idx
                             ? 'ring-2 ring-orange-500 ring-offset-1 scale-110 shadow-md'
-                            : 'hover:scale-105 hover:shadow-sm'}
-                          ${SHIFT_COLORS[code] || 'bg-gray-100 text-gray-500 border-gray-300'}`}
+                            : 'hover:scale-105 hover:shadow-sm'}`}
+                        style={getShiftStyle(code)}
                       >
                         <span className="text-[8px] opacity-50 font-normal">{idx + 1}</span>
                         <span>{code}</span>
