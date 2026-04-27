@@ -61,20 +61,21 @@ export default function Members() {
     return () => unsubscribe();
   }, []);
 
-  const todayStr = format(today, 'yyyy-MM-dd');
+  const firstOfMonthStr = format(firstOfMonth, 'yyyy-MM-dd');
+  const monthLabel = format(firstOfMonth, 'MMMM yyyy', { locale: th });
 
   const openModal = (member: Member | null) => {
     setEditingMember(member);
     const pattern = member?.shiftPattern || '';
     setPatternInput(pattern);
-    const existingCycleStart = member?.cycleStartDate || firstOfMonth.toISOString().split('T')[0];
+    const existingCycleStart = member?.cycleStartDate || firstOfMonthStr;
     setCycleStartDate(existingCycleStart);
 
-    // แสดง position ของ "วันนี้" จาก cycleStartDate ที่มีอยู่
+    // แสดง position ของ "วันที่ 1 ของเดือน" จาก cycleStartDate ที่มีอยู่
     if (member?.cycleStartDate && pattern) {
       const patternArr = pattern.split(',').map(s => s.trim()).filter(Boolean);
-      const diff = differenceInDays(parseISO(todayStr), parseISO(member.cycleStartDate));
-      const pos = ((diff % patternArr.length) + patternArr.length) % patternArr.length;
+      const diff = differenceInDays(parseISO(firstOfMonthStr), parseISO(member.cycleStartDate));
+      const pos = diff >= 0 ? diff % patternArr.length : null;
       setSelectedPos(pos);
     } else {
       setSelectedPos(null);
@@ -84,19 +85,10 @@ export default function Members() {
 
   const handleSelectPosition = (index: number) => {
     setSelectedPos(index);
-    const patternLen = patternArray.length;
-    if (patternLen === 0) return;
-
-    // คำนวณ cycleStartDate จาก "วันนี้ = position index"
-    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    // cycleStartDate = วันที่ 1 ของเดือน - index วัน
+    // → วันที่ 1 จะอยู่ที่ pattern[index] พอดี
+    const d = new Date(firstOfMonth);
     d.setDate(d.getDate() - index);
-
-    // ดึง cycleStartDate ย้อนกลับทีละ cycle จนกว่าจะอยู่ก่อนต้นเดือน
-    // เพื่อให้ generateSchedule ครอบคลุมทุกวันที่แสดงใน Dashboard
-    while (d > firstOfMonth) {
-      d.setDate(d.getDate() - patternLen);
-    }
-
     setCycleStartDate(format(d, 'yyyy-MM-dd'));
   };
 
