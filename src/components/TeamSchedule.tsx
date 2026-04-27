@@ -4,7 +4,7 @@ import { th } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight, RefreshCw, X as CloseIcon } from 'lucide-react';
 import { collection, onSnapshot, query, where, doc, setDoc, addDoc } from 'firebase/firestore';
 import { db } from '../firebase';
-import { Member, Shift, ShiftCode, ShiftProperty } from '../types';
+import { Member, Shift, ShiftCode } from '../types';
 import { generateSchedule, getShiftCode } from '../lib/scheduleUtils';
 import { toast } from 'sonner';
 import emailjs from '@emailjs/browser';
