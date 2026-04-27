@@ -384,7 +384,7 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
                 </p>
                 <p className="font-bold text-gray-800 text-sm mt-0.5">กับ {requestForm.targetMember.name}</p>
               </div>
-              <span className={`px-3 py-1.5 rounded-lg text-sm font-bold ${SHIFT_COLORS[requestForm.targetShift] || 'bg-gray-100'}`}>{requestForm.targetShift}</span>
+              <span className="px-3 py-1.5 rounded-lg text-sm font-bold" style={getOtherShiftStyle(requestForm.targetShift)}>{requestForm.targetShift}</span>
             </div>
 
             <div className="space-y-3">
