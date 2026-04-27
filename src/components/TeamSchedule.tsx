@@ -14,6 +14,19 @@ const EMAILJS_TEMPLATE_ID = 'template_nfo6sld';
 const EMAILJS_PUBLIC_KEY = 'YY8IVNkVN-qhgglkU';
 
 const SHIFT_COLORS: Record<string, string> = {
+  'S11': 'bg-gray-100 text-gray-500',
+  'S12': 'bg-gray-100 text-gray-500',
+  'S13': 'bg-gray-100 text-gray-500',
+  'AL-S11': 'bg-gray-100 text-gray-400',
+  'AL-S12': 'bg-gray-100 text-gray-400',
+  'AL-S13': 'bg-gray-100 text-gray-400',
+  'S78': 'bg-gray-100 text-gray-500',
+  'X': 'bg-white text-gray-300',
+  'A': 'bg-red-50 text-red-400',
+  'H': 'bg-rose-50 text-rose-400',
+};
+
+const SELF_COLORS: Record<string, string> = {
   'S11': 'bg-orange-50 text-orange-700',
   'S12': 'bg-orange-50 text-orange-700',
   'S13': 'bg-orange-50 text-orange-700',
