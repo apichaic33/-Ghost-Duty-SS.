@@ -7,6 +7,7 @@ import { th } from 'date-fns/locale';
 import { Check, X, ArrowRightLeft, Repeat } from 'lucide-react';
 import { toast } from 'sonner';
 import emailjs from '@emailjs/browser';
+import { useShiftProperties } from '../hooks/useShiftProperties';
 
 const EMAILJS_SERVICE_ID = 'service_yamka';
 const EMAILJS_TEMPLATE_ID = 'template_nfo6sld';
