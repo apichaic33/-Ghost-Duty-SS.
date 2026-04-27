@@ -400,7 +400,7 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
               {requestForm.type === 'swap' && (
                 <div className="bg-orange-50 rounded-lg px-3 py-2 text-xs text-orange-700">
                   วันที่แลก: <span className="font-bold">{format(new Date(requestForm.targetDate + 'T00:00:00'), 'd MMM yyyy', { locale: th })}</span>
-                  {' '}กะ <span className={`px-1.5 py-0.5 rounded font-bold ${SHIFT_COLORS[requestForm.targetShift] || ''}`}>{requestForm.targetShift}</span>
+                  {' '}กะ <span className="px-1.5 py-0.5 rounded font-bold" style={getOtherShiftStyle(requestForm.targetShift)}>{requestForm.targetShift}</span>
                 </div>
               )}
 
