@@ -279,8 +279,8 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
                           }}
                           disabled={!isAdmin && isSelf}
                           className={`w-full h-7 flex items-center justify-center rounded text-[10px] font-bold transition-all
-                            ${!isAdmin && isSelf ? 'cursor-default opacity-70' : 'hover:opacity-75 active:scale-95 cursor-pointer'}
-                            ${(isSelf ? SELF_COLORS : SHIFT_COLORS)[code] || 'bg-gray-100 text-gray-500'}`}
+                            ${!isAdmin && isSelf ? 'cursor-default opacity-70' : 'hover:opacity-75 active:scale-95 cursor-pointer'}`}
+                          style={isSelf ? getShiftStyle(code) : getOtherShiftStyle(code)}
                         >
                           {code}
                         </button>
