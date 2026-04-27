@@ -260,7 +260,7 @@ export default function Dashboard({ member }: DashboardProps) {
                 <p className="text-xs text-gray-400 uppercase font-bold">วันที่</p>
                 <p className="font-bold text-gray-800">{format(new Date(selectedDay + 'T00:00:00'), 'd MMMM yyyy', { locale: th })}</p>
               </div>
-              <span className={`px-3 py-1.5 rounded-lg text-sm font-bold border ${SHIFT_COLORS[selShift.code] || 'bg-gray-100'}`}>
+              <span className="px-3 py-1.5 rounded-lg text-sm font-bold border" style={getShiftStyle(selShift.code)}>
                 {selShift.code}
               </span>
             </div>
