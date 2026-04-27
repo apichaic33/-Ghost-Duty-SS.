@@ -15,6 +15,8 @@
 - Admin email ใน `.env.production` = `q.apichai@gmail.com`
 - EmailJS สมัครแล้ว เชื่อม Outlook (`ApichaiC.583986@outlook.co.th`)
 - Email Template สร้างแล้ว (subject, to_email, message)
+- **[2026-04-26] แก้การคำนวณกะ**: Debug Panel ใน Dashboard, ล้าง shift overrides (S11/S12/S13 เก่าใน Firestore), position selection ใช้วันที่ 1 ของเดือนเป็น reference (`cycleStartDate = firstOfMonth - index`)
+- **[2026-04-26] Members.tsx**: Doc ID indicator (green=UID match, red=GAS empId warning), duplicate detection + bulk delete
 
 ---
 
