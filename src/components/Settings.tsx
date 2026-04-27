@@ -293,8 +293,17 @@ export default function Settings({ member, setMember }: SettingsProps) {
               <SettingsIcon size={20} />
             </div>
             <div className="flex-1">
-              <label className="block text-sm font-bold text-gray-700 mb-1">ทะเบียนรหัสกะ</label>
-              <p className="text-xs text-gray-500 mb-4">กำหนดชื่อ สี ช่วงเวลา และประเภทของแต่ละรหัสกะ</p>
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700">ทะเบียนรหัสกะ</label>
+                  <p className="text-xs text-gray-500">กำหนดชื่อ สี ช่วงเวลา และประเภทของแต่ละรหัสกะ</p>
+                </div>
+                <button onClick={handleSeedShiftProps}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-600 text-xs font-bold rounded-lg hover:bg-gray-200 transition-colors">
+                  <Database size={13} />
+                  <span>Seed ค่าเริ่มต้น</span>
+                </button>
+              </div>
 
               <div className="space-y-4">
                 {/* Add form */}
