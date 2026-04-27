@@ -235,7 +235,7 @@ export default function Dashboard({ member }: DashboardProps) {
                     <span className={`text-[10px] font-medium block ${todayDay ? 'text-orange-600 font-bold' : 'text-gray-500'}`}>
                       {format(day, 'd')}
                     </span>
-                    <span className={`inline-block px-1 py-0.5 rounded text-[9px] font-bold border ${SHIFT_COLORS[code] || 'bg-gray-100'}`}>
+                    <span className="inline-block px-1 py-0.5 rounded text-[9px] font-bold border" style={getShiftStyle(code)}>
                       {code}{isDouble ? '×2' : ''}
                     </span>
                     {original && (
