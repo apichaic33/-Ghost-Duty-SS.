@@ -8,36 +8,11 @@ import { Member, Shift, ShiftCode, ShiftProperty } from '../types';
 import { generateSchedule, getShiftCode } from '../lib/scheduleUtils';
 import { toast } from 'sonner';
 import emailjs from '@emailjs/browser';
+import { useShiftProperties } from '../hooks/useShiftProperties';
 
 const EMAILJS_SERVICE_ID = 'service_yamka';
 const EMAILJS_TEMPLATE_ID = 'template_nfo6sld';
 const EMAILJS_PUBLIC_KEY = 'YY8IVNkVN-qhgglkU';
-
-const SHIFT_COLORS: Record<string, string> = {
-  'S11': 'bg-gray-100 text-gray-500',
-  'S12': 'bg-gray-100 text-gray-500',
-  'S13': 'bg-gray-100 text-gray-500',
-  'AL-S11': 'bg-gray-100 text-gray-400',
-  'AL-S12': 'bg-gray-100 text-gray-400',
-  'AL-S13': 'bg-gray-100 text-gray-400',
-  'S78': 'bg-gray-100 text-gray-500',
-  'X': 'bg-white text-gray-300',
-  'A': 'bg-red-50 text-red-400',
-  'H': 'bg-rose-50 text-rose-400',
-};
-
-const SELF_COLORS: Record<string, string> = {
-  'S11': 'bg-orange-50 text-orange-700',
-  'S12': 'bg-orange-50 text-orange-700',
-  'S13': 'bg-orange-50 text-orange-700',
-  'AL-S11': 'bg-amber-50 text-amber-600',
-  'AL-S12': 'bg-amber-50 text-amber-600',
-  'AL-S13': 'bg-amber-50 text-amber-600',
-  'S78': 'bg-orange-50 text-orange-700',
-  'X': 'bg-white text-gray-300',
-  'A': 'bg-red-50 text-red-500',
-  'H': 'bg-rose-50 text-rose-500',
-};
 
 interface TeamScheduleProps {
   member: Member;
