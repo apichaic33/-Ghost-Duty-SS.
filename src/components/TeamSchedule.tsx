@@ -319,8 +319,8 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
             <div className={`w-3 h-3 rounded ${SHIFT_COLORS[p.id] || 'bg-gray-200'}`} />
             <span>{p.id}: {p.name}</span>
           </div>
-        )) : [['S11','bg-blue-100','เช้า'],['S12','bg-green-100','บ่าย'],['S13','bg-purple-100','ดึก'],
-               ['X','bg-gray-100','หยุด'],['H','bg-pink-100','นักขัตฤกษ์'],['A','bg-red-100','ลาพักร้อน']
+        )) : [['S11','bg-orange-50','เช้า'],['S12','bg-orange-50','บ่าย'],['S13','bg-orange-50','ดึก'],
+               ['X','bg-white border border-gray-200','หยุด'],['H','bg-rose-50','นักขัตฤกษ์'],['A','bg-red-50','ลาพักร้อน']
         ].map(([id, bg, label]) => (
           <div key={id} className="flex items-center space-x-1">
             <div className={`w-3 h-3 rounded ${bg}`} /><span>{id}: {label}</span>
