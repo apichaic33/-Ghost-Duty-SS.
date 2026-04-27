@@ -564,7 +564,7 @@ export default function Members() {
                     </p>
                   </div>
 
-                  <p className="text-[10px] text-orange-500 mb-3">กดที่ช่องกะที่ตรงกับวันนี้</p>
+                  <p className="text-[10px] text-orange-500 mb-3">กดที่ช่องกะที่สมาชิกทำงานในวันที่ 1 {monthLabel}</p>
                   <div className="flex flex-wrap gap-1">
                     {patternArray.map((code, idx) => (
                       <button
