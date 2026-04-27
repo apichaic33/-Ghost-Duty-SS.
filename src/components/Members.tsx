@@ -547,11 +547,11 @@ export default function Members() {
                 <div className="bg-orange-50 rounded-xl p-4 border border-orange-100">
                   <div className="flex items-center justify-between mb-1">
                     <p className="text-xs font-bold text-orange-700 uppercase">
-                      เลือกตำแหน่งที่ตรงกับวันที่ 1 {monthLabel}
+                      เลือกกะที่ตรงกับ<span className="text-orange-600"> วันนี้ ({format(today, 'd MMM yyyy', { locale: th })})</span>
                     </p>
-                    {selectedPos !== null && editingMember?.cycleStartDate && (
+                    {selectedPos !== null && (
                       <span className="text-[10px] bg-orange-200 text-orange-800 px-2 py-0.5 rounded-full font-bold">
-                        ปัจจุบัน: position {selectedPos + 1} ({patternArray[selectedPos]})
+                        position {selectedPos + 1} ({patternArray[selectedPos]})
                       </span>
                     )}
                   </div>
@@ -560,20 +560,20 @@ export default function Members() {
                   <div className="bg-white rounded-lg px-3 py-2 border border-orange-100 mb-3 space-y-1">
                     <p className="text-[11px] font-bold text-gray-600">วิธีใช้</p>
                     <p className="text-[10px] text-gray-500">
-                      1. ดูว่าสมาชิกทำงาน<span className="font-bold text-gray-700">กะอะไร</span>ในวันที่ 1 ของเดือนนี้ เช่น S11
+                      1. ดูว่าสมาชิกทำกะ<span className="font-bold text-gray-700">อะไรวันนี้</span> เช่น S12
                     </p>
                     <p className="text-[10px] text-gray-500">
-                      2. ดูว่าเดือนที่แล้วทำกะนั้นมาแล้ว<span className="font-bold text-gray-700">กี่วัน</span> เช่น ทำ S11 มาแล้ว 3 วัน
+                      2. นับว่าอยู่ในกะนั้น<span className="font-bold text-gray-700">วันที่เท่าไหร่ของกะ</span> เช่น ทำ S12 มาแล้ว 4 วัน = วันที่ 4 ของ S12
                     </p>
                     <p className="text-[10px] text-gray-500">
-                      3. กดที่ช่อง S11 <span className="font-bold text-gray-700">ตำแหน่งที่ 4</span> ในรอบ (3 วันที่ผ่านมา + วันที่ 1 = วันที่ 4)
+                      3. กดที่ช่อง S12 <span className="font-bold text-gray-700">ตำแหน่งที่ 4</span> ของ S12 ในรอบ
                     </p>
                     <p className="text-[10px] text-orange-500 font-medium pt-0.5">
-                      → ระบบจะคำนวณวันเริ่มรอบ (cycleStartDate) ให้อัตโนมัติ
+                      → ระบบจะคำนวณ cycleStartDate ให้อัตโนมัติ
                     </p>
                   </div>
 
-                  <p className="text-[10px] text-orange-500 mb-3">กดที่ช่องกะที่สมาชิกทำงานในวันที่ 1 ของเดือน</p>
+                  <p className="text-[10px] text-orange-500 mb-3">กดที่ช่องกะที่ตรงกับวันนี้</p>
                   <div className="flex flex-wrap gap-1">
                     {patternArray.map((code, idx) => (
                       <button
