@@ -62,6 +62,8 @@ export default function Members() {
     return () => unsubscribe();
   }, []);
 
+  const todayStr = format(today, 'yyyy-MM-dd');
+
   const openModal = (member: Member | null) => {
     setEditingMember(member);
     const pattern = member?.shiftPattern || '';
@@ -69,13 +71,11 @@ export default function Members() {
     const existingCycleStart = member?.cycleStartDate || firstOfMonth.toISOString().split('T')[0];
     setCycleStartDate(existingCycleStart);
 
-    // คำนวณ position ปัจจุบันจาก cycleStartDate ที่มีอยู่
-    // ใช้ parseISO สำหรับทั้งสองวันเพื่อให้ UTC-consistent
+    // แสดง position ของ "วันนี้" จาก cycleStartDate ที่มีอยู่
     if (member?.cycleStartDate && pattern) {
       const patternArr = pattern.split(',').map(s => s.trim()).filter(Boolean);
-      const firstOfMonthStr = format(firstOfMonth, 'yyyy-MM-dd');
-      const diff = differenceInDays(parseISO(firstOfMonthStr), parseISO(member.cycleStartDate));
-      const pos = diff >= 0 ? diff % patternArr.length : null;
+      const diff = differenceInDays(parseISO(todayStr), parseISO(member.cycleStartDate));
+      const pos = ((diff % patternArr.length) + patternArr.length) % patternArr.length;
       setSelectedPos(pos);
     } else {
       setSelectedPos(null);
@@ -85,8 +85,19 @@ export default function Members() {
 
   const handleSelectPosition = (index: number) => {
     setSelectedPos(index);
-    const d = new Date(firstOfMonth);
+    const patternLen = patternArray.length;
+    if (patternLen === 0) return;
+
+    // คำนวณ cycleStartDate จาก "วันนี้ = position index"
+    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     d.setDate(d.getDate() - index);
+
+    // ดึง cycleStartDate ย้อนกลับทีละ cycle จนกว่าจะอยู่ก่อนต้นเดือน
+    // เพื่อให้ generateSchedule ครอบคลุมทุกวันที่แสดงใน Dashboard
+    while (d > firstOfMonth) {
+      d.setDate(d.getDate() - patternLen);
+    }
+
     setCycleStartDate(format(d, 'yyyy-MM-dd'));
   };
 
