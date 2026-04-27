@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday, addMonths, differenceInDays, parseISO } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { RefreshCw, Bug } from 'lucide-react';
-import { collection, query, where, onSnapshot, doc, setDoc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, doc, setDoc, deleteDoc, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Member, Shift, ShiftCode } from '../types';
 import { generateSchedule } from '../lib/scheduleUtils';
