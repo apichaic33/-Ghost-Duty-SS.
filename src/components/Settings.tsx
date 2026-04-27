@@ -266,49 +266,115 @@ export default function Settings({ member, setMember }: SettingsProps) {
               <SettingsIcon size={20} />
             </div>
             <div className="flex-1">
-              <label className="block text-sm font-bold text-gray-700 mb-1">ตั้งค่าคุณสมบัติกะ</label>
-              <p className="text-xs text-gray-500 mb-4">กำหนดชื่อเรียกและสีของแต่ละรหัสกะ</p>
-              
+              <label className="block text-sm font-bold text-gray-700 mb-1">ทะเบียนรหัสกะ</label>
+              <p className="text-xs text-gray-500 mb-4">กำหนดชื่อ สี ช่วงเวลา และประเภทของแต่ละรหัสกะ</p>
+
               <div className="space-y-4">
-                <div className="grid grid-cols-3 gap-2">
-                  <input 
-                    placeholder="รหัส (เช่น S78)" 
-                    value={newShiftProp.id}
-                    onChange={e => setNewShiftProp(prev => ({ ...prev, id: e.target.value.toUpperCase() }))}
-                    className="border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  <input 
-                    placeholder="ชื่อเรียก (เช่น ดิวช่วย)" 
-                    value={newShiftProp.name}
-                    onChange={e => setNewShiftProp(prev => ({ ...prev, name: e.target.value }))}
-                    className="border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  <button 
-                    onClick={handleAddShiftProp}
-                    className="bg-blue-600 text-white rounded-lg px-3 py-2 text-xs font-bold flex items-center justify-center space-x-1 hover:bg-blue-700"
-                  >
-                    <Plus size={14} />
-                    <span>เพิ่ม</span>
-                  </button>
+                {/* Add form */}
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 space-y-3">
+                  <p className="text-[10px] font-bold text-gray-500 uppercase">เพิ่มรหัสกะใหม่</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[10px] text-gray-400 mb-1">รหัสกะ</label>
+                      <input
+                        placeholder="เช่น S78"
+                        value={newShiftProp.id}
+                        onChange={e => setNewShiftProp(prev => ({ ...prev, id: e.target.value.toUpperCase() }))}
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-orange-500 font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] text-gray-400 mb-1">ชื่อเรียก</label>
+                      <input
+                        placeholder="เช่น กะเช้าเสริม"
+                        value={newShiftProp.name}
+                        onChange={e => setNewShiftProp(prev => ({ ...prev, name: e.target.value }))}
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-orange-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] text-gray-400 mb-1">ช่วงเวลา</label>
+                      <select
+                        value={newShiftProp.timeSlot}
+                        onChange={e => setNewShiftProp(prev => ({ ...prev, timeSlot: e.target.value as ShiftTimeSlot }))}
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-orange-500"
+                      >
+                        <option value="morning">เช้า</option>
+                        <option value="afternoon">บ่าย</option>
+                        <option value="night">ดึก</option>
+                        <option value="rest">หยุด</option>
+                        <option value="holiday">วันหยุดนักขัตฤกษ์</option>
+                        <option value="leave">ลา</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] text-gray-400 mb-1">ประเภท</label>
+                      <select
+                        value={newShiftProp.isMain ? 'main' : 'extra'}
+                        onChange={e => setNewShiftProp(prev => ({ ...prev, isMain: e.target.value === 'main' }))}
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-orange-500"
+                      >
+                        <option value="main">กะหลัก</option>
+                        <option value="extra">กะเสริม</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <label className="block text-[10px] text-gray-400 mb-1">สี (hex)</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={newShiftProp.color}
+                          onChange={e => setNewShiftProp(prev => ({ ...prev, color: e.target.value }))}
+                          className="w-9 h-9 rounded-lg border border-gray-200 cursor-pointer p-0.5"
+                        />
+                        <span className="text-xs font-mono text-gray-500">{newShiftProp.color}</span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={handleAddShiftProp}
+                      className="ml-auto bg-orange-600 text-white rounded-lg px-4 py-2 text-xs font-bold flex items-center space-x-1 hover:bg-orange-700"
+                    >
+                      <Plus size={14} />
+                      <span>เพิ่ม</span>
+                    </button>
+                  </div>
                 </div>
 
+                {/* List */}
                 <div className="divide-y divide-gray-100 border border-gray-100 rounded-xl overflow-hidden">
+                  <div className="grid grid-cols-5 px-3 py-2 bg-gray-50 text-[10px] font-bold text-gray-400 uppercase">
+                    <span>รหัส</span>
+                    <span className="col-span-2">ชื่อ</span>
+                    <span>ช่วงเวลา</span>
+                    <span>ประเภท</span>
+                  </div>
                   {shiftProps.map(prop => (
-                    <div key={prop.id} className="flex items-center justify-between p-3 hover:bg-gray-50">
-                      <div className="flex items-center space-x-3">
-                        <span className="text-xs font-bold text-gray-400 w-10">{prop.id}</span>
-                        <span className="text-sm font-medium text-gray-700">{prop.name}</span>
+                    <div key={prop.id} className="grid grid-cols-5 items-center px-3 py-2.5 hover:bg-gray-50">
+                      <div className="flex items-center gap-2">
+                        <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: prop.color || '#ea580c' }} />
+                        <span className="text-xs font-bold font-mono text-gray-700">{prop.id}</span>
                       </div>
-                      <button 
-                        onClick={() => handleDeleteShiftProp(prop.id)}
-                        className="p-1 text-gray-300 hover:text-red-500 transition-colors"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                      <span className="col-span-2 text-xs text-gray-600">{prop.name}</span>
+                      <span className="text-[10px] text-gray-400">
+                        {{'morning':'เช้า','afternoon':'บ่าย','night':'ดึก','rest':'หยุด','holiday':'วันหยุด','leave':'ลา'}[prop.timeSlot] || prop.timeSlot}
+                      </span>
+                      <div className="flex items-center justify-between">
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${prop.isMain ? 'bg-orange-50 text-orange-600' : 'bg-gray-100 text-gray-500'}`}>
+                          {prop.isMain ? 'หลัก' : 'เสริม'}
+                        </span>
+                        <button
+                          onClick={() => handleDeleteShiftProp(prop.id)}
+                          className="p-1 text-gray-300 hover:text-red-500 transition-colors"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     </div>
                   ))}
                   {shiftProps.length === 0 && (
-                    <p className="p-4 text-center text-xs text-gray-400 italic">ยังไม่มีการตั้งค่าคุณสมบัติกะ</p>
+                    <p className="p-4 text-center text-xs text-gray-400 italic">ยังไม่มีรหัสกะในระบบ</p>
                   )}
                 </div>
               </div>
