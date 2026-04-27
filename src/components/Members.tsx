@@ -19,6 +19,7 @@ interface GasMember {
 import { useShiftProperties } from '../hooks/useShiftProperties';
 
 export default function Members() {
+  const { getShiftStyle } = useShiftProperties();
   const [members, setMembers] = useState<Member[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingMember, setEditingMember] = useState<Member | null>(null);
