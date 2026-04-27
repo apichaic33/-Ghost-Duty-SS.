@@ -354,7 +354,7 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
             <div className="grid grid-cols-4 gap-2">
               {(['S11','S12','S13','S78','AL-S11','AL-S12','AL-S13','X','A','H'] as ShiftCode[]).map(code => (
                 <button key={code} onClick={() => handleUpdateShift(code)}
-                  className={`py-2.5 rounded-lg text-xs font-bold border-2 transition-all hover:scale-105 active:scale-95 ${SHIFT_COLORS[code] || 'bg-gray-100 border-gray-200'} border-opacity-60`}>
+                  className={`py-2.5 rounded-lg text-xs font-bold border-2 transition-all hover:scale-105 active:scale-95 ${SELF_COLORS[code] || 'bg-gray-100 border-gray-200'} border-opacity-60`}>
                   {code}
                 </button>
               ))}
