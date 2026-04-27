@@ -18,6 +18,7 @@ export default function Dashboard({ member }: DashboardProps) {
   const rangeStart = startOfMonth(today);
   const rangeEnd = endOfMonth(addMonths(today, 11));
 
+  const { getShiftStyle } = useShiftProperties();
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
