@@ -114,11 +114,41 @@ export default function Dashboard({ member }: DashboardProps) {
             {member.position && <span className="ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-orange-50 text-orange-600 border border-orange-200">{member.position}</span>}
           </p>
         </div>
-        <button onClick={() => { setLoading(true); setTimeout(() => setLoading(false), 300); }}
-          className="p-2 hover:bg-gray-100 rounded-full text-gray-400 hover:text-orange-600">
-          <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={() => setShowDebug(p => !p)}
+            className={`p-2 rounded-full transition-colors ${showDebug ? 'bg-yellow-100 text-yellow-600' : 'text-gray-400 hover:bg-gray-100 hover:text-yellow-600'}`}
+            title="Debug info">
+            <Bug size={18} />
+          </button>
+          <button onClick={() => { setLoading(true); setTimeout(() => setLoading(false), 300); }}
+            className="p-2 hover:bg-gray-100 rounded-full text-gray-400 hover:text-orange-600">
+            <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
+          </button>
+        </div>
       </div>
+
+      {/* Debug Panel */}
+      {showDebug && (() => {
+        const patternArr = member.shiftPattern?.split(',').map(s => s.trim()).filter(Boolean) ?? [];
+        const todayStr = format(today, 'yyyy-MM-dd');
+        const diff = member.cycleStartDate ? differenceInDays(parseISO(todayStr), parseISO(member.cycleStartDate)) : null;
+        const patternIdx = diff !== null && patternArr.length > 0 ? ((diff % patternArr.length) + patternArr.length) % patternArr.length : null;
+        const expectedShift = patternIdx !== null ? patternArr[patternIdx] : '—';
+        return (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-xs font-mono space-y-1">
+            <p className="text-yellow-700 font-bold text-[11px] uppercase mb-2">🔍 Debug — ข้อมูลจาก Firestore (member doc: {member.id})</p>
+            <p><span className="text-gray-500">shiftPattern:</span> <span className="text-gray-800 break-all">{member.shiftPattern || '—'}</span></p>
+            <p><span className="text-gray-500">cycleStartDate:</span> <span className="text-gray-800">{member.cycleStartDate || '—'}</span></p>
+            <p><span className="text-gray-500">patternLength:</span> <span className="text-gray-800">{patternArr.length} วัน</span></p>
+            <div className="border-t border-yellow-200 pt-1 mt-1">
+              <p><span className="text-gray-500">วันนี้ ({todayStr}):</span></p>
+              <p className="pl-2"><span className="text-gray-500">diff จาก cycleStart =</span> <span className="text-blue-700 font-bold">{diff ?? '—'} วัน</span></p>
+              <p className="pl-2"><span className="text-gray-500">patternIndex =</span> <span className="text-blue-700 font-bold">{patternIdx !== null ? `${patternIdx} (position ${(patternIdx ?? 0) + 1})` : '—'}</span></p>
+              <p className="pl-2"><span className="text-gray-500">กะที่ควรแสดง =</span> <span className={`font-bold ${SHIFT_COLORS[expectedShift]?.includes('blue') ? 'text-blue-700' : SHIFT_COLORS[expectedShift]?.includes('green') ? 'text-green-700' : SHIFT_COLORS[expectedShift]?.includes('purple') ? 'text-purple-700' : 'text-gray-700'}`}>{expectedShift}</span></p>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Quota Summary */}
       <div className="grid grid-cols-3 gap-3">
