@@ -31,11 +31,15 @@ export interface ShiftPatternTemplate {
   createdAt: string;
 }
 
+export type ShiftTimeSlot = 'morning' | 'afternoon' | 'night' | 'rest' | 'holiday' | 'leave';
+
 export interface ShiftProperty {
-  id: string; // ShiftCode
-  name: string; // e.g., "ดิวช่วย"
+  id: string;
+  name: string;
   description?: string;
-  color?: string;
+  color: string;        // hex e.g. '#ea580c'
+  timeSlot: ShiftTimeSlot;
+  isMain: boolean;      // true = กะหลัก, false = กะเสริม
 }
 
 export interface Shift {
