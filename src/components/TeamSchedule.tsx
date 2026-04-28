@@ -268,10 +268,10 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
                         </>
                       );
                     })()}
-                    <div className="flex flex-col mt-0.5">
-                      <span className="text-[8px] text-red-500 font-bold leading-tight">A:{getUsage(m, 'A')}</span>
-                      <span className="text-[8px] text-pink-500 font-bold leading-tight">H:{getUsage(m, 'H')}</span>
-                      <span className="text-[8px] text-gray-400 font-bold leading-tight">X:{getUsage(m, 'X')}</span>
+                    <div className="flex items-center gap-0.5 mt-0.5 flex-wrap">
+                      <span className="text-[7px] text-red-500 font-bold leading-none">A:{getUsage(m, 'A')}</span>
+                      <span className="text-[7px] text-pink-500 font-bold leading-none">H:{getUsage(m, 'H')}</span>
+                      <span className="text-[7px] text-gray-400 font-bold leading-none">X:{getUsage(m, 'X')}</span>
                     </div>
                   </td>
                   {days.map(day => {
