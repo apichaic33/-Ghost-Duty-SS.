@@ -232,18 +232,18 @@ export default function Dashboard({ member }: DashboardProps) {
                   <div
                     key={dateStr}
                     onClick={() => setSelectedDay(selectedDay === dateStr ? null : dateStr)}
-                    className={`h-14 border-b border-r border-gray-100 p-1 cursor-pointer hover:bg-orange-50/20 transition-colors ${todayDay ? 'bg-orange-50' : ''} ${selectedDay === dateStr ? 'ring-2 ring-orange-400 ring-inset' : ''}`}
+                    className={`h-14 border-b border-r border-gray-100 p-1 flex flex-col items-start cursor-pointer hover:bg-orange-50/20 transition-colors ${todayDay ? 'bg-orange-50' : ''} ${selectedDay === dateStr ? 'ring-2 ring-orange-400 ring-inset' : ''}`}
                   >
                     {todayDay ? (
-                      <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-orange-600 text-white text-[10px] font-bold mb-0.5">
+                      <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-orange-600 text-white text-[10px] font-bold shrink-0">
                         {format(day, 'd')}
                       </span>
                     ) : (
-                      <span className="text-[10px] font-medium block text-gray-500">
+                      <span className="text-[10px] font-medium h-5 flex items-center text-gray-500">
                         {format(day, 'd')}
                       </span>
                     )}
-                    <span className="inline-block px-1 py-0.5 rounded text-[9px] font-bold border" style={getShiftStyle(code)}>
+                    <span className="inline-block px-1 py-0.5 rounded text-[9px] font-bold border mt-0.5" style={getShiftStyle(code)}>
                       {code}{isDouble ? '×2' : ''}
                     </span>
                     {original && (
