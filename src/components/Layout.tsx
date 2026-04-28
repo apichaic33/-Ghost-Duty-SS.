@@ -51,7 +51,7 @@ export default function Layout({ children, activeTab, setActiveTab, isAdmin, onS
 
         <div className="p-4 border-t border-gray-200">
           <button
-            onClick={() => signOut(auth)}
+            onClick={onSignOut}
             className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
           >
             <LogOut size={18} />
