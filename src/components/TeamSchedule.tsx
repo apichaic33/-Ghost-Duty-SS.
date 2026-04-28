@@ -232,10 +232,10 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
               </th>
               {days.map(day => (
                 <th key={day.toISOString()}
-                  style={{ width: 32, minWidth: 32 }}
-                  className={`px-0 py-2 text-center font-bold uppercase border-r border-gray-100 ${isToday(day) ? 'bg-orange-50 text-orange-500' : 'text-gray-400'}`}>
-                  <div>{format(day, 'd')}</div>
-                  <div className="text-[8px] font-normal">{format(day, 'EEE')}</div>
+                  style={{ width: 28, minWidth: 28 }}
+                  className={`px-0 py-1.5 text-center font-bold uppercase border-r border-gray-100 ${isToday(day) ? 'bg-orange-50 text-orange-500' : 'text-gray-400'}`}>
+                  <div className="text-[10px]">{format(day, 'd')}</div>
+                  <div className="text-[7px] font-normal">{format(day, 'EEE')}</div>
                 </th>
               ))}
             </tr>
