@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { collection, onSnapshot, doc, updateDoc, setDoc, getDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
-import { Member } from '../types';
-import { UserPlus, Edit2, Shield, User, Download, RefreshCw, Trash2, AlertTriangle } from 'lucide-react';
+import { Member, ShiftPatternTemplate } from '../types';
+import { UserPlus, Edit2, Shield, User, Download, RefreshCw, Trash2, AlertTriangle, Repeat2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format, differenceInDays, parseISO } from 'date-fns';
 import { th } from 'date-fns/locale';
+import { useShiftProperties } from '../hooks/useShiftProperties';
 
 interface GasMember {
   empId: string;
@@ -16,17 +17,23 @@ interface GasMember {
   phone: string;
 }
 
-import { useShiftProperties } from '../hooks/useShiftProperties';
-
 export default function Members() {
   const { getShiftStyle } = useShiftProperties();
   const [members, setMembers] = useState<Member[]>([]);
+  const [templates, setTemplates] = useState<ShiftPatternTemplate[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingMember, setEditingMember] = useState<Member | null>(null);
 
   const [patternInput, setPatternInput] = useState('');
   const [selectedPos, setSelectedPos] = useState<number | null>(null);
   const [cycleStartDate, setCycleStartDate] = useState('');
+
+  // Switch pattern modal
+  const [switchMember, setSwitchMember] = useState<Member | null>(null);
+  const [switchTemplate, setSwitchTemplate] = useState<ShiftPatternTemplate | null>(null);
+  const [switchPos, setSwitchPos] = useState<number | null>(null);
+  const [switchCycleStart, setSwitchCycleStart] = useState('');
+  const [switching, setSwitching] = useState(false);
 
   // Import from GAS
   const [showImportModal, setShowImportModal] = useState(false);
@@ -42,13 +49,16 @@ export default function Members() {
   const patternArray = patternInput.split(',').map(s => s.trim()).filter(Boolean);
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, 'members'), (snap) => {
+    const unsubMembers = onSnapshot(collection(db, 'members'), (snap) => {
       setMembers(snap.docs.map(d => ({ id: d.id, ...d.data() } as Member)));
+    });
+    const unsubTemplates = onSnapshot(collection(db, 'shiftPatterns'), (snap) => {
+      setTemplates(snap.docs.map(d => ({ id: d.id, ...d.data() } as ShiftPatternTemplate)));
     });
     getDoc(doc(db, 'settings', 'system')).then(snap => {
       if (snap.exists() && snap.data().gasUrl) setGasUrl(snap.data().gasUrl);
     });
-    return () => unsubscribe();
+    return () => { unsubMembers(); unsubTemplates(); };
   }, []);
 
   const firstOfMonthStr = format(firstOfMonth, 'yyyy-MM-dd');
