@@ -19,6 +19,7 @@ interface RequestsProps {
 
 
 export default function Requests({ member }: RequestsProps) {
+  const { getShiftStyle } = useShiftProperties();
   const [incoming, setIncoming] = useState<SwapRequest[]>([]);
   const [outgoing, setOutgoing] = useState<SwapRequest[]>([]);
 
