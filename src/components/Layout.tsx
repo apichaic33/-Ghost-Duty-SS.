@@ -1,7 +1,5 @@
 import React from 'react';
 import { LogOut, Calendar, Users, Settings, MessageSquare, LayoutGrid } from 'lucide-react';
-import { auth } from '../firebase';
-import { signOut } from 'firebase/auth';
 
 interface LayoutProps {
   children: React.ReactNode;
