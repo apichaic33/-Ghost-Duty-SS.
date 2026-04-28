@@ -8,9 +8,10 @@ interface LayoutProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   isAdmin: boolean;
+  onSignOut: () => void;
 }
 
-export default function Layout({ children, activeTab, setActiveTab, isAdmin }: LayoutProps) {
+export default function Layout({ children, activeTab, setActiveTab, isAdmin, onSignOut }: LayoutProps) {
   const tabs = [
     { id: 'dashboard', label: 'ตารางกะ', icon: Calendar },
     { id: 'team', label: 'กะทั้งหมด', icon: Users },
