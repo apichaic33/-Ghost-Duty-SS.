@@ -1,8 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, User } from 'firebase/auth';
-import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  onAuthStateChanged, signInWithPopup, signInAnonymously, signOut,
+  GoogleAuthProvider, User
+} from 'firebase/auth';
+import {
+  doc, getDoc, setDoc, onSnapshot,
+  collection, query, where, getDocs
+} from 'firebase/firestore';
 import { auth, db } from './firebase';
-import { Member, Shift, SwapRequest } from './types';
+import { Member } from './types';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import Requests from './components/Requests';
@@ -18,16 +24,21 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
 
-  useEffect(() => {
-    let unsubMember: (() => void) | null = null;
+  const [pinEmpId, setPinEmpId] = useState('');
+  const [pinValue, setPinValue] = useState('');
+  const [pinLoading, setPinLoading] = useState(false);
+  const [pinError, setPinError] = useState('');
 
+  const pendingPinLoginRef = useRef(false);
+  const memberUnsubRef = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
     const unsubAuth = onAuthStateChanged(auth, async (u) => {
       setUser(u);
-      if (unsubMember) { unsubMember(); unsubMember = null; }
+      if (memberUnsubRef.current) { memberUnsubRef.current(); memberUnsubRef.current = null; }
 
-      if (u) {
+      if (u && !u.isAnonymous) {
         const docRef = doc(db, 'members', u.uid);
-        // Check if member doc exists first (for new admin bootstrap)
         const docSnap = await getDoc(docRef);
         if (!docSnap.exists() && u.email?.toLowerCase() === 'q.apichai@gmail.com') {
           const newMember: Member = {
@@ -45,33 +56,87 @@ export default function App() {
             toast.error('ไม่สามารถสร้างโปรไฟล์ผู้ดูแลระบบได้');
           }
         }
-
-        // Live listener — updates member state whenever Firestore doc changes
-        unsubMember = onSnapshot(docRef, (snap) => {
+        memberUnsubRef.current = onSnapshot(docRef, (snap) => {
           if (snap.exists()) setMember({ id: snap.id, ...snap.data() } as Member);
           else setMember(null);
           setLoading(false);
         });
+      } else if (u && u.isAnonymous) {
+        if (!pendingPinLoginRef.current) {
+          // Stale anonymous session — sign out
+          signOut(auth);
+          return;
+        }
+        setLoading(false);
       } else {
         setMember(null);
         setLoading(false);
       }
     });
 
-    return () => { unsubAuth(); if (unsubMember) unsubMember(); };
+    return () => { unsubAuth(); if (memberUnsubRef.current) memberUnsubRef.current(); };
   }, []);
 
-  const handleLogin = async () => {
+  const handleGoogleLogin = async () => {
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-    } catch (error) {
-      console.error('Login failed:', error);
+    } catch {
       toast.error('เข้าสู่ระบบไม่สำเร็จ');
     }
   };
 
-  if (loading) {
+  const handlePinLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const empId = pinEmpId.trim();
+    const pin = pinValue.trim();
+    if (!empId || !pin) { setPinError('กรุณากรอกรหัสพนักงานและ PIN'); return; }
+    setPinLoading(true);
+    setPinError('');
+    try {
+      pendingPinLoginRef.current = true;
+      await signInAnonymously(auth);
+
+      // Try query by empId field first
+      let memberDoc: any = null;
+      const q = query(collection(db, 'members'), where('empId', '==', empId));
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        memberDoc = snap.docs[0];
+      } else {
+        // Fallback: doc ID = empId (legacy imported members)
+        const docSnap = await getDoc(doc(db, 'members', empId));
+        if (docSnap.exists()) memberDoc = docSnap;
+      }
+      if (!memberDoc) throw new Error('ไม่พบรหัสพนักงาน');
+
+      const memberData = { id: memberDoc.id, ...memberDoc.data() } as Member;
+      const expectedPin = memberData.pin || empId.slice(-4);
+      if (pin !== expectedPin) throw new Error('PIN ไม่ถูกต้อง');
+
+      memberUnsubRef.current = onSnapshot(doc(db, 'members', memberDoc.id), (s) => {
+        if (s.exists()) setMember({ id: s.id, ...s.data() } as Member);
+      });
+      setMember(memberData);
+    } catch (err: any) {
+      pendingPinLoginRef.current = false;
+      await signOut(auth);
+      setPinError(err.message || 'เกิดข้อผิดพลาด');
+    } finally {
+      pendingPinLoginRef.current = false;
+      setPinLoading(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    if (memberUnsubRef.current) { memberUnsubRef.current(); memberUnsubRef.current = null; }
+    await signOut(auth);
+    setMember(null);
+    setPinEmpId('');
+    setPinValue('');
+  };
+
+  if (loading || pinLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
@@ -79,17 +144,62 @@ export default function App() {
     );
   }
 
-  if (!user) {
+  if (!user || (user.isAnonymous && !member)) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
-        <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl text-center">
-          <h1 className="text-3xl font-bold text-orange-600 mb-2">ระบบยำกะผี</h1>
-          <p className="text-gray-500 mb-8">ระบบจัดการและสลับกะการทำงานนายสถานี</p>
+        <div className="w-full max-w-sm bg-white p-8 rounded-2xl shadow-xl">
+          <h1 className="text-2xl font-bold text-orange-600 mb-1 text-center">ระบบยำกะผี</h1>
+          <p className="text-xs text-gray-400 text-center mb-6">ระบบจัดการและสลับกะการทำงานนายสถานี</p>
+
+          <form onSubmit={handlePinLogin} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">รหัสพนักงาน</label>
+              <input
+                value={pinEmpId}
+                onChange={(e) => setPinEmpId(e.target.value)}
+                placeholder="กรอกรหัสพนักงาน"
+                autoComplete="username"
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-orange-500"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">PIN</label>
+              <input
+                type="password"
+                value={pinValue}
+                onChange={(e) => setPinValue(e.target.value)}
+                placeholder="กรอก PIN"
+                maxLength={8}
+                autoComplete="current-password"
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-orange-500"
+              />
+              <p className="text-[10px] text-gray-400 mt-1">PIN เริ่มต้น = 4 ตัวท้ายของรหัสพนักงาน</p>
+            </div>
+
+            {pinError && (
+              <div className="bg-red-50 border border-red-200 text-red-600 text-xs rounded-lg px-3 py-2">
+                {pinError}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className="w-full bg-orange-600 text-white py-2.5 rounded-xl font-semibold hover:bg-orange-700 transition-colors text-sm"
+            >
+              เข้าสู่ระบบ
+            </button>
+          </form>
+
+          <div className="relative my-5">
+            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-100" /></div>
+            <div className="relative flex justify-center"><span className="bg-white px-2 text-[10px] text-gray-400">หรือ</span></div>
+          </div>
+
           <button
-            onClick={handleLogin}
-            className="w-full bg-orange-600 text-white py-3 rounded-xl font-semibold hover:bg-orange-700 transition-colors flex items-center justify-center space-x-2"
+            onClick={handleGoogleLogin}
+            className="w-full border border-gray-200 text-gray-500 py-2.5 rounded-xl font-medium hover:bg-gray-50 transition-colors text-sm"
           >
-            <span>เข้าสู่ระบบด้วย Google</span>
+            เข้าสู่ระบบด้วย Google (Admin)
           </button>
         </div>
         <Toaster position="top-center" />
@@ -103,18 +213,16 @@ export default function App() {
         <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl text-center">
           <h1 className="text-2xl font-bold text-gray-800 mb-4">รอการอนุมัติ</h1>
           <p className="text-gray-600 mb-4">บัญชีของคุณยังไม่ได้รับการลงทะเบียนในระบบ กรุณาติดต่อผู้ดูแลระบบ</p>
-          
           <div className="bg-gray-50 p-4 rounded-xl mb-6 text-left border border-gray-100">
             <p className="text-[10px] text-gray-400 uppercase font-bold mb-1">รหัสผู้ใช้ของคุณ (UID)</p>
             <code className="text-xs text-orange-600 break-all font-mono">{user.uid}</code>
             <p className="text-[10px] text-gray-400 mt-2">* ส่งรหัสนี้ให้ผู้ดูแลระบบเพื่อเพิ่มชื่อเข้าสู่ระบบ</p>
           </div>
-
           <button
-            onClick={() => auth.signOut()}
-            className="text-orange-600 font-medium hover:underline flex items-center justify-center space-x-1 mx-auto"
+            onClick={handleSignOut}
+            className="text-orange-600 font-medium hover:underline"
           >
-            <span>ออกจากระบบ</span>
+            ออกจากระบบ
           </button>
         </div>
         <Toaster position="top-center" />
@@ -123,10 +231,11 @@ export default function App() {
   }
 
   return (
-    <Layout 
-      activeTab={activeTab} 
-      setActiveTab={setActiveTab} 
+    <Layout
+      activeTab={activeTab}
+      setActiveTab={setActiveTab}
       isAdmin={member.role === 'admin'}
+      onSignOut={handleSignOut}
     >
       {activeTab === 'dashboard' && <Dashboard member={member} />}
       {activeTab === 'team' && <TeamSchedule member={member} isAdmin={member.role === 'admin'} />}
