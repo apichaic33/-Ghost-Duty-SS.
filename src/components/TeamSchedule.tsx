@@ -183,32 +183,47 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
     } catch { toast.error('เกิดข้อผิดพลาด'); }
   };
 
+  const MemberCell = ({ m, mDays }: { m: Member; mDays: Date[] }) => {
+    const isSelf = m.id === member.id;
+    const parts = m.name.trim().split(' ');
+    return (
+      <td className={`sticky left-0 z-10 px-1.5 py-1 border-r border-gray-200 ${isSelf ? 'bg-orange-50' : 'bg-white'}`}
+        style={{ minWidth: 80, width: 80, boxShadow: '2px 0 4px -2px rgba(0,0,0,0.08)' }}>
+        <div className="flex items-center gap-0.5 mb-0.5">
+          {m.position && (
+            <span className={`text-[7px] font-bold px-1 py-0 rounded border leading-none shrink-0 ${
+              m.position === 'SS' ? 'bg-orange-50 text-orange-600 border-orange-200' :
+              m.position === 'AStS' ? 'bg-cyan-50 text-cyan-600 border-cyan-200' :
+              'bg-purple-50 text-purple-600 border-purple-200'
+            }`}>{m.position}</span>
+          )}
+          {isSelf && <span className="text-[9px] font-bold text-orange-500 shrink-0">★</span>}
+        </div>
+        <p className="text-[10px] font-bold text-gray-800 leading-tight break-all">{parts[0]}</p>
+        {parts[1] && <p className="text-[10px] font-bold text-gray-800 leading-tight break-all">{parts.slice(1).join(' ')}</p>}
+        <div className="flex items-center gap-0.5 mt-0.5 flex-wrap">
+          <span className="text-[7px] text-red-500 font-bold leading-none">A:{getUsage(m, 'A', mDays)}</span>
+          <span className="text-[7px] text-pink-500 font-bold leading-none">H:{getUsage(m, 'H', mDays)}</span>
+          <span className="text-[7px] text-gray-400 font-bold leading-none">X:{getUsage(m, 'X', mDays)}</span>
+        </div>
+      </td>
+    );
+  };
+
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-800">กะทั้งหมด</h2>
           <p className="text-sm text-gray-500">
             {isAdmin ? 'ดูและแก้ไขตารางกะของทุกตำแหน่ง' : `ตำแหน่ง ${member.position || '—'}`}
           </p>
         </div>
-        <div className="flex items-center space-x-2">
-          <button onClick={() => { setLoading(true); setTimeout(() => setLoading(false), 400); }}
-            className="p-2 hover:bg-gray-100 rounded-full text-gray-400 hover:text-orange-600">
-            <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
-          </button>
-          <div className="h-6 w-px bg-gray-200" />
-          <button onClick={() => setCurrentDate(subMonths(currentDate, 1))} className="p-2 hover:bg-gray-100 rounded-full">
-            <ChevronLeft size={20} />
-          </button>
-          <span className="text-sm font-bold min-w-[120px] text-center">
-            {format(currentDate, 'MMMM yyyy', { locale: th })}
-          </span>
-          <button onClick={() => setCurrentDate(addMonths(currentDate, 1))} className="p-2 hover:bg-gray-100 rounded-full">
-            <ChevronRight size={20} />
-          </button>
-        </div>
+        <button onClick={() => { setLoading(true); setTimeout(() => setLoading(false), 400); }}
+          className="p-2 hover:bg-gray-100 rounded-full text-gray-400 hover:text-orange-600">
+          <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
+        </button>
       </div>
 
       {/* Position tabs — admin only */}
@@ -223,103 +238,76 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
         </div>
       )}
 
-      {/* Table */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-x-auto" style={{ paddingBottom: 17 }}>
-        <table className="border-collapse text-xs" style={{ tableLayout: 'fixed', minWidth: '100%' }}>
-          <thead>
-            <tr className="bg-gray-50 border-b border-gray-200">
-              <th className="sticky left-0 z-20 bg-gray-50 px-1.5 py-2 text-left font-bold text-gray-500 uppercase border-r border-gray-200" style={{ minWidth: 80, width: 80 }}>
-                สมาชิก
-              </th>
-              {days.map(day => (
-                <th key={day.toISOString()}
-                  style={{ width: 28, minWidth: 28 }}
-                  className={`px-0 py-1.5 text-center font-bold uppercase border-r border-gray-100 ${isToday(day) ? 'bg-orange-50 text-orange-500' : 'text-gray-400'}`}>
-                  <div className="text-[10px]">{format(day, 'd')}</div>
-                  <div className="text-[7px] font-normal">{format(day, 'EEE')}</div>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {visibleMembers.map(m => {
-              const isSelf = m.id === member.id;
-              return (
-                <tr key={m.id} className={`hover:bg-gray-50/50 transition-colors ${isSelf ? 'bg-orange-50/20' : ''}`}>
-                  <td className={`sticky left-0 z-10 px-1.5 py-1 border-r border-gray-200 ${isSelf ? 'bg-orange-50' : 'bg-white'}`}
-                    style={{ minWidth: 80, width: 80, boxShadow: '2px 0 4px -2px rgba(0,0,0,0.08)' }}>
-                    <div className="flex items-center gap-0.5 mb-0.5">
-                      {m.position && (
-                        <span className={`text-[7px] font-bold px-1 py-0 rounded border leading-none shrink-0 ${
-                          m.position === 'SS' ? 'bg-orange-50 text-orange-600 border-orange-200' :
-                          m.position === 'AStS' ? 'bg-cyan-50 text-cyan-600 border-cyan-200' :
-                          'bg-purple-50 text-purple-600 border-purple-200'
-                        }`}>{m.position}</span>
-                      )}
-                      {isSelf && <span className="text-[9px] font-bold text-orange-500 shrink-0">★</span>}
-                    </div>
-                    {(() => {
-                      const parts = m.name.trim().split(' ');
-                      const firstName = parts[0] || '';
-                      const lastName = parts.slice(1).join(' ');
-                      return (
-                        <>
-                          <p className="text-[10px] font-bold text-gray-800 leading-tight break-all">{firstName}</p>
-                          {lastName && <p className="text-[10px] font-bold text-gray-800 leading-tight break-all">{lastName}</p>}
-                        </>
-                      );
-                    })()}
-                    <div className="flex items-center gap-0.5 mt-0.5 flex-wrap">
-                      <span className="text-[7px] text-red-500 font-bold leading-none">A:{getUsage(m, 'A')}</span>
-                      <span className="text-[7px] text-pink-500 font-bold leading-none">H:{getUsage(m, 'H')}</span>
-                      <span className="text-[7px] text-gray-400 font-bold leading-none">X:{getUsage(m, 'X')}</span>
-                    </div>
-                  </td>
-                  {days.map(day => {
-                    const dateStr = format(day, 'yyyy-MM-dd');
-                    const code = getShift(m, dateStr);
+      {/* 12 Month Tables */}
+      {months.map(monthDate => {
+        const mStart = startOfMonth(monthDate);
+        const mEnd = endOfMonth(monthDate);
+        const mDays = eachDayOfInterval({ start: mStart, end: mEnd });
+        const isCurrent = format(monthDate, 'yyyy-MM') === format(new Date(), 'yyyy-MM');
+
+        return (
+          <div key={format(monthDate, 'yyyy-MM')} className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className={`px-3 py-2 border-b border-gray-100 flex items-center justify-between ${isCurrent ? 'bg-orange-50' : 'bg-gray-50'}`}>
+              <h3 className={`font-bold text-sm ${isCurrent ? 'text-orange-700' : 'text-gray-700'}`}>
+                {format(monthDate, 'MMMM yyyy', { locale: th })}
+              </h3>
+              {isCurrent && <span className="text-[9px] bg-orange-600 text-white px-1.5 py-0.5 rounded-full font-bold">เดือนนี้</span>}
+            </div>
+            <div className="overflow-x-auto" style={{ paddingBottom: 17 }}>
+              <table className="border-collapse text-xs" style={{ tableLayout: 'fixed', minWidth: '100%' }}>
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-200">
+                    <th className="sticky left-0 z-20 bg-gray-50 px-1.5 py-2 text-left font-bold text-gray-500 uppercase border-r border-gray-200" style={{ minWidth: 80, width: 80 }}>
+                      สมาชิก
+                    </th>
+                    {mDays.map((day: Date) => (
+                      <th key={day.toISOString()}
+                        style={{ width: 28, minWidth: 28 }}
+                        className={`px-0 py-1.5 text-center font-bold uppercase border-r border-gray-100 ${isToday(day) ? 'bg-orange-50 text-orange-500' : 'text-gray-400'}`}>
+                        <div className="text-[10px]">{format(day, 'd')}</div>
+                        <div className="text-[7px] font-normal">{format(day, 'EEE')}</div>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {visibleMembers.map(m => {
+                    const isSelf = m.id === member.id;
                     return (
-                      <td key={dateStr} className={`p-0.5 border-r border-gray-100 text-center ${isToday(day) ? 'bg-orange-50/20' : ''}`}>
-                        <button
-                          onClick={() => {
-                            if (isAdmin) setEditingShift({ member: m, date: dateStr });
-                            else if (!isSelf) setSwapPopup({ targetMember: m, targetDate: dateStr, targetShift: code });
-                          }}
-                          disabled={!isAdmin && isSelf}
-                          className={`w-full h-6 flex items-center justify-center rounded text-[9px] font-bold transition-all
-                            ${!isAdmin && isSelf ? 'cursor-default opacity-70' : 'hover:opacity-75 active:scale-95 cursor-pointer'}`}
-                          style={getShiftStyle(code)}
-                        >
-                          {code}
-                        </button>
-                      </td>
+                      <tr key={m.id} className={`hover:bg-gray-50/50 transition-colors ${isSelf ? 'bg-orange-50/20' : ''}`}>
+                        <MemberCell m={m} mDays={mDays} />
+                        {mDays.map((day: Date) => {
+                          const dateStr = format(day, 'yyyy-MM-dd');
+                          const code = getShift(m, dateStr);
+                          return (
+                            <td key={dateStr} className={`p-0.5 border-r border-gray-100 text-center ${isToday(day) ? 'bg-orange-50/20' : ''}`}>
+                              <button
+                                onClick={() => {
+                                  if (isAdmin) setEditingShift({ member: m, date: dateStr });
+                                  else if (!isSelf) setSwapPopup({ targetMember: m, targetDate: dateStr, targetShift: code });
+                                }}
+                                disabled={!isAdmin && isSelf}
+                                className={`w-full h-6 flex items-center justify-center rounded text-[9px] font-bold transition-all
+                                  ${!isAdmin && isSelf ? 'cursor-default opacity-70' : 'hover:opacity-75 active:scale-95 cursor-pointer'}`}
+                                style={getShiftStyle(code)}
+                              >
+                                {code}
+                              </button>
+                            </td>
+                          );
+                        })}
+                      </tr>
                     );
                   })}
-                </tr>
-              );
-            })}
-            {visibleMembers.length === 0 && (
-              <tr><td colSpan={days.length + 1} className="py-12 text-center text-sm text-gray-400 italic">ไม่พบสมาชิกในตำแหน่งนี้</td></tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Legend */}
-      <div className="flex flex-wrap gap-3 text-[10px] font-bold text-gray-500 bg-gray-50 p-3 rounded-xl border border-gray-200">
-        {shiftProps.length > 0 ? shiftProps.map(p => (
-          <div key={p.id} className="flex items-center space-x-1">
-            <div className="w-3 h-3 rounded" style={{ background: getColor(p.id) }} />
-            <span>{p.id}: {p.name}</span>
+                  {visibleMembers.length === 0 && (
+                    <tr><td colSpan={mDays.length + 1} className="py-8 text-center text-sm text-gray-400 italic">ไม่พบสมาชิกในตำแหน่งนี้</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
-        )) : [['S11','bg-orange-50','เช้า'],['S12','bg-orange-50','บ่าย'],['S13','bg-orange-50','ดึก'],
-               ['X','bg-white border border-gray-200','หยุด'],['H','bg-rose-50','นักขัตฤกษ์'],['A','bg-red-50','ลาพักร้อน']
-        ].map(([id, bg, label]) => (
-          <div key={id} className="flex items-center space-x-1">
-            <div className={`w-3 h-3 rounded ${bg}`} /><span>{id}: {label}</span>
-          </div>
-        ))}
-      </div>
+        );
+      })}
 
       {/* Admin: Edit Shift Modal */}
       {editingShift && (
