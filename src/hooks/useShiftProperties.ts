@@ -28,7 +28,7 @@ export function useShiftProperties() {
   const getColor = (code: string): string => colorMap[code] || '#9ca3af';
 
   // Returns inline style: light bg + colored text + soft border
-  const getShiftStyle = (code: string): React.CSSProperties => {
+  const getShiftStyle = (code: string): CSSProperties => {
     const c = getColor(code);
     return { backgroundColor: c + '14', color: c, borderColor: c + '33' };
   };
