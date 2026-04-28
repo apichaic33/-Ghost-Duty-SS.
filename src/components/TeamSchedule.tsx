@@ -227,7 +227,7 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
         <table className="border-collapse text-xs" style={{ tableLayout: 'fixed', minWidth: '100%' }}>
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200">
-              <th className="sticky left-0 z-20 bg-gray-50 px-3 py-3 text-left font-bold text-gray-500 uppercase border-r border-gray-200" style={{ minWidth: 170, width: 170 }}>
+              <th className="sticky left-0 z-20 bg-gray-50 px-2 py-3 text-left font-bold text-gray-500 uppercase border-r border-gray-200" style={{ minWidth: 96, width: 96 }}>
                 สมาชิก
               </th>
               {days.map(day => (
