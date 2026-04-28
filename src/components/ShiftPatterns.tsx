@@ -7,19 +7,7 @@ import { Member, ShiftPatternTemplate } from '../types';
 import { format, startOfMonth } from 'date-fns';
 import { Plus, Edit2, Trash2, Users, Check, X as CloseIcon } from 'lucide-react';
 import { toast } from 'sonner';
-
-const SHIFT_COLORS: Record<string, string> = {
-  S11: 'bg-orange-50 text-orange-700 border-orange-200',
-  S12: 'bg-orange-50 text-orange-700 border-orange-200',
-  S13: 'bg-orange-50 text-orange-700 border-orange-200',
-  'AL-S11': 'bg-amber-50 text-amber-600 border-amber-200',
-  'AL-S12': 'bg-amber-50 text-amber-600 border-amber-200',
-  'AL-S13': 'bg-amber-50 text-amber-600 border-amber-200',
-  S78: 'bg-orange-50 text-orange-700 border-orange-200',
-  X: 'bg-white text-gray-300 border-gray-200',
-  A: 'bg-red-50 text-red-500 border-red-200',
-  H: 'bg-rose-50 text-rose-500 border-rose-200',
-};
+import { useShiftProperties } from '../hooks/useShiftProperties';
 
 const POSITION_BADGE: Record<string, string> = {
   SS: 'bg-orange-50 text-orange-600 border-orange-200',
