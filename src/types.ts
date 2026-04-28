@@ -20,6 +20,8 @@ export interface Member {
   shiftPattern: string; // Comma separated codes
   cycleStartDate: string; // YYYY-MM-DD
   role: 'admin' | 'member';
+  empId?: string;
+  pin?: string;
   notificationPreferences?: NotificationPreferences;
 }
 
