@@ -245,26 +245,23 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
               const isSelf = m.id === member.id;
               return (
                 <tr key={m.id} className={`hover:bg-gray-50/50 transition-colors ${isSelf ? 'bg-orange-50/20' : ''}`}>
-                  <td className={`sticky left-0 z-10 px-3 py-2 border-r border-gray-200 ${isSelf ? 'bg-orange-50' : 'bg-white'}`}
-                    style={{ minWidth: 170, width: 170, boxShadow: '2px 0 4px -2px rgba(0,0,0,0.08)' }}>
-                    <div className="flex items-center justify-between gap-1">
-                      <p className="font-bold text-gray-800 truncate leading-tight" style={{ maxWidth: 100 }}>{m.name}</p>
-                      <div className="flex items-center gap-0.5 shrink-0">
-                        {m.position && (
-                          <span className={`text-[9px] font-bold px-1 py-0.5 rounded border leading-none ${
-                            m.position === 'SS' ? 'bg-orange-50 text-orange-600 border-orange-200' :
-                            m.position === 'AStS' ? 'bg-cyan-50 text-cyan-600 border-cyan-200' :
-                            'bg-purple-50 text-purple-600 border-purple-200'
-                          }`}>{m.position}</span>
-                        )}
-                        {isSelf && <span className="text-[9px] font-bold text-orange-500">★</span>}
-                      </div>
+                  <td className={`sticky left-0 z-10 px-2 py-1.5 border-r border-gray-200 ${isSelf ? 'bg-orange-50' : 'bg-white'}`}
+                    style={{ minWidth: 96, width: 96, boxShadow: '2px 0 4px -2px rgba(0,0,0,0.08)' }}>
+                    <div className="flex items-center gap-0.5 mb-0.5">
+                      {m.position && (
+                        <span className={`text-[8px] font-bold px-1 py-0 rounded border leading-none shrink-0 ${
+                          m.position === 'SS' ? 'bg-orange-50 text-orange-600 border-orange-200' :
+                          m.position === 'AStS' ? 'bg-cyan-50 text-cyan-600 border-cyan-200' :
+                          'bg-purple-50 text-purple-600 border-purple-200'
+                        }`}>{m.position}</span>
+                      )}
+                      {isSelf && <span className="text-[9px] font-bold text-orange-500 shrink-0">★</span>}
                     </div>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-[9px] text-gray-400 truncate">{m.station}</span>
-                      <span className="text-[9px] text-red-500 font-bold">A:{getUsage(m, 'A')}</span>
-                      <span className="text-[9px] text-pink-500 font-bold">H:{getUsage(m, 'H')}</span>
-                      <span className="text-[9px] text-gray-400 font-bold">X:{getUsage(m, 'X')}</span>
+                    <p className="text-[10px] font-bold text-gray-800 leading-tight line-clamp-3 break-words">{m.name}</p>
+                    <div className="flex items-center gap-1 mt-0.5 flex-wrap">
+                      <span className="text-[8px] text-red-500 font-bold">A:{getUsage(m, 'A')}</span>
+                      <span className="text-[8px] text-pink-500 font-bold">H:{getUsage(m, 'H')}</span>
+                      <span className="text-[8px] text-gray-400 font-bold">X:{getUsage(m, 'X')}</span>
                     </div>
                   </td>
                   {days.map(day => {
