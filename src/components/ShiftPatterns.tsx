@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  collection, onSnapshot, doc, addDoc, updateDoc, deleteDoc, getDocs, writeBatch
+  collection, onSnapshot, doc, addDoc, updateDoc, deleteDoc, getDocs, writeBatch, arrayUnion
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Member, ShiftPatternTemplate } from '../types';
