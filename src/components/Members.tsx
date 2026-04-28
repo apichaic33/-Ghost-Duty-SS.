@@ -708,6 +708,80 @@ export default function Members() {
         </div>
       )}
 
+      {/* Switch Pattern Modal */}
+      {switchMember && switchTemplate && (() => {
+        const codes = switchTemplate.pattern.split(',').map((s: string) => s.trim()).filter(Boolean);
+        return (
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[60]">
+            <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl">
+              <div className="px-6 pt-6 pb-4 border-b border-gray-100 flex items-start justify-between">
+                <div>
+                  <h3 className="text-lg font-bold flex items-center gap-2">
+                    <Repeat2 size={18} className="text-blue-600" />สลับ Shift Pattern
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-0.5">{switchMember.name} → {switchTemplate.name}</p>
+                </div>
+                <button onClick={() => { setSwitchMember(null); setSwitchTemplate(null); }} className="text-gray-400 hover:text-gray-600 mt-0.5">
+                  <XIcon size={20} />
+                </button>
+              </div>
+
+              <div className="px-6 py-5 space-y-4">
+                {/* Pattern preview */}
+                <div>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase mb-2">{codes.length} วัน/รอบ</p>
+                  <div className="flex flex-wrap gap-1">
+                    {codes.map((code: string, i: number) => (
+                      <span key={i} className="px-1.5 py-0.5 rounded text-[10px] font-bold border" style={getShiftStyle(code)}>{code}</span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Cycle picker */}
+                <div className="bg-orange-50 rounded-xl p-4 border border-orange-100">
+                  <p className="text-xs font-bold text-orange-700 mb-1">
+                    เลือกกะที่ตรงกับ <span className="text-orange-600">วันที่ 1 {monthLabel}</span>
+                  </p>
+                  <p className="text-[10px] text-orange-500 mb-3">กดที่ช่องกะที่ทำงานในวันที่ 1 {monthLabel}</p>
+                  <div className="flex flex-wrap gap-1">
+                    {codes.map((code: string, idx: number) => (
+                      <button key={idx} type="button" onClick={() => handleSwitchSelectPos(idx)}
+                        className={`flex flex-col items-center justify-center w-10 h-12 rounded-lg border text-[10px] font-bold transition-all
+                          ${switchPos === idx ? 'ring-2 ring-orange-500 ring-offset-1 scale-110 shadow-md' : 'hover:scale-105 hover:shadow-sm'}`}
+                        style={getShiftStyle(code)}>
+                        <span className="text-[8px] opacity-50 font-normal">{idx + 1}</span>
+                        <span>{code}</span>
+                      </button>
+                    ))}
+                  </div>
+                  {switchPos !== null ? (
+                    <div className="mt-3 flex items-center space-x-2 bg-white rounded-lg px-3 py-2 border border-orange-200">
+                      <div className="px-2 py-0.5 rounded text-xs font-bold border" style={getShiftStyle(codes[switchPos])}>{codes[switchPos]}</div>
+                      <span className="text-xs text-gray-600">วันที่ 1 {monthLabel} = ตำแหน่งที่ {switchPos + 1} ของรอบ</span>
+                      <span className="text-[10px] text-gray-400 ml-auto">cycleStart: {switchCycleStart}</span>
+                    </div>
+                  ) : (
+                    <p className="mt-3 text-[10px] text-orange-400 italic">ยังไม่ได้เลือกตำแหน่ง</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="px-6 pb-6 flex space-x-2">
+                <button onClick={() => { setSwitchMember(null); setSwitchTemplate(null); }}
+                  className="flex-1 py-2 text-sm text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium">
+                  ยกเลิก
+                </button>
+                <button onClick={handleSwitchConfirm} disabled={switching || switchPos === null}
+                  className="flex-1 py-2 text-sm text-white font-bold bg-blue-600 hover:bg-blue-700 rounded-lg disabled:opacity-50 flex items-center justify-center gap-2">
+                  <Repeat2 size={14} />
+                  {switching ? 'กำลังสลับ...' : 'ยืนยันสลับ Pattern'}
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Duplicate Members Modal */}
       {showDupModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
