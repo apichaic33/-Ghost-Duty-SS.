@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths, isToday } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, isToday } from 'date-fns';
 import { th } from 'date-fns/locale';
-import { ChevronLeft, ChevronRight, RefreshCw, X as CloseIcon } from 'lucide-react';
+import { RefreshCw, X as CloseIcon } from 'lucide-react';
 import { collection, onSnapshot, query, where, doc, setDoc, addDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Member, Shift, ShiftCode } from '../types';
