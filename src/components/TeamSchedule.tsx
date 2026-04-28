@@ -285,7 +285,7 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
                             else if (!isSelf) setSwapPopup({ targetMember: m, targetDate: dateStr, targetShift: code });
                           }}
                           disabled={!isAdmin && isSelf}
-                          className={`w-full h-7 flex items-center justify-center rounded text-[10px] font-bold transition-all
+                          className={`w-full h-6 flex items-center justify-center rounded text-[9px] font-bold transition-all
                             ${!isAdmin && isSelf ? 'cursor-default opacity-70' : 'hover:opacity-75 active:scale-95 cursor-pointer'}`}
                           style={isSelf ? getShiftStyle(code) : getOtherShiftStyle(code)}
                         >
