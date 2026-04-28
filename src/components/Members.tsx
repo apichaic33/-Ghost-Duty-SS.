@@ -159,6 +159,8 @@ export default function Members() {
         } else {
           await setDoc(doc(db, 'members', m.empId), {
             uid: m.empId,
+            empId: m.empId,
+            pin: m.empId.slice(-4),
             name: m.name,
             position: cleanPosition || undefined,
             station: m.department || '',
