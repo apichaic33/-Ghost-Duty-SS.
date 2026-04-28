@@ -126,7 +126,7 @@ export default function Requests({ member }: RequestsProps) {
               <ArrowRightLeft size={12} className="text-gray-300" />
               <div className="text-center">
                 <p className="text-[10px] font-bold text-gray-400 uppercase mb-0.5">วันที่แลก</p>
-                <span className={`px-2 py-0.5 rounded font-bold border ${SHIFT_COLORS[req.targetShift || ''] || 'bg-gray-100 border-gray-200 text-gray-500'}`}>
+                <span className="px-2 py-0.5 rounded font-bold border" style={getShiftStyle(req.targetShift || '')}>
                   {req.targetShift}
                 </span>
                 <p className="text-gray-500 mt-0.5">{formatDate(req.targetDate)}</p>
