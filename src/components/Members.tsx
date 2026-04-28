@@ -656,6 +656,42 @@ export default function Members() {
                 </div>
               )}
 
+              {/* Assigned Patterns */}
+              {editingMember && (editingMember.assignedPatternIds || []).length > 0 && (
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                  <p className="text-xs font-bold text-gray-500 uppercase mb-3">Patterns ที่ Assign ไว้</p>
+                  <div className="space-y-2">
+                    {(editingMember.assignedPatternIds || []).map(tId => {
+                      const t = templates.find(tp => tp.id === tId);
+                      if (!t) return null;
+                      const isActive = tId === editingMember.activePatternId;
+                      const codes = t.pattern.split(',').map(s => s.trim()).filter(Boolean);
+                      return (
+                        <div key={tId} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border ${isActive ? 'bg-orange-50 border-orange-200' : 'bg-white border-gray-200'}`}>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-800">{t.name}</p>
+                            <div className="flex flex-wrap gap-0.5 mt-1">
+                              {codes.slice(0, 24).map((code, i) => (
+                                <span key={i} className="px-1 py-0.5 rounded text-[9px] font-bold border" style={getShiftStyle(code)}>{code}</span>
+                              ))}
+                              {codes.length > 24 && <span className="text-[9px] text-gray-400 self-center">+{codes.length - 24}</span>}
+                            </div>
+                          </div>
+                          {isActive ? (
+                            <span className="shrink-0 text-[10px] font-bold text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full">ใช้งานอยู่</span>
+                          ) : (
+                            <button type="button" onClick={() => openSwitchModal(editingMember, t)}
+                              className="shrink-0 flex items-center gap-1 text-[11px] font-bold text-blue-600 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-lg hover:bg-blue-100 transition-colors">
+                              <Repeat2 size={12} />สลับ
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               <div className="flex justify-end space-x-3 pt-2">
                 <button type="button" onClick={() => setShowModal(false)}
                   className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg">
