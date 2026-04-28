@@ -10,6 +10,7 @@ import {
 import { auth, db } from './firebase';
 import { Member } from './types';
 import Layout from './components/Layout';
+import InstallGate from './components/InstallGate';
 import Dashboard from './components/Dashboard';
 import Requests from './components/Requests';
 import Members from './components/Members';
