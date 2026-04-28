@@ -104,11 +104,13 @@ export default function Dashboard({ member }: DashboardProps) {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => setShowDebug(p => !p)}
-            className={`p-2 rounded-full transition-colors ${showDebug ? 'bg-yellow-100 text-yellow-600' : 'text-gray-400 hover:bg-gray-100 hover:text-yellow-600'}`}
-            title="Debug info">
-            <Bug size={18} />
-          </button>
+          {member.role === 'admin' && (
+            <button onClick={() => setShowDebug(p => !p)}
+              className={`p-2 rounded-full transition-colors ${showDebug ? 'bg-yellow-100 text-yellow-600' : 'text-gray-400 hover:bg-gray-100 hover:text-yellow-600'}`}
+              title="Debug info">
+              <Bug size={18} />
+            </button>
+          )}
           <button onClick={() => { setLoading(true); setTimeout(() => setLoading(false), 300); }}
             className="p-2 hover:bg-gray-100 rounded-full text-gray-400 hover:text-orange-600">
             <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
