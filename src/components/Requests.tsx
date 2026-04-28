@@ -115,7 +115,7 @@ export default function Requests({ member }: RequestsProps) {
         <div className="flex items-center gap-4 text-xs">
           <div className="text-center">
             <p className="text-[10px] font-bold text-gray-400 uppercase mb-0.5">วันผู้ขอ</p>
-            <span className={`px-2 py-0.5 rounded font-bold border ${SHIFT_COLORS[req.requesterShift] || 'bg-gray-100 border-gray-200 text-gray-500'}`}>
+            <span className="px-2 py-0.5 rounded font-bold border" style={getShiftStyle(req.requesterShift)}>
               {req.requesterShift}
             </span>
             <p className="text-gray-500 mt-0.5">{formatDate(req.requesterDate)}</p>
