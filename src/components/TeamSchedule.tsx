@@ -245,11 +245,11 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
               const isSelf = m.id === member.id;
               return (
                 <tr key={m.id} className={`hover:bg-gray-50/50 transition-colors ${isSelf ? 'bg-orange-50/20' : ''}`}>
-                  <td className={`sticky left-0 z-10 px-2 py-1.5 border-r border-gray-200 ${isSelf ? 'bg-orange-50' : 'bg-white'}`}
-                    style={{ minWidth: 96, width: 96, boxShadow: '2px 0 4px -2px rgba(0,0,0,0.08)' }}>
+                  <td className={`sticky left-0 z-10 px-1.5 py-1 border-r border-gray-200 ${isSelf ? 'bg-orange-50' : 'bg-white'}`}
+                    style={{ minWidth: 80, width: 80, boxShadow: '2px 0 4px -2px rgba(0,0,0,0.08)' }}>
                     <div className="flex items-center gap-0.5 mb-0.5">
                       {m.position && (
-                        <span className={`text-[8px] font-bold px-1 py-0 rounded border leading-none shrink-0 ${
+                        <span className={`text-[7px] font-bold px-1 py-0 rounded border leading-none shrink-0 ${
                           m.position === 'SS' ? 'bg-orange-50 text-orange-600 border-orange-200' :
                           m.position === 'AStS' ? 'bg-cyan-50 text-cyan-600 border-cyan-200' :
                           'bg-purple-50 text-purple-600 border-purple-200'
@@ -257,11 +257,21 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
                       )}
                       {isSelf && <span className="text-[9px] font-bold text-orange-500 shrink-0">★</span>}
                     </div>
-                    <p className="text-[10px] font-bold text-gray-800 leading-tight line-clamp-3 break-words">{m.name}</p>
-                    <div className="flex items-center gap-1 mt-0.5 flex-wrap">
-                      <span className="text-[8px] text-red-500 font-bold">A:{getUsage(m, 'A')}</span>
-                      <span className="text-[8px] text-pink-500 font-bold">H:{getUsage(m, 'H')}</span>
-                      <span className="text-[8px] text-gray-400 font-bold">X:{getUsage(m, 'X')}</span>
+                    {(() => {
+                      const parts = m.name.trim().split(' ');
+                      const firstName = parts[0] || '';
+                      const lastName = parts.slice(1).join(' ');
+                      return (
+                        <>
+                          <p className="text-[10px] font-bold text-gray-800 leading-tight break-all">{firstName}</p>
+                          {lastName && <p className="text-[10px] font-bold text-gray-800 leading-tight break-all">{lastName}</p>}
+                        </>
+                      );
+                    })()}
+                    <div className="flex flex-col mt-0.5">
+                      <span className="text-[8px] text-red-500 font-bold leading-tight">A:{getUsage(m, 'A')}</span>
+                      <span className="text-[8px] text-pink-500 font-bold leading-tight">H:{getUsage(m, 'H')}</span>
+                      <span className="text-[8px] text-gray-400 font-bold leading-tight">X:{getUsage(m, 'X')}</span>
                     </div>
                   </td>
                   {days.map(day => {
