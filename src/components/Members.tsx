@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { collection, onSnapshot, doc, updateDoc, setDoc, getDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Member, ShiftPatternTemplate } from '../types';
-import { UserPlus, Edit2, Shield, User, Download, RefreshCw, Trash2, AlertTriangle, Repeat2 } from 'lucide-react';
+import { UserPlus, Edit2, Shield, User, Download, RefreshCw, Trash2, AlertTriangle, Repeat2, X as XIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { format, differenceInDays, parseISO } from 'date-fns';
 import { th } from 'date-fns/locale';
