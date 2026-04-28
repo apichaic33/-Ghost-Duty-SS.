@@ -108,6 +108,8 @@ export default function ShiftPatterns() {
         batch.update(doc(db, 'members', id), {
           shiftPattern: assignTemplate.pattern,
           cycleStartDate,
+          activePatternId: assignTemplate.id,
+          assignedPatternIds: arrayUnion(assignTemplate.id),
         });
       }
       await batch.commit();
