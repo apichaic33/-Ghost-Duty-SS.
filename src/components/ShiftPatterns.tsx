@@ -173,7 +173,7 @@ export default function ShiftPatterns() {
                     {/* Pattern preview */}
                     <div className="flex flex-wrap gap-1">
                       {codes.map((code, i) => (
-                        <span key={i} className={`px-1.5 py-0.5 rounded text-[10px] font-bold border `}>
+                        <span key={i} className="px-1.5 py-0.5 rounded text-[10px] font-bold border" style={getShiftStyle(code)}>
                           {code}
                         </span>
                       ))}
@@ -247,7 +247,7 @@ export default function ShiftPatterns() {
                   <p className="text-[10px] font-bold text-orange-600 uppercase mb-2">{patternArray.length} วัน/รอบ</p>
                   <div className="flex flex-wrap gap-1">
                     {patternArray.map((code, i) => (
-                      <span key={i} className={`px-1.5 py-0.5 rounded text-[10px] font-bold border `}>
+                      <span key={i} className="px-1.5 py-0.5 rounded text-[10px] font-bold border" style={getShiftStyle(code)}>
                         {code}
                       </span>
                     ))}
