@@ -465,6 +465,20 @@ export default function Members() {
               )}
 
               <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">รหัสพนักงาน (EmpID)</label>
+                  <input name="empId" defaultValue={editingMember?.empId || ''}
+                    placeholder="เช่น 600001"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-500 font-mono" />
+                  <p className="text-[10px] text-gray-400 mt-1">ใช้สำหรับ login ด้วย PIN</p>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">PIN</label>
+                  <input name="pin" defaultValue={editingMember?.pin || ''}
+                    placeholder="ค่าเริ่มต้น = 4 ตัวท้าย EmpID" maxLength={8}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-500 font-mono" />
+                  <p className="text-[10px] text-gray-400 mt-1">เว้นว่างไว้ = ใช้ค่าเริ่มต้น</p>
+                </div>
                 <div className="col-span-2">
                   <label className="block text-xs font-bold text-gray-500 uppercase mb-1">ชื่อ-นามสกุล</label>
                   <input name="name" defaultValue={editingMember?.name} required
