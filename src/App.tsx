@@ -232,19 +232,21 @@ export default function App() {
   }
 
   return (
-    <Layout
-      activeTab={activeTab}
-      setActiveTab={setActiveTab}
-      isAdmin={member.role === 'admin'}
-      onSignOut={handleSignOut}
-    >
-      {activeTab === 'dashboard' && <Dashboard member={member} />}
-      {activeTab === 'team' && <TeamSchedule member={member} isAdmin={member.role === 'admin'} />}
-      {activeTab === 'requests' && <Requests member={member} />}
-      {activeTab === 'members' && member.role === 'admin' && <Members />}
-      {activeTab === 'shiftpatterns' && member.role === 'admin' && <ShiftPatterns />}
-      {activeTab === 'settings' && member.role === 'admin' && <Settings member={member} setMember={setMember} />}
-      <Toaster position="top-center" />
-    </Layout>
+    <InstallGate>
+      <Layout
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isAdmin={member.role === 'admin'}
+        onSignOut={handleSignOut}
+      >
+        {activeTab === 'dashboard' && <Dashboard member={member} />}
+        {activeTab === 'team' && <TeamSchedule member={member} isAdmin={member.role === 'admin'} />}
+        {activeTab === 'requests' && <Requests member={member} />}
+        {activeTab === 'members' && member.role === 'admin' && <Members />}
+        {activeTab === 'shiftpatterns' && member.role === 'admin' && <ShiftPatterns />}
+        {activeTab === 'settings' && member.role === 'admin' && <Settings member={member} setMember={setMember} />}
+        <Toaster position="top-center" />
+      </Layout>
+    </InstallGate>
   );
 }
