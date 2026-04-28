@@ -34,7 +34,7 @@ export function useShiftProperties() {
   };
 
   // Muted gray style for "other members" in TeamSchedule
-  const getOtherShiftStyle = (code: string): React.CSSProperties => {
+  const getOtherShiftStyle = (code: string): CSSProperties => {
     if (code === 'X') return { backgroundColor: 'white', color: '#d1d5db', borderColor: '#f3f4f6' };
     if (code === 'A') return { backgroundColor: '#fef2f2', color: '#f87171' };
     if (code === 'H') return { backgroundColor: '#fff1f2', color: '#fb7185' };
