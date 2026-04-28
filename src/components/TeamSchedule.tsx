@@ -36,8 +36,7 @@ interface RequestForm {
 }
 
 export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const { shiftProps, getShiftStyle, getOtherShiftStyle, getColor } = useShiftProperties();
+  const { getShiftStyle, getOtherShiftStyle } = useShiftProperties();
   const [members, setMembers] = useState<Member[]>([]);
   const [allShifts, setAllShifts] = useState<Shift[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,9 +46,9 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
   const [swapPopup, setSwapPopup] = useState<SwapPopup | null>(null);
   const [requestForm, setRequestForm] = useState<RequestForm | null>(null);
 
-  const monthStart = startOfMonth(currentDate);
-  const monthEnd = endOfMonth(currentDate);
-  const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+  const rangeStart = startOfMonth(new Date());
+  const rangeEnd = endOfMonth(addMonths(new Date(), 11));
+  const months = useMemo(() => Array.from({ length: 12 }, (_, i) => addMonths(rangeStart, i)), []);
 
   useEffect(() => {
     const unsubMembers = onSnapshot(collection(db, 'members'), (snap) => {
@@ -57,15 +56,15 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
     });
     const q = query(
       collection(db, 'shifts'),
-      where('date', '>=', format(monthStart, 'yyyy-MM-dd')),
-      where('date', '<=', format(monthEnd, 'yyyy-MM-dd'))
+      where('date', '>=', format(rangeStart, 'yyyy-MM-dd')),
+      where('date', '<=', format(rangeEnd, 'yyyy-MM-dd'))
     );
     const unsubShifts = onSnapshot(q, (snap) => {
       setAllShifts(snap.docs.map(d => ({ id: d.id, ...d.data() } as Shift)));
       setLoading(false);
     });
     return () => { unsubMembers(); unsubShifts(); };
-  }, [currentDate]);
+  }, []);
 
   const shiftsMap = useMemo(() => {
     const map = new Map<string, string>();
