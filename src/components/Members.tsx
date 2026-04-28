@@ -118,6 +118,42 @@ export default function Members() {
     }
   };
 
+  const openSwitchModal = (member: Member, template: ShiftPatternTemplate) => {
+    setSwitchMember(member);
+    setSwitchTemplate(template);
+    setSwitchPos(null);
+    setSwitchCycleStart(firstOfMonthStr);
+  };
+
+  const handleSwitchSelectPos = (idx: number) => {
+    setSwitchPos(idx);
+    const d = new Date(firstOfMonth);
+    d.setDate(d.getDate() - idx);
+    setSwitchCycleStart(format(d, 'yyyy-MM-dd'));
+  };
+
+  const handleSwitchConfirm = async () => {
+    if (!switchMember || !switchTemplate || switchPos === null) {
+      toast.error('กรุณาเลือกตำแหน่งของรอบกะก่อน');
+      return;
+    }
+    setSwitching(true);
+    try {
+      await updateDoc(doc(db, 'members', switchMember.id), {
+        shiftPattern: switchTemplate.pattern,
+        cycleStartDate: switchCycleStart,
+        activePatternId: switchTemplate.id,
+      });
+      toast.success(`สลับเป็น "${switchTemplate.name}" สำเร็จ`);
+      setSwitchMember(null);
+      setSwitchTemplate(null);
+    } catch {
+      toast.error('เกิดข้อผิดพลาด');
+    } finally {
+      setSwitching(false);
+    }
+  };
+
   const fetchFromGas = async () => {
     if (!gasUrl.trim()) { toast.error('กรุณากรอก URL ของ GAS'); return; }
     setFetchLoading(true);
