@@ -18,6 +18,7 @@ const POSITION_BADGE: Record<string, string> = {
 const EMPTY_FORM = { name: '', pattern: '', position: '' as '' | 'SS' | 'AStS' | 'SP' };
 
 export default function ShiftPatterns() {
+  const { getShiftStyle } = useShiftProperties();
   const [templates, setTemplates] = useState<ShiftPatternTemplate[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
   const [showForm, setShowForm] = useState(false);
