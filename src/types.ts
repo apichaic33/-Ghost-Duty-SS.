@@ -22,6 +22,8 @@ export interface Member {
   role: 'admin' | 'member';
   empId?: string;
   pin?: string;
+  assignedPatternIds?: string[];
+  activePatternId?: string;
   notificationPreferences?: NotificationPreferences;
 }
 
