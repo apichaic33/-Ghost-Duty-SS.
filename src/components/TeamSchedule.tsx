@@ -90,8 +90,8 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
     normalizePos(m.position) === positionTab
   ), [members, positionTab]);
 
-  const getUsage = (m: Member, code: string) =>
-    days.filter(d => getShift(m, format(d, 'yyyy-MM-dd')) === code).length;
+  const getUsage = (m: Member, code: string, mDays: Date[]) =>
+    mDays.filter((d: Date) => getShift(m, format(d, 'yyyy-MM-dd')) === code).length;
 
   const openRequestForm = (type: 'swap' | 'cover', popup: SwapPopup) => {
     const today = format(new Date(), 'yyyy-MM-dd');
