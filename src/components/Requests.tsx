@@ -86,6 +86,14 @@ export default function Requests({ member }: RequestsProps) {
     } catch { toast.error('เกิดข้อผิดพลาด'); }
   };
 
+  const handleDelete = async (reqId: string) => {
+    if (!confirm('ต้องการลบคำขอนี้ใช่ไหม?')) return;
+    try {
+      await deleteDoc(doc(db, 'swapRequests', reqId));
+      toast.success('ลบคำขอเรียบร้อย');
+    } catch { toast.error('เกิดข้อผิดพลาด'); }
+  };
+
   const formatDate = (d: string) => {
     try { return format(new Date(d + 'T00:00:00'), 'd MMM yyyy', { locale: th }); }
     catch { return d; }
