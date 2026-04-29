@@ -14,7 +14,7 @@ interface SpecialScheduleProps {
 }
 
 export default function SpecialSchedule({ member, group }: SpecialScheduleProps) {
-  const { getShiftStyle, getOtherShiftStyle } = useShiftProperties();
+  const { getOtherShiftStyle, getSelfShiftStyle } = useShiftProperties();
   const [groupMembers, setGroupMembers] = useState<Member[]>([]);
   const [allShifts, setAllShifts] = useState<Shift[]>([]);
   const [approvedSwaps, setApprovedSwaps] = useState<SwapRequest[]>([]);
