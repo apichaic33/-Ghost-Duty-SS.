@@ -249,12 +249,15 @@ export default function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         isAdmin={member.role === 'admin'}
+        hasPairGroup={!!pairGroup}
         onSignOut={handleSignOut}
       >
         {activeTab === 'dashboard' && <Dashboard member={member} />}
         {activeTab === 'team' && <TeamSchedule member={member} isAdmin={member.role === 'admin'} />}
+        {activeTab === 'special' && pairGroup && <SpecialSchedule member={member} group={pairGroup} />}
         {activeTab === 'requests' && <Requests member={member} />}
         {activeTab === 'members' && member.role === 'admin' && <Members />}
+        {activeTab === 'pairgroups' && member.role === 'admin' && <PairGroups />}
         {activeTab === 'shiftpatterns' && member.role === 'admin' && <ShiftPatterns />}
         {activeTab === 'settings' && member.role === 'admin' && <Settings member={member} setMember={setMember} />}
         <Toaster position="top-center" />
