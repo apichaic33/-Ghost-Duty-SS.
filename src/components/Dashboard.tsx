@@ -40,6 +40,32 @@ export default function Dashboard({ member }: DashboardProps) {
     return () => unsub();
   }, [member.id]);
 
+  useEffect(() => {
+    const unsub = onSnapshot(
+      query(collection(db, 'notes'), where('memberId', '==', member.id)),
+      snap => {
+        const map = new Map<string, string>();
+        snap.docs.forEach(d => map.set(d.data().date as string, d.data().text as string));
+        setNotes(map);
+      }
+    );
+    return () => unsub();
+  }, [member.id]);
+
+  const saveNote = async (dateStr: string, text: string) => {
+    try {
+      if (text.trim()) {
+        await setDoc(doc(db, 'notes', `${member.id}_${dateStr}`), {
+          memberId: member.id, date: dateStr,
+          text: text.trim().slice(0, 30),
+          updatedAt: new Date().toISOString(),
+        });
+      } else {
+        await deleteDoc(doc(db, 'notes', `${member.id}_${dateStr}`));
+      }
+    } catch { toast.error('เกิดข้อผิดพลาด'); }
+  };
+
   const generatedMap = useMemo(() => {
     const schedule = generateSchedule(member.id, member.shiftPattern, member.cycleStartDate, 2);
     return new Map(schedule.map(s => [s.date, s.shiftCode]));
