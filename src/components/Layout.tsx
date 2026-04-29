@@ -1,22 +1,25 @@
 import React, { useState } from 'react';
-import { LogOut, Calendar, Users, Settings, MessageSquare, LayoutGrid, Menu, X } from 'lucide-react';
+import { LogOut, Calendar, Users, Settings, MessageSquare, LayoutGrid, Menu, X, Star } from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
   activeTab: string;
   setActiveTab: (tab: string) => void;
   isAdmin: boolean;
+  hasPairGroup?: boolean;
   onSignOut: () => void;
 }
 
-export default function Layout({ children, activeTab, setActiveTab, isAdmin, onSignOut }: LayoutProps) {
+export default function Layout({ children, activeTab, setActiveTab, isAdmin, hasPairGroup, onSignOut }: LayoutProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const tabs = [
     { id: 'dashboard', label: 'ตารางกะ', icon: Calendar },
     { id: 'team', label: 'กะทั้งหมด', icon: Users },
+    { id: 'special', label: 'ตารางกะพิเศษ', icon: Star, pairOnly: true },
     { id: 'requests', label: 'คำขอสลับกะ', icon: MessageSquare },
     { id: 'members', label: 'จัดการสมาชิก', icon: Users, adminOnly: true },
+    { id: 'pairgroups', label: 'จัดการกลุ่มกะ', icon: Users, adminOnly: true },
     { id: 'shiftpatterns', label: 'Shift Pattern', icon: LayoutGrid, adminOnly: true },
     { id: 'settings', label: 'ตั้งค่าระบบ', icon: Settings, adminOnly: true },
   ];
