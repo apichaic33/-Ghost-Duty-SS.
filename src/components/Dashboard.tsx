@@ -244,10 +244,10 @@ export default function Dashboard({ member }: DashboardProps) {
                       </span>
                     )}
                     <span className="inline-block px-1 py-0.5 rounded text-[9px] font-bold border mt-0.5" style={getShiftStyle(code)}>
-                      {code}{isDouble ? '×2' : ''}
+                      {code === 'XO' ? 'X' : code}{isDouble ? '×2' : ''}
                     </span>
                     {original && (
-                      <span className="block text-[8px] text-gray-400 line-through leading-tight">{original}</span>
+                      <span className="block text-[8px] text-gray-400 line-through leading-tight">{original === 'XO' ? 'X' : original}</span>
                     )}
                   </div>
                 );
