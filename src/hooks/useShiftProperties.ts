@@ -41,5 +41,14 @@ export function useShiftProperties() {
     return { backgroundColor: '#f3f4f6', color: '#9ca3af' };
   };
 
-  return { shiftProps, getColor, getShiftStyle, getOtherShiftStyle };
+  // Bold dark style for the logged-in user's own shifts
+  const getSelfShiftStyle = (code: string): CSSProperties => {
+    if (code === 'X')  return { backgroundColor: '#374151', color: 'white', borderColor: '#1f2937' };
+    if (code === 'A')  return { backgroundColor: '#fef2f2', color: '#dc2626', borderColor: '#fecaca' };
+    if (code === 'H')  return { backgroundColor: '#fff1f2', color: '#e11d48', borderColor: '#fecdd3' };
+    if (code === 'XO') return { backgroundColor: '#1d4ed8', color: 'white', borderColor: '#1e40af' };
+    return { backgroundColor: '#991b1b', color: 'white', borderColor: '#7f1d1d' };
+  };
+
+  return { shiftProps, getColor, getShiftStyle, getOtherShiftStyle, getSelfShiftStyle };
 }
