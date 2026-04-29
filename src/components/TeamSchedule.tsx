@@ -282,15 +282,59 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
         </button>
       </div>
 
-      {/* Position tabs — admin only */}
+      {/* Admin: Zone → Station → Position tabs */}
       {isAdmin && (
-        <div className="flex space-x-1 bg-gray-100 p-1 rounded-xl w-fit">
-          {['SS', 'AStS', 'SP'].map(tab => (
-            <button key={tab} onClick={() => setPositionTab(tab)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${positionTab === tab ? 'bg-white shadow text-orange-600' : 'text-gray-500 hover:text-gray-700'}`}>
-              {tab}
-            </button>
-          ))}
+        <div className="space-y-2">
+          {/* Zone tabs */}
+          <div className="flex flex-wrap gap-1">
+            <span className="text-[10px] font-bold text-gray-400 uppercase self-center mr-1">โซน</span>
+            {zones.map(z => (
+              <button key={z} onClick={() => setSelectedZone(z)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${selectedZone === z ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-500 border-gray-200 hover:border-indigo-300'}`}>
+                {z}
+              </button>
+            ))}
+          </div>
+          {/* Station tabs */}
+          {stationsInZone.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              <span className="text-[10px] font-bold text-gray-400 uppercase self-center mr-1">สถานี</span>
+              {stationsInZone.map(s => (
+                <button key={s} onClick={() => setSelectedStation(s)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${selectedStation === s ? 'bg-orange-600 text-white border-orange-600' : 'bg-white text-gray-500 border-gray-200 hover:border-orange-300'}`}>
+                  {s}
+                </button>
+              ))}
+            </div>
+          )}
+          {/* Position tabs */}
+          <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
+            {['SS', 'AStS', 'SP'].map(tab => (
+              <button key={tab} onClick={() => setPositionTab(tab)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${positionTab === tab ? 'bg-white shadow text-orange-600' : 'text-gray-500 hover:text-gray-700'}`}>
+                {tab}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Non-admin: position tabs only (own station auto-filtered) */}
+      {!isAdmin && (
+        <div className="flex items-center gap-3">
+          <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
+            {['SS', 'AStS', 'SP'].map(tab => (
+              <button key={tab} onClick={() => setPositionTab(tab)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${positionTab === tab ? 'bg-white shadow text-orange-600' : 'text-gray-500 hover:text-gray-700'}`}>
+                {tab}
+              </button>
+            ))}
+          </div>
+          {member.station && (
+            <span className="text-xs text-indigo-600 font-bold bg-indigo-50 border border-indigo-200 px-2 py-1 rounded-lg">
+              {member.station}
+            </span>
+          )}
         </div>
       )}
 
