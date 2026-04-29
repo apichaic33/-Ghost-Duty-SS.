@@ -4,7 +4,7 @@ import { db } from '../firebase';
 import { Member, SwapRequest } from '../types';
 import { format } from 'date-fns';
 import { th } from 'date-fns/locale';
-import { Check, X, ArrowRightLeft, Repeat } from 'lucide-react';
+import { Check, X, ArrowRightLeft, Repeat, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import emailjs from '@emailjs/browser';
 import { useShiftProperties } from '../hooks/useShiftProperties';
