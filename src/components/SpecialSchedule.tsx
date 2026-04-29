@@ -1,0 +1,263 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, isToday } from 'date-fns';
+import { th } from 'date-fns/locale';
+import { X as CloseIcon } from 'lucide-react';
+import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { db } from '../firebase';
+import { Member, Shift, PairGroup, SwapRequest } from '../types';
+import { generateSchedule } from '../lib/scheduleUtils';
+import { useShiftProperties } from '../hooks/useShiftProperties';
+
+interface SpecialScheduleProps {
+  member: Member;
+  group: PairGroup;
+}
+
+export default function SpecialSchedule({ member, group }: SpecialScheduleProps) {
+  const { getShiftStyle, getOtherShiftStyle } = useShiftProperties();
+  const [groupMembers, setGroupMembers] = useState<Member[]>([]);
+  const [allShifts, setAllShifts] = useState<Shift[]>([]);
+  const [approvedSwaps, setApprovedSwaps] = useState<SwapRequest[]>([]);
+  const [swapDetail, setSwapDetail] = useState<SwapRequest | null>(null);
+
+  const rangeStart = startOfMonth(new Date());
+  const rangeEnd = endOfMonth(addMonths(new Date(), 11));
+  const months = useMemo(() => Array.from({ length: 12 }, (_, i) => addMonths(rangeStart, i)), []);
+
+  useEffect(() => {
+    const unsubMembers = onSnapshot(collection(db, 'members'), snap => {
+      const all = snap.docs.map(d => ({ id: d.id, ...d.data() } as Member));
+      const inGroup = all.filter(m => group.memberIds.includes(m.id));
+      // Current user first
+      setGroupMembers([
+        ...inGroup.filter(m => m.id === member.id),
+        ...inGroup.filter(m => m.id !== member.id),
+      ]);
+    });
+
+    const qShifts = query(
+      collection(db, 'shifts'),
+      where('date', '>=', format(rangeStart, 'yyyy-MM-dd')),
+      where('date', '<=', format(rangeEnd, 'yyyy-MM-dd'))
+    );
+    const unsubShifts = onSnapshot(qShifts, snap => {
+      setAllShifts(snap.docs.map(d => ({ id: d.id, ...d.data() } as Shift)));
+    });
+
+    const unsubSwaps = onSnapshot(
+      query(collection(db, 'swapRequests'), where('status', '==', 'approved')),
+      snap => setApprovedSwaps(snap.docs.map(d => ({ id: d.id, ...d.data() } as SwapRequest)))
+    );
+
+    return () => { unsubMembers(); unsubShifts(); unsubSwaps(); };
+  }, [group.memberIds]);
+
+  const shiftsMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const s of allShifts) map.set(`${s.memberId}_${s.date}`, s.shiftCode);
+    return map;
+  }, [allShifts]);
+
+  const generatedMap = useMemo(() => {
+    const map = new Map<string, Map<string, string>>();
+    for (const m of groupMembers) {
+      if (!m.shiftPattern) continue;
+      const schedule = generateSchedule(m.id, m.shiftPattern, m.cycleStartDate, 2);
+      map.set(m.id, new Map(schedule.map(s => [s.date, s.shiftCode])));
+    }
+    return map;
+  }, [groupMembers]);
+
+  const getShift = (m: Member, dateStr: string): string =>
+    shiftsMap.get(`${m.id}_${dateStr}`) ?? generatedMap.get(m.id)?.get(dateStr) ?? 'X';
+
+  const swapMap = useMemo(() => {
+    const map = new Map<string, SwapRequest>();
+    for (const sw of approvedSwaps) {
+      if (sw.requesterId && sw.requesterDate) map.set(`${sw.requesterId}_${sw.requesterDate}`, sw);
+      if (sw.targetId && sw.targetDate) map.set(`${sw.targetId}_${sw.targetDate}`, sw);
+    }
+    return map;
+  }, [approvedSwaps]);
+
+  const getUsage = (m: Member, code: string, mDays: Date[]) =>
+    mDays.filter(d => getShift(m, format(d, 'yyyy-MM-dd')) === code).length;
+
+  const positionColor = (pos?: string) => {
+    if (pos === 'SS') return 'bg-orange-50 text-orange-600 border-orange-200';
+    if (pos === 'AStS') return 'bg-cyan-50 text-cyan-600 border-cyan-200';
+    return 'bg-purple-50 text-purple-600 border-purple-200';
+  };
+
+  const MemberCell = ({ m, mDays }: { m: Member; mDays: Date[] }) => {
+    const isSelf = m.id === member.id;
+    const parts = m.name.trim().split(' ');
+    return (
+      <td className={`sticky left-0 z-10 px-1.5 py-1 border-r border-gray-200 ${isSelf ? 'bg-orange-50' : 'bg-white'}`}
+        style={{ minWidth: 80, width: 80, boxShadow: '2px 0 4px -2px rgba(0,0,0,0.08)' }}>
+        <div className="flex items-center gap-0.5 mb-0.5">
+          {m.position && (
+            <span className={`text-[7px] font-bold px-1 py-0 rounded border leading-none shrink-0 ${positionColor(m.position)}`}>
+              {m.position}
+            </span>
+          )}
+          {isSelf && <span className="text-[9px] font-bold text-orange-500 shrink-0">★</span>}
+        </div>
+        <p className="text-[10px] font-bold text-gray-800 leading-tight break-all">{parts[0]}</p>
+        {parts[1] && <p className="text-[10px] font-bold text-gray-800 leading-tight break-all">{parts.slice(1).join(' ')}</p>}
+        <div className="flex items-center gap-0.5 mt-0.5 flex-wrap">
+          <span className="text-[7px] text-red-500 font-bold leading-none">A:{getUsage(m, 'A', mDays)}</span>
+          <span className="text-[7px] text-pink-500 font-bold leading-none">H:{getUsage(m, 'H', mDays)}</span>
+          <span className="text-[7px] text-gray-400 font-bold leading-none">X:{getUsage(m, 'X', mDays)}</span>
+        </div>
+      </td>
+    );
+  };
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <h2 className="text-2xl font-bold text-gray-800">ตารางกะพิเศษ</h2>
+        <p className="text-sm text-gray-500">กลุ่ม: {group.name} · {groupMembers.length} สมาชิก</p>
+      </div>
+
+      {/* Member badges */}
+      <div className="flex flex-wrap gap-2">
+        {groupMembers.map(m => (
+          <div key={m.id} className={`flex items-center gap-1 px-2.5 py-1 rounded-full border text-xs font-medium
+            ${m.id === member.id ? 'bg-orange-50 border-orange-200 text-orange-700' : 'bg-gray-50 border-gray-200 text-gray-600'}`}>
+            {m.position && (
+              <span className={`text-[7px] font-bold px-1 rounded border leading-none ${positionColor(m.position)}`}>
+                {m.position}
+              </span>
+            )}
+            {m.name}
+            {m.id === member.id && <span className="text-orange-500">★</span>}
+          </div>
+        ))}
+      </div>
+
+      {/* 12 Month Tables */}
+      {months.map(monthDate => {
+        const mStart = startOfMonth(monthDate);
+        const mEnd = endOfMonth(monthDate);
+        const mDays = eachDayOfInterval({ start: mStart, end: mEnd });
+        const isCurrent = format(monthDate, 'yyyy-MM') === format(new Date(), 'yyyy-MM');
+
+        return (
+          <div key={format(monthDate, 'yyyy-MM')} className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className={`px-3 py-2 border-b border-gray-100 flex items-center justify-between ${isCurrent ? 'bg-orange-50' : 'bg-gray-50'}`}>
+              <h3 className={`font-bold text-sm ${isCurrent ? 'text-orange-700' : 'text-gray-700'}`}>
+                {format(monthDate, 'MMMM yyyy', { locale: th })}
+              </h3>
+              {isCurrent && <span className="text-[9px] bg-orange-600 text-white px-1.5 py-0.5 rounded-full font-bold">เดือนนี้</span>}
+            </div>
+            <div className="overflow-x-auto" style={{ paddingBottom: 17 }}>
+              <table className="border-collapse text-xs" style={{ tableLayout: 'fixed', minWidth: '100%' }}>
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-200">
+                    <th className="sticky left-0 z-20 bg-gray-50 px-1.5 py-2 text-left font-bold text-gray-500 uppercase border-r border-gray-200"
+                      style={{ minWidth: 80, width: 80 }}>
+                      สมาชิก
+                    </th>
+                    {mDays.map((day: Date) => (
+                      <th key={day.toISOString()}
+                        style={{ width: 28, minWidth: 28 }}
+                        className={`px-0 py-1.5 text-center font-bold uppercase border-r border-gray-100 ${isToday(day) ? 'bg-orange-50 text-orange-500' : 'text-gray-400'}`}>
+                        <div className="text-[10px]">{format(day, 'd')}</div>
+                        <div className="text-[7px] font-normal">{format(day, 'EEE')}</div>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {groupMembers.map(m => {
+                    const isSelf = m.id === member.id;
+                    return (
+                      <tr key={m.id} className={`hover:bg-gray-50/50 transition-colors ${isSelf ? 'bg-orange-50/20' : ''}`}>
+                        <MemberCell m={m} mDays={mDays} />
+                        {mDays.map((day: Date) => {
+                          const dateStr = format(day, 'yyyy-MM-dd');
+                          const code = getShift(m, dateStr);
+                          const swap = swapMap.get(`${m.id}_${dateStr}`);
+                          return (
+                            <td key={dateStr} className={`p-0.5 border-r border-gray-100 text-center ${isToday(day) ? 'bg-orange-50/20' : ''}`}>
+                              <button
+                                onClick={() => swap && setSwapDetail(swap)}
+                                disabled={!swap}
+                                className={`relative w-full h-6 flex items-center justify-center rounded text-[9px] font-bold transition-all
+                                  ${swap ? 'hover:opacity-75 cursor-pointer' : 'cursor-default'}`}
+                                style={isSelf ? getShiftStyle(code) : getOtherShiftStyle(code)}
+                              >
+                                {code === 'XO' ? 'X' : code}
+                                {swap && <span className="absolute top-0 right-0 w-1.5 h-1.5 rounded-full bg-green-500" />}
+                              </button>
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    );
+                  })}
+                  {groupMembers.length === 0 && (
+                    <tr>
+                      <td colSpan={mDays.length + 1} className="py-8 text-center text-sm text-gray-400 italic">
+                        ไม่พบสมาชิกในกลุ่ม
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      })}
+
+      {/* Swap Detail Modal */}
+      {swapDetail && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-end md:items-center justify-center p-4"
+          onClick={() => setSwapDetail(null)}>
+          <div className="bg-white rounded-2xl w-full max-w-xs shadow-2xl p-5" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-bold text-green-600 uppercase">✓ การแลกกะที่อนุมัติแล้ว</p>
+              <button onClick={() => setSwapDetail(null)} className="text-gray-400 hover:text-gray-600">
+                <CloseIcon size={18} />
+              </button>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-500">ประเภท</span>
+                <span className="font-bold">{swapDetail.type === 'swap' ? 'สลับกะ' : 'ควงกะ'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">ผู้ขอ</span>
+                <span className="font-bold text-gray-800">{swapDetail.requesterName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">วันที่ผู้ขอ</span>
+                <span className="font-bold">{swapDetail.requesterDate} <span className="text-orange-600">({swapDetail.requesterShift})</span></span>
+              </div>
+              {swapDetail.targetName && (
+                <div className="flex justify-between">
+                  <span className="text-gray-500">คู่แลก</span>
+                  <span className="font-bold text-gray-800">{swapDetail.targetName}</span>
+                </div>
+              )}
+              {swapDetail.targetDate && (
+                <div className="flex justify-between">
+                  <span className="text-gray-500">วันที่คู่แลก</span>
+                  <span className="font-bold">{swapDetail.targetDate} <span className="text-orange-600">({swapDetail.targetShift})</span></span>
+                </div>
+              )}
+              {swapDetail.returnDate && (
+                <div className="flex justify-between">
+                  <span className="text-gray-500">วันคืนกะ</span>
+                  <span className="font-bold text-purple-600">{swapDetail.returnDate}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
