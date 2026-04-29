@@ -34,6 +34,7 @@ export default function Layout({ children, activeTab, setActiveTab, isAdmin, has
       <nav className="flex-1 p-4 space-y-1">
         {tabs.map((tab) => {
           if (tab.adminOnly && !isAdmin) return null;
+          if (tab.pairOnly && !hasPairGroup) return null;
           const Icon = tab.icon;
           return (
             <button
