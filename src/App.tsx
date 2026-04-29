@@ -26,6 +26,7 @@ export default function App() {
   const [member, setMember] = useState<Member | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [pairGroup, setPairGroup] = useState<PairGroup | null>(null);
 
   const [pinEmpId, setPinEmpId] = useState('');
   const [pinValue, setPinValue] = useState('');
