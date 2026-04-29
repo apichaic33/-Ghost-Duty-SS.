@@ -107,8 +107,16 @@ export default function Members() {
         await updateDoc(doc(db, 'members', editingMember.id), data);
         toast.success('อัปเดตข้อมูลสำเร็จ');
       } else {
-        if (!data.uid) { toast.error('กรุณาระบุ UID'); return; }
-        await setDoc(doc(db, 'members', data.uid), { ...data, role: 'member' });
+        const docId = data.uid?.trim() || data.empId?.trim();
+        if (!docId) { toast.error('กรุณาระบุ UID หรือ รหัสพนักงาน'); return; }
+        if (!data.empId?.trim()) { toast.error('กรุณาระบุรหัสพนักงาน (ใช้สำหรับ login PIN)'); return; }
+        const pin = data.pin?.trim() || data.empId.slice(-4);
+        await setDoc(doc(db, 'members', docId), {
+          ...data,
+          uid: docId,
+          pin,
+          role: 'member',
+        });
         toast.success('เพิ่มสมาชิกสำเร็จ');
       }
       setShowModal(false);
