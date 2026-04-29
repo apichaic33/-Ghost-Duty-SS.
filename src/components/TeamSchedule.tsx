@@ -91,10 +91,19 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
   const getShift = (m: Member, dateStr: string): string =>
     shiftsMap.get(`${m.id}_${dateStr}`) ?? generatedMap.get(m.id)?.get(dateStr) ?? 'X';
 
-  // Both admin and member: filter by positionTab
-  const visibleMembers = useMemo(() => members.filter(m =>
-    normalizePos(m.position) === positionTab
-  ), [members, positionTab]);
+  const swapMap = useMemo(() => {
+    const map = new Map<string, SwapRequest>();
+    for (const sw of approvedSwaps) {
+      if (sw.requesterId && sw.requesterDate) map.set(`${sw.requesterId}_${sw.requesterDate}`, sw);
+      if (sw.targetId && sw.targetDate) map.set(`${sw.targetId}_${sw.targetDate}`, sw);
+    }
+    return map;
+  }, [approvedSwaps]);
+
+  const visibleMembers = useMemo(() => {
+    const filtered = members.filter(m => normalizePos(m.position) === positionTab);
+    return [...filtered.filter(m => m.id === member.id), ...filtered.filter(m => m.id !== member.id)];
+  }, [members, positionTab, member.id]);
 
   const getUsage = (m: Member, code: string, mDays: Date[]) =>
     mDays.filter((d: Date) => getShift(m, format(d, 'yyyy-MM-dd')) === code).length;
