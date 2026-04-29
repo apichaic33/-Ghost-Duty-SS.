@@ -291,7 +291,7 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
                                   ${!isAdmin && isSelf ? 'cursor-default opacity-70' : 'hover:opacity-75 active:scale-95 cursor-pointer'}`}
                                 style={getShiftStyle(code)}
                               >
-                                {code}
+                                {code === 'XO' ? 'X' : code}
                               </button>
                             </td>
                           );
