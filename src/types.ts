@@ -1,4 +1,4 @@
-export type ShiftCode = 'S11' | 'S12' | 'S13' | 'AL-S11' | 'AL-S12' | 'AL-S13' | 'S78' | 'X' | 'A' | 'H';
+export type ShiftCode = 'S11' | 'S12' | 'S13' | 'AL-S11' | 'AL-S12' | 'AL-S13' | 'S78' | 'X' | 'XO' | 'A' | 'H';
 
 export interface NotificationPreferences {
   newRequests: boolean;
