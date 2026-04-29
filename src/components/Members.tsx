@@ -517,9 +517,12 @@ export default function Members() {
 
               {!editingMember && (
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">รหัสผู้ใช้ (UID)</label>
-                  <input name="uid" required placeholder="คัดลอกจากหน้าจอรออนุมัติของสมาชิก"
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+                    รหัสผู้ใช้ (UID) <span className="normal-case font-normal text-gray-400">— ไม่บังคับ</span>
+                  </label>
+                  <input name="uid" placeholder="กรอกเฉพาะสมาชิกที่ login ด้วย Google"
                     className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-500 font-mono" />
+                  <p className="text-[10px] text-gray-400 mt-1">ถ้าเว้นว่าง จะใช้รหัสพนักงาน (EmpID) แทน — login ด้วย PIN ได้เลย</p>
                 </div>
               )}
 
