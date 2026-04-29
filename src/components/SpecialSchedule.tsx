@@ -187,7 +187,7 @@ export default function SpecialSchedule({ member, group }: SpecialScheduleProps)
                                 disabled={!swap}
                                 className={`relative w-full h-6 flex items-center justify-center rounded text-[9px] font-bold transition-all
                                   ${swap ? 'hover:opacity-75 cursor-pointer' : 'cursor-default'}`}
-                                style={isSelf ? getShiftStyle(code) : getOtherShiftStyle(code)}
+                                style={isSelf ? getSelfShiftStyle(code) : getOtherShiftStyle(code)}
                               >
                                 {code === 'XO' ? 'X' : code}
                                 {swap && <span className="absolute top-0 right-0 w-1.5 h-1.5 rounded-full bg-green-500" />}
