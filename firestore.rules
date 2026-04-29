@@ -56,5 +56,11 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow write: if isAdmin();
     }
+
+    // Pair groups (admin manages, all members read)
+    match /pairGroups/{groupId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
   }
 }
