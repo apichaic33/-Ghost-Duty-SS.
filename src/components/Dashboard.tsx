@@ -23,6 +23,8 @@ export default function Dashboard({ member }: DashboardProps) {
   const [loading, setLoading] = useState(true);
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [showDebug, setShowDebug] = useState(false);
+  const [notes, setNotes] = useState<Map<string, string>>(new Map());
+  const [noteInput, setNoteInput] = useState('');
 
   useEffect(() => {
     const q = query(
