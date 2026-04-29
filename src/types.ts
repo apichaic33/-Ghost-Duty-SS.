@@ -56,6 +56,13 @@ export interface Shift {
   updatedAt: string;
 }
 
+export interface PairGroup {
+  id: string;
+  name: string;
+  memberIds: string[]; // max 4
+  createdAt: string;
+}
+
 export interface SwapRequest {
   id: string;
   requesterId: string;
