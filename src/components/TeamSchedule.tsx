@@ -155,6 +155,11 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
     if (!requestForm) return;
     const { type, targetMember, targetDate, targetShift, requesterDate, returnDate } = requestForm;
 
+    if (targetMember.zone !== member.zone) {
+      toast.error(`ไม่สามารถแลกกะข้ามโซนได้ (โซน ${member.zone} ↔ ${targetMember.zone})`);
+      return;
+    }
+
     if (type === 'cover') {
       const now = new Date();
       const maxReturn = new Date(now.getFullYear(), now.getMonth() + 2, 0);
