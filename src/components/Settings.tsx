@@ -331,6 +331,18 @@ export default function Settings({ member, setMember }: SettingsProps) {
                       />
                     </div>
                     <div>
+                      <label className="block text-[10px] text-gray-400 mb-1">กลุ่มกะ</label>
+                      <select
+                        value={newShiftProp.group || 'main'}
+                        onChange={e => setNewShiftProp(prev => ({ ...prev, group: e.target.value as ShiftGroup }))}
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-orange-500"
+                      >
+                        {SHIFT_GROUPS.map(g => (
+                          <option key={g.value} value={g.value}>{g.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
                       <label className="block text-[10px] text-gray-400 mb-1">ช่วงเวลา</label>
                       <select
                         value={newShiftProp.timeSlot}
@@ -345,21 +357,10 @@ export default function Settings({ member, setMember }: SettingsProps) {
                         <option value="leave">ลา</option>
                       </select>
                     </div>
-                    <div>
-                      <label className="block text-[10px] text-gray-400 mb-1">ประเภท</label>
-                      <select
-                        value={newShiftProp.isMain ? 'main' : 'extra'}
-                        onChange={e => setNewShiftProp(prev => ({ ...prev, isMain: e.target.value === 'main' }))}
-                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-orange-500"
-                      >
-                        <option value="main">กะหลัก</option>
-                        <option value="extra">กะเสริม</option>
-                      </select>
-                    </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <div>
-                      <label className="block text-[10px] text-gray-400 mb-1">สี (hex)</label>
+                      <label className="block text-[10px] text-gray-400 mb-1">สี</label>
                       <div className="flex items-center gap-2">
                         <input
                           type="color"
@@ -380,41 +381,57 @@ export default function Settings({ member, setMember }: SettingsProps) {
                   </div>
                 </div>
 
-                {/* List */}
-                <div className="divide-y divide-gray-100 border border-gray-100 rounded-xl overflow-hidden">
-                  <div className="grid grid-cols-5 px-3 py-2 bg-gray-50 text-[10px] font-bold text-gray-400 uppercase">
-                    <span>รหัส</span>
-                    <span className="col-span-2">ชื่อ</span>
-                    <span>ช่วงเวลา</span>
-                    <span>ประเภท</span>
+                {/* List grouped by category */}
+                {shiftProps.length === 0 ? (
+                  <p className="p-4 text-center text-xs text-gray-400 italic border border-dashed border-gray-200 rounded-xl">ยังไม่มีรหัสกะในระบบ</p>
+                ) : (
+                  <div className="space-y-3">
+                    {SHIFT_GROUPS.map(grp => {
+                      const items = shiftProps.filter(p => (p.group || (p.isMain ? 'main' : 'extra')) === grp.value);
+                      if (items.length === 0) return null;
+                      return (
+                        <div key={grp.value} className="border border-gray-100 rounded-xl overflow-hidden">
+                          <div className="px-3 py-2 flex items-center gap-2" style={{ backgroundColor: grp.color + '14' }}>
+                            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: grp.color }} />
+                            <span className="text-[10px] font-bold uppercase" style={{ color: grp.color }}>{grp.label}</span>
+                            <span className="text-[9px] text-gray-400 ml-1">{items.length} รหัส</span>
+                          </div>
+                          <div className="divide-y divide-gray-50">
+                            {items.map(prop => (
+                              <div key={prop.id} className="grid grid-cols-5 items-center px-3 py-2.5 hover:bg-gray-50">
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="color"
+                                    defaultValue={prop.color || '#ea580c'}
+                                    onBlur={async e => {
+                                      if (e.target.value !== prop.color) {
+                                        try {
+                                          await setDoc(doc(db, 'shiftProperties', prop.id), { ...prop, color: e.target.value });
+                                          toast.success(`อัปเดตสี ${prop.id}`);
+                                        } catch { toast.error('เกิดข้อผิดพลาด'); }
+                                      }
+                                    }}
+                                    className="w-6 h-6 rounded-md border border-gray-200 cursor-pointer p-0 flex-shrink-0"
+                                  />
+                                  <span className="text-xs font-bold font-mono text-gray-700">{prop.id}</span>
+                                </div>
+                                <span className="col-span-3 text-xs text-gray-600">{prop.name}</span>
+                                <div className="flex justify-end">
+                                  <button
+                                    onClick={() => handleDeleteShiftProp(prop.id)}
+                                    className="p-1 text-gray-300 hover:text-red-500 transition-colors"
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                  {shiftProps.map(prop => (
-                    <div key={prop.id} className="grid grid-cols-5 items-center px-3 py-2.5 hover:bg-gray-50">
-                      <div className="flex items-center gap-2">
-                        <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: prop.color || '#ea580c' }} />
-                        <span className="text-xs font-bold font-mono text-gray-700">{prop.id}</span>
-                      </div>
-                      <span className="col-span-2 text-xs text-gray-600">{prop.name}</span>
-                      <span className="text-[10px] text-gray-400">
-                        {{'morning':'เช้า','afternoon':'บ่าย','night':'ดึก','rest':'หยุด','holiday':'วันหยุด','leave':'ลา'}[prop.timeSlot] || prop.timeSlot}
-                      </span>
-                      <div className="flex items-center justify-between">
-                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${prop.isMain ? 'bg-orange-50 text-orange-600' : 'bg-gray-100 text-gray-500'}`}>
-                          {prop.isMain ? 'หลัก' : 'เสริม'}
-                        </span>
-                        <button
-                          onClick={() => handleDeleteShiftProp(prop.id)}
-                          className="p-1 text-gray-300 hover:text-red-500 transition-colors"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                  {shiftProps.length === 0 && (
-                    <p className="p-4 text-center text-xs text-gray-400 italic">ยังไม่มีรหัสกะในระบบ</p>
-                  )}
-                </div>
+                )}
               </div>
             </div>
           </div>
