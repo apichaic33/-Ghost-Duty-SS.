@@ -321,20 +321,21 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
         </div>
       )}
 
-      {/* Non-admin: position tabs only (own station auto-filtered) */}
+      {/* Non-admin: show own station + position info only (no tab switching) */}
       {!isAdmin && (
-        <div className="flex items-center gap-3">
-          <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
-            {['SS', 'AStS', 'SP'].map(tab => (
-              <button key={tab} onClick={() => setPositionTab(tab)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${positionTab === tab ? 'bg-white shadow text-orange-600' : 'text-gray-500 hover:text-gray-700'}`}>
-                {tab}
-              </button>
-            ))}
-          </div>
+        <div className="flex items-center gap-2">
           {member.station && (
-            <span className="text-xs text-indigo-600 font-bold bg-indigo-50 border border-indigo-200 px-2 py-1 rounded-lg">
+            <span className="text-xs text-indigo-600 font-bold bg-indigo-50 border border-indigo-200 px-2.5 py-1 rounded-lg">
               {member.station}
+            </span>
+          )}
+          {member.position && (
+            <span className={`text-xs font-bold px-2.5 py-1 rounded-lg border ${
+              member.position === 'SS' ? 'bg-orange-50 text-orange-600 border-orange-200' :
+              member.position === 'AStS' ? 'bg-cyan-50 text-cyan-600 border-cyan-200' :
+              'bg-purple-50 text-purple-600 border-purple-200'
+            }`}>
+              {member.position}
             </span>
           )}
         </div>
