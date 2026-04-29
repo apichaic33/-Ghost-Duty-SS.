@@ -31,18 +31,12 @@ service cloud.firestore {
       allow write: if isAuthenticated();
     }
 
-    // SwapRequests — field names: requesterId / targetId
+    // SwapRequests — PIN login uses anonymous auth so auth.uid != member.id
     match /swapRequests/{requestId} {
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && request.resource.data.requesterId == request.auth.uid;
-      allow update: if isAuthenticated() && (
-        resource.data.requesterId == request.auth.uid ||
-        resource.data.targetId    == request.auth.uid ||
-        isAdmin()
-      );
-      allow delete: if isAdmin() || (
-        isAuthenticated() && resource.data.requesterId == request.auth.uid
-      );
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && isAdmin();
+      allow delete: if isAdmin();
     }
 
     // Shift properties (admin manages, all members read)
