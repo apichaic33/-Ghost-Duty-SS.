@@ -36,14 +36,25 @@ export interface ShiftPatternTemplate {
 }
 
 export type ShiftTimeSlot = 'morning' | 'afternoon' | 'night' | 'rest' | 'holiday' | 'leave';
+export type ShiftGroup = 'main' | 'extra' | 'rest' | 'leave' | 'holiday' | 'spare';
+
+export const SHIFT_GROUPS: { value: ShiftGroup; label: string; color: string }[] = [
+  { value: 'main',    label: 'กะหลัก',          color: '#991b1b' },
+  { value: 'extra',   label: 'กะเสริม',          color: '#92400e' },
+  { value: 'rest',    label: 'วันหยุด',          color: '#374151' },
+  { value: 'leave',   label: 'วันลาพักร้อน',    color: '#dc2626' },
+  { value: 'holiday', label: 'หยุดนักขัตฤกษ์',  color: '#e11d48' },
+  { value: 'spare',   label: 'AL (กะ Spare)',    color: '#d97706' },
+];
 
 export interface ShiftProperty {
   id: string;
   name: string;
   description?: string;
-  color: string;        // hex e.g. '#ea580c'
+  color: string;
   timeSlot: ShiftTimeSlot;
-  isMain: boolean;      // true = กะหลัก, false = กะเสริม
+  isMain: boolean;
+  group?: ShiftGroup;
 }
 
 export interface Shift {
