@@ -58,18 +58,16 @@ export default function SpecialSchedule({ member, group }: SpecialScheduleProps)
     return map;
   }, [allShifts]);
 
-  const generatedMap = useMemo(() => {
-    const map = new Map<string, Map<string, string>>();
-    for (const m of groupMembers) {
-      if (!m.shiftPattern) continue;
-      const schedule = generateSchedule(m.id, m.shiftPattern, m.cycleStartDate, 2);
-      map.set(m.id, new Map(schedule.map(s => [s.date, s.shiftCode])));
-    }
-    return map;
-  }, [groupMembers]);
-
-  const getShift = (m: Member, dateStr: string): string =>
-    shiftsMap.get(`${m.id}_${dateStr}`) ?? generatedMap.get(m.id)?.get(dateStr) ?? 'X';
+  const getShift = (m: Member, dateStr: string): string => {
+    const override = shiftsMap.get(`${m.id}_${dateStr}`);
+    if (override) return override;
+    if (!m.shiftPattern || !m.cycleStartDate) return 'X';
+    const pattern = m.shiftPattern.split(',').map(s => s.trim()).filter(Boolean);
+    if (!pattern.length) return 'X';
+    const diff = differenceInDays(parseISO(dateStr), parseISO(m.cycleStartDate));
+    if (diff < 0) return 'X';
+    return pattern[diff % pattern.length] || 'X';
+  };
 
   const swapMap = useMemo(() => {
     const map = new Map<string, SwapRequest>();
