@@ -288,9 +288,19 @@ export default function Dashboard({ member }: DashboardProps) {
                   <span>ใส่วันลาพักร้อน (A)</span>
                 </button>
               )}
+              {selShift.code !== 'XO' && (
+                <button onClick={() => markCode(selectedDay, 'XO')}
+                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium text-sm transition-colors">
+                  <span className="text-lg">🔀</span>
+                  <div className="text-left">
+                    <p className="font-bold">แลกกะนอกสถานี (XO)</p>
+                    <p className="text-[10px] text-blue-400">แลกกับพนักงานที่ไม่มีในระบบ</p>
+                  </div>
+                </button>
+              )}
               {selShift.original && (
                 <button onClick={() => revertShift(selectedDay)}
-                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium text-sm transition-colors">
+                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium text-sm transition-colors">
                   <span className="text-lg">↩️</span>
                   <span>คืนกะเดิม ({selShift.original})</span>
                 </button>
