@@ -237,6 +237,7 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
 
   const MemberCell = ({ m, mDays }: { m: Member; mDays: Date[] }) => {
     const isSelf = m.id === member.id;
+    const isDiffStation = !isSelf && m.station !== member.station;
     const parts = m.name.trim().split(' ');
     return (
       <td className={`sticky left-0 z-10 px-1.5 py-1 border-r border-gray-200 ${isSelf ? 'bg-orange-50' : 'bg-white'}`}
@@ -253,6 +254,9 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
         </div>
         <p className="text-[10px] font-bold text-gray-800 leading-tight break-all">{parts[0]}</p>
         {parts[1] && <p className="text-[10px] font-bold text-gray-800 leading-tight break-all">{parts.slice(1).join(' ')}</p>}
+        {isDiffStation && m.station && (
+          <p className="text-[7px] text-indigo-500 font-bold leading-none mt-0.5 truncate">{m.station}</p>
+        )}
         <div className="flex items-center gap-0.5 mt-0.5 flex-wrap">
           <span className="text-[7px] text-red-500 font-bold leading-none">A:{getUsage(m, 'A', mDays)}</span>
           <span className="text-[7px] text-pink-500 font-bold leading-none">H:{getUsage(m, 'H', mDays)}</span>
