@@ -7,7 +7,7 @@ import { ShiftProperty } from '../types';
 const FALLBACK_COLORS: Record<string, string> = {
   'S11': '#ea580c', 'S12': '#ea580c', 'S13': '#ea580c', 'S78': '#ea580c',
   'AL-S11': '#d97706', 'AL-S12': '#d97706', 'AL-S13': '#d97706',
-  'X': '#9ca3af', 'A': '#ef4444', 'H': '#f43f5e',
+  'X': '#9ca3af', 'XO': '#3b82f6', 'A': '#ef4444', 'H': '#f43f5e',
 };
 
 export function useShiftProperties() {
