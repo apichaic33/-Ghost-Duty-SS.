@@ -336,6 +336,24 @@ export default function Dashboard({ member }: DashboardProps) {
                   <span>คืนกะเดิม ({selShift.original})</span>
                 </button>
               )}
+              {/* Note */}
+              <div className="pt-1 border-t border-gray-100">
+                <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">บันทึกส่วนตัว (ไม่เกิน 30 ตัวอักษร)</label>
+                <div className="flex gap-2">
+                  <input
+                    value={noteInput}
+                    onChange={e => setNoteInput(e.target.value.slice(0, 30))}
+                    placeholder="บันทึกสั้นๆ..."
+                    className="flex-1 border border-gray-200 rounded-lg px-3 py-1.5 text-xs outline-none focus:ring-2 focus:ring-indigo-400"
+                  />
+                  <button onClick={() => saveNote(selectedDay!, noteInput)}
+                    className="px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-lg text-xs font-bold transition-colors">
+                    บันทึก
+                  </button>
+                </div>
+                <p className="text-[9px] text-gray-300 mt-0.5 text-right">{noteInput.length}/30</p>
+              </div>
+
               <button onClick={() => setSelectedDay(null)}
                 className="w-full py-2 text-sm text-gray-400 hover:text-gray-600 transition-colors">
                 ยกเลิก
