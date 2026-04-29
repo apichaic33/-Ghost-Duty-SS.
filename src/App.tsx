@@ -8,7 +8,7 @@ import {
   collection, query, where, getDocs
 } from 'firebase/firestore';
 import { auth, db } from './firebase';
-import { Member } from './types';
+import { Member, PairGroup } from './types';
 import Layout from './components/Layout';
 import InstallGate from './components/InstallGate';
 import Dashboard from './components/Dashboard';
@@ -17,6 +17,8 @@ import Members from './components/Members';
 import Settings from './components/Settings';
 import TeamSchedule from './components/TeamSchedule';
 import ShiftPatterns from './components/ShiftPatterns';
+import PairGroups from './components/PairGroups';
+import SpecialSchedule from './components/SpecialSchedule';
 import { Toaster, toast } from 'sonner';
 
 export default function App() {
