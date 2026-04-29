@@ -5,7 +5,6 @@ import { X as CloseIcon } from 'lucide-react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Member, Shift, PairGroup, SwapRequest } from '../types';
-import { generateSchedule } from '../lib/scheduleUtils';
 import { useShiftProperties } from '../hooks/useShiftProperties';
 
 interface SpecialScheduleProps {
