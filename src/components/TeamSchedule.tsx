@@ -446,6 +446,50 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
           </div>
         </div>
       )}
+      {/* Swap Detail Modal */}
+      {swapDetail && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-end md:items-center justify-center p-4"
+          onClick={() => setSwapDetail(null)}>
+          <div className="bg-white rounded-2xl w-full max-w-xs shadow-2xl p-5" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-bold text-green-600 uppercase">✓ การแลกกะที่อนุมัติแล้ว</p>
+              <button onClick={() => setSwapDetail(null)} className="text-gray-400 hover:text-gray-600"><CloseIcon size={18} /></button>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-500">ประเภท</span>
+                <span className="font-bold">{swapDetail.type === 'swap' ? 'สลับกะ' : 'ควงกะ'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">ผู้ขอ</span>
+                <span className="font-bold text-gray-800">{swapDetail.requesterName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">วันที่ผู้ขอ</span>
+                <span className="font-bold">{swapDetail.requesterDate} <span className="text-orange-600">({swapDetail.requesterShift})</span></span>
+              </div>
+              {swapDetail.targetName && (
+                <div className="flex justify-between">
+                  <span className="text-gray-500">คู่แลก</span>
+                  <span className="font-bold text-gray-800">{swapDetail.targetName}</span>
+                </div>
+              )}
+              {swapDetail.targetDate && (
+                <div className="flex justify-between">
+                  <span className="text-gray-500">วันที่คู่แลก</span>
+                  <span className="font-bold">{swapDetail.targetDate} <span className="text-orange-600">({swapDetail.targetShift})</span></span>
+                </div>
+              )}
+              {swapDetail.returnDate && (
+                <div className="flex justify-between">
+                  <span className="text-gray-500">วันคืนกะ</span>
+                  <span className="font-bold text-purple-600">{swapDetail.returnDate}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
