@@ -121,17 +121,19 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
 
   const visibleMembers = useMemo(() => {
     const filtered = members.filter(m => {
-      if (normalizePos(m.position) !== positionTab) return false;
       if (isAdmin) {
+        if (normalizePos(m.position) !== positionTab) return false;
         if (selectedZone && m.zone !== selectedZone) return false;
         if (selectedStation && m.station !== selectedStation) return false;
       } else {
+        // Non-admin: own station + own position only
         if (m.station !== member.station) return false;
+        if (normalizePos(m.position) !== normalizePos(member.position)) return false;
       }
       return true;
     });
     return [...filtered.filter(m => m.id === member.id), ...filtered.filter(m => m.id !== member.id)];
-  }, [members, positionTab, member.id, isAdmin, selectedZone, selectedStation, member.station]);
+  }, [members, positionTab, member.id, isAdmin, selectedZone, selectedStation, member.station, member.position]);
 
   const getUsage = (m: Member, code: string, mDays: Date[]) =>
     mDays.filter((d: Date) => getShift(m, format(d, 'yyyy-MM-dd')) === code).length;
