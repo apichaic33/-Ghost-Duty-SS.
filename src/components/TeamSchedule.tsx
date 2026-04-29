@@ -465,14 +465,24 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
                   <p className="text-[10px] text-orange-500">สลับกะระหว่างกัน</p>
                 </div>
               </button>
-              <button onClick={() => openRequestForm('cover', swapPopup)}
-                className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-medium text-sm transition-colors">
-                <span className="text-lg">🔄</span>
-                <div className="text-left">
-                  <p className="font-bold">ขอควงกะ</p>
-                  <p className="text-[10px] text-purple-500">ต้องคืนภายในเดือนถัดไป</p>
+              {member.position === 'SS' ? (
+                <button onClick={() => openRequestForm('cover', swapPopup)}
+                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-medium text-sm transition-colors">
+                  <span className="text-lg">🔄</span>
+                  <div className="text-left">
+                    <p className="font-bold">ขอควงกะ</p>
+                    <p className="text-[10px] text-purple-500">ต้องคืนภายในเดือนถัดไป</p>
+                  </div>
+                </button>
+              ) : (
+                <div className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-gray-50 text-gray-300 text-sm cursor-not-allowed">
+                  <span className="text-lg opacity-40">🔄</span>
+                  <div className="text-left">
+                    <p className="font-bold">ขอควงกะ</p>
+                    <p className="text-[10px]">เฉพาะตำแหน่ง SS เท่านั้น</p>
+                  </div>
                 </div>
-              </button>
+              )}
               <button onClick={() => setSwapPopup(null)} className="w-full py-2 text-sm text-gray-400 hover:text-gray-600">ยกเลิก</button>
             </div>
           </div>
