@@ -588,15 +588,38 @@ export default function Members() {
               </div>
 
               {/* Pattern Input */}
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">รูปแบบกะ (Pattern)</label>
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-gray-500 uppercase">รูปแบบกะ (Pattern)</label>
+
+                {/* Template quick-select */}
+                {templates.length > 0 && (
+                  <div>
+                    <p className="text-[10px] text-gray-400 mb-1">เลือกจาก Pattern ที่มีอยู่</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {templates.map(t => (
+                        <button
+                          key={t.id}
+                          type="button"
+                          onClick={() => { setPatternInput(t.pattern); setSelectedPos(null); }}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition-all
+                            ${patternInput === t.pattern
+                              ? 'bg-orange-600 text-white border-orange-600'
+                              : 'bg-white text-gray-600 border-gray-200 hover:border-orange-400'}`}
+                        >
+                          {t.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <textarea
                   value={patternInput}
                   onChange={(e) => { setPatternInput(e.target.value); setSelectedPos(null); }}
-                  required rows={2}
+                  rows={2}
+                  placeholder="หรือพิมพ์เองคั่นด้วยจุลภาค เช่น S11,S11,S11,X,X,S13,S13,S13,X,X"
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-500 font-mono"
                 />
-                <p className="text-[10px] text-gray-400 mt-1">คั่นด้วยจุลภาค เช่น S11,S11,S11,X,X,S13,S13,S13,X,X</p>
               </div>
 
               {/* Pattern Visualizer */}
