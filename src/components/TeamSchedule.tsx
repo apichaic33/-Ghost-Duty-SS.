@@ -102,10 +102,36 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
     return map;
   }, [approvedSwaps]);
 
+  const zones = useMemo(() =>
+    [...new Set(members.map(m => m.zone).filter(Boolean))].sort(), [members]);
+
+  const stationsInZone = useMemo(() =>
+    [...new Set(members.filter(m => m.zone === selectedZone).map(m => m.station).filter(Boolean))].sort(),
+    [members, selectedZone]);
+
+  // Auto-select first zone when members load (admin)
+  useEffect(() => {
+    if (isAdmin && zones.length > 0 && !selectedZone) setSelectedZone(zones[0]);
+  }, [zones, isAdmin]);
+
+  // Auto-select first station when zone changes (admin)
+  useEffect(() => {
+    if (isAdmin && stationsInZone.length > 0) setSelectedStation(stationsInZone[0]);
+  }, [selectedZone, stationsInZone, isAdmin]);
+
   const visibleMembers = useMemo(() => {
-    const filtered = members.filter(m => normalizePos(m.position) === positionTab);
+    const filtered = members.filter(m => {
+      if (normalizePos(m.position) !== positionTab) return false;
+      if (isAdmin) {
+        if (selectedZone && m.zone !== selectedZone) return false;
+        if (selectedStation && m.station !== selectedStation) return false;
+      } else {
+        if (m.station !== member.station) return false;
+      }
+      return true;
+    });
     return [...filtered.filter(m => m.id === member.id), ...filtered.filter(m => m.id !== member.id)];
-  }, [members, positionTab, member.id]);
+  }, [members, positionTab, member.id, isAdmin, selectedZone, selectedStation, member.station]);
 
   const getUsage = (m: Member, code: string, mDays: Date[]) =>
     mDays.filter((d: Date) => getShift(m, format(d, 'yyyy-MM-dd')) === code).length;
