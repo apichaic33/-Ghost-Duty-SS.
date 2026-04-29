@@ -444,7 +444,14 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
               <div>
                 <p className="text-xs text-gray-400 uppercase font-bold">เลือกประเภทคำขอ</p>
                 <p className="font-bold text-gray-800 text-sm mt-0.5">{swapPopup.targetMember.name}</p>
-                <p className="text-xs text-gray-500">{format(new Date(swapPopup.targetDate + 'T00:00:00'), 'd MMMM yyyy', { locale: th })}</p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  {swapPopup.targetMember.station && (
+                    <span className="text-[10px] text-indigo-600 font-bold bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded">
+                      {swapPopup.targetMember.station}
+                    </span>
+                  )}
+                  <p className="text-xs text-gray-500">{format(new Date(swapPopup.targetDate + 'T00:00:00'), 'd MMMM yyyy', { locale: th })}</p>
+                </div>
               </div>
               <span className="px-3 py-1.5 rounded-lg text-sm font-bold" style={getOtherShiftStyle(swapPopup.targetShift)}>{swapPopup.targetShift}</span>
             </div>
