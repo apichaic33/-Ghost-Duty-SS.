@@ -298,19 +298,22 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
                         {mDays.map((day: Date) => {
                           const dateStr = format(day, 'yyyy-MM-dd');
                           const code = getShift(m, dateStr);
+                          const swap = swapMap.get(`${m.id}_${dateStr}`);
                           return (
                             <td key={dateStr} className={`p-0.5 border-r border-gray-100 text-center ${isToday(day) ? 'bg-orange-50/20' : ''}`}>
                               <button
                                 onClick={() => {
+                                  if (swap) { setSwapDetail(swap); return; }
                                   if (isAdmin) setEditingShift({ member: m, date: dateStr });
                                   else if (!isSelf) setSwapPopup({ targetMember: m, targetDate: dateStr, targetShift: code });
                                 }}
-                                disabled={!isAdmin && isSelf}
-                                className={`w-full h-6 flex items-center justify-center rounded text-[9px] font-bold transition-all
-                                  ${!isAdmin && isSelf ? 'cursor-default opacity-70' : 'hover:opacity-75 active:scale-95 cursor-pointer'}`}
-                                style={getShiftStyle(code)}
+                                disabled={!isAdmin && isSelf && !swap}
+                                className={`relative w-full h-6 flex items-center justify-center rounded text-[9px] font-bold transition-all
+                                  ${(!isAdmin && isSelf && !swap) ? 'cursor-default opacity-70' : 'hover:opacity-75 active:scale-95 cursor-pointer'}`}
+                                style={isSelf ? getShiftStyle(code) : getOtherShiftStyle(code)}
                               >
                                 {code === 'XO' ? 'X' : code}
+                                {swap && <span className="absolute top-0 right-0 w-1.5 h-1.5 rounded-full bg-green-500" />}
                               </button>
                             </td>
                           );
