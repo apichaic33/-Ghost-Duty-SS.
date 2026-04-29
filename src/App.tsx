@@ -81,6 +81,15 @@ export default function App() {
     return () => { unsubAuth(); if (memberUnsubRef.current) memberUnsubRef.current(); };
   }, []);
 
+  useEffect(() => {
+    if (!member) { setPairGroup(null); return; }
+    const q = query(collection(db, 'pairGroups'), where('memberIds', 'array-contains', member.id));
+    const unsub = onSnapshot(q, snap => {
+      setPairGroup(snap.empty ? null : ({ id: snap.docs[0].id, ...snap.docs[0].data() } as PairGroup));
+    });
+    return unsub;
+  }, [member?.id]);
+
   const handleGoogleLogin = async () => {
     try {
       const provider = new GoogleAuthProvider();
