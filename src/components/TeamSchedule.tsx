@@ -9,15 +9,6 @@ import { generateSchedule, getShiftCode } from '../lib/scheduleUtils';
 import { toast } from 'sonner';
 import emailjs from '@emailjs/browser';
 import { useShiftProperties } from '../hooks/useShiftProperties';
-import type { CSSProperties } from 'react';
-
-const getSelfShiftStyle = (code: string): CSSProperties => {
-  if (code === 'X')  return { backgroundColor: '#374151', color: 'white', borderColor: '#1f2937' };
-  if (code === 'A')  return { backgroundColor: '#fef2f2', color: '#dc2626', borderColor: '#fecaca' };
-  if (code === 'H')  return { backgroundColor: '#fff1f2', color: '#e11d48', borderColor: '#fecdd3' };
-  if (code === 'XO') return { backgroundColor: '#1d4ed8', color: 'white', borderColor: '#1e40af' };
-  return { backgroundColor: '#991b1b', color: 'white', borderColor: '#7f1d1d' };
-};
 
 const EMAILJS_SERVICE_ID = 'service_yamka';
 const EMAILJS_TEMPLATE_ID = 'template_nfo6sld';
