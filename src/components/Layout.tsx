@@ -51,8 +51,6 @@ export default function Layout({ children, activeTab, setActiveTab, isAdmin, has
             </button>
           );
         })}
-      </nav>
-      <div className="p-4 border-t border-gray-200">
         <button
           onClick={onSignOut}
           className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
@@ -60,7 +58,7 @@ export default function Layout({ children, activeTab, setActiveTab, isAdmin, has
           <LogOut size={18} />
           <span>ออกจากระบบ</span>
         </button>
-      </div>
+      </nav>
     </>
   );
 
