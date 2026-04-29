@@ -53,7 +53,7 @@ export default function Dashboard({ member }: DashboardProps) {
     return { code: (generatedMap.get(dateStr) as ShiftCode) || 'X' };
   };
 
-  const markCode = async (dateStr: string, newCode: 'H' | 'A') => {
+  const markCode = async (dateStr: string, newCode: 'H' | 'A' | 'XO') => {
     const { code, original } = getShift(dateStr);
     try {
       await setDoc(doc(db, 'shifts', `${member.id}_${dateStr}`), {
