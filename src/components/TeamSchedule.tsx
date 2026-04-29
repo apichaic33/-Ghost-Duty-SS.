@@ -36,7 +36,7 @@ interface RequestForm {
 }
 
 export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
-  const { getOtherShiftStyle, getSelfShiftStyle } = useShiftProperties();
+  const { getShiftStyle, getOtherShiftStyle, getSelfShiftStyle } = useShiftProperties();
   const [members, setMembers] = useState<Member[]>([]);
   const [allShifts, setAllShifts] = useState<Shift[]>([]);
   const [loading, setLoading] = useState(true);
