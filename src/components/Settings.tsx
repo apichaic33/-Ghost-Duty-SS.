@@ -37,18 +37,19 @@ export default function Settings({ member, setMember }: SettingsProps) {
 
   const handleAddShiftProp = async () => {
     if (!newShiftProp.id || !newShiftProp.name) return;
+    const group = newShiftProp.group || 'main';
+    const isMain = group === 'main';
     try {
       await setDoc(doc(db, 'shiftProperties', newShiftProp.id.toUpperCase()), {
         name: newShiftProp.name,
         color: newShiftProp.color || '#ea580c',
         timeSlot: newShiftProp.timeSlot || 'morning',
-        isMain: newShiftProp.isMain ?? true,
+        isMain,
+        group,
       });
-      setNewShiftProp({ id: '', name: '', color: '#ea580c', timeSlot: 'morning', isMain: true });
+      setNewShiftProp({ id: '', name: '', color: '#ea580c', timeSlot: 'morning', isMain: true, group: 'main' });
       toast.success('เพิ่มรหัสกะสำเร็จ');
-    } catch (e) {
-      toast.error('เกิดข้อผิดพลาด');
-    }
+    } catch { toast.error('เกิดข้อผิดพลาด'); }
   };
 
   const handleSaveGasUrl = async () => {
