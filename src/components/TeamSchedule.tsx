@@ -129,20 +129,24 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
 
     setRequestForm(f => f ? { ...f, submitting: true } : null);
     try {
-      await addDoc(collection(db, 'swapRequests'), {
+      const payload: Record<string, unknown> = {
         requesterId: member.id,
         requesterName: member.name,
         targetId: targetMember.id,
         targetName: targetMember.name,
         type,
         requesterDate,
-        targetDate: type === 'swap' ? targetDate : undefined,
-        returnDate: type === 'cover' ? returnDate : undefined,
         requesterShift,
-        targetShift: type === 'swap' ? targetShift : undefined,
         status: 'pending',
         createdAt: new Date().toISOString(),
-      });
+      };
+      if (type === 'swap') {
+        payload.targetDate = targetDate;
+        payload.targetShift = targetShift;
+      } else {
+        payload.returnDate = returnDate;
+      }
+      await addDoc(collection(db, 'swapRequests'), payload);
 
       if (targetMember.email) {
         const label = type === 'swap' ? 'สลับกะ' : 'ควงกะ';
