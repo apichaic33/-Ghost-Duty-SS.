@@ -45,6 +45,8 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
   const [editingShift, setEditingShift] = useState<{ member: Member; date: string } | null>(null);
   const [swapPopup, setSwapPopup] = useState<SwapPopup | null>(null);
   const [requestForm, setRequestForm] = useState<RequestForm | null>(null);
+  const [approvedSwaps, setApprovedSwaps] = useState<SwapRequest[]>([]);
+  const [swapDetail, setSwapDetail] = useState<SwapRequest | null>(null);
 
   const rangeStart = startOfMonth(new Date());
   const rangeEnd = endOfMonth(addMonths(new Date(), 11));
@@ -63,7 +65,11 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
       setAllShifts(snap.docs.map(d => ({ id: d.id, ...d.data() } as Shift)));
       setLoading(false);
     });
-    return () => { unsubMembers(); unsubShifts(); };
+    const unsubSwaps = onSnapshot(
+      query(collection(db, 'swapRequests'), where('status', '==', 'approved')),
+      snap => setApprovedSwaps(snap.docs.map(d => ({ id: d.id, ...d.data() } as SwapRequest)))
+    );
+    return () => { unsubMembers(); unsubShifts(); unsubSwaps(); };
   }, []);
 
   const shiftsMap = useMemo(() => {
