@@ -7,7 +7,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig(({mode}) => {
   const env = loadEnv(mode, '.', '');
   return {
-    base: process.env.GITHUB_ACTIONS ? '/-Ghost-Duty-SS./' : '/',
+    base: '/',
     plugins: [
       react(),
       tailwindcss(),
