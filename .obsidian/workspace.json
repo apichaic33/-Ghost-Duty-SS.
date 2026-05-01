@@ -1,0 +1,183 @@
+{
+  "main": {
+    "id": "c0dfedb1bf5457ee",
+    "type": "split",
+    "children": [
+      {
+        "id": "4af22d1f42587a72",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "77c99a3453a15b93",
+            "type": "leaf",
+            "state": {
+              "type": "graph",
+              "state": {},
+              "icon": "lucide-git-fork",
+              "title": "มุมมองกราฟ"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "31d785c0054835eb",
+    "type": "split",
+    "children": [
+      {
+        "id": "8502f2c25f09b902",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "81a8c77871c9e8ec",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "File explorer"
+            }
+          },
+          {
+            "id": "3747435da97287c0",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "ค้นหา"
+            }
+          },
+          {
+            "id": "132f893cb26ec6c9",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "บุ๊กมาร์ก"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "3daf25e2dff8f04e",
+    "type": "split",
+    "children": [
+      {
+        "id": "6dbec0157887d821",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "beefc6aad648e3c1",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "แบ็คลิงค์"
+            }
+          },
+          {
+            "id": "c1a1611334820225",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "ลิงค์ขาออก"
+            }
+          },
+          {
+            "id": "070422ee40ed6af1",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "แท็ก"
+            }
+          },
+          {
+            "id": "fbe2bb8ee15df13d",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "คุณสมบัติทั้งหมด"
+            }
+          },
+          {
+            "id": "43b230b11face1ca",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "โครงเรื่อง"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:เปิด quick switcher": false,
+      "graph:เปิดมุมมองกราฟ": false,
+      "canvas:สร้างผืนผ้าใบใหม่": false,
+      "daily-notes:เปิดโน้ตของวันนี้": false,
+      "templates:แทรกเทมเพลต": false,
+      "command-palette:เปิดกระดานคำสั่ง": false,
+      "bases:สร้างฐานใหม่": false
+    }
+  },
+  "active": "77c99a3453a15b93",
+  "lastOpenFiles": [
+    "HANDOFF_YAMKA_DEPLOY.md"
+  ]
+}
