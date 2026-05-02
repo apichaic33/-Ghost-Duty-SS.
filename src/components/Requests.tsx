@@ -80,7 +80,7 @@ export default function Requests({ member }: RequestsProps) {
       if (req.requesterId) {
         emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
           subject: `คำขอของคุณได้รับการ${label}`,
-          to_email: member.email || '',
+          to_email: member.email || ADMIN_EMAIL,
           message: `คำขอ${req.type === 'swap' ? 'สลับกะ' : 'ควงกะ'} ของ ${req.requesterName} ได้รับการ${label} โดย ${member.name}`,
         }, EMAILJS_PUBLIC_KEY).catch(() => {});
       }
