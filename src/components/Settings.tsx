@@ -17,7 +17,7 @@ export default function Settings({ member, setMember }: SettingsProps) {
     warnings: true,
   });
   const [shiftProps, setShiftProps] = useState<ShiftProperty[]>([]);
-  const [newShiftProp, setNewShiftProp] = useState<Partial<ShiftProperty>>({ id: '', name: '', color: '#ea580c', timeSlot: 'morning', isMain: true, group: 'main' });
+  const [newShiftProp, setNewShiftProp] = useState<Partial<ShiftProperty>>({ id: '', name: '', color: '#ea580c', timeSlot: 'morning', isMain: true, group: 'main', startTime: '', endTime: '', isOvernight: false });
   const [gasUrl, setGasUrl] = useState('');
   const [gasUrlSaving, setGasUrlSaving] = useState(false);
   const [syncing, setSyncing] = useState(false);
