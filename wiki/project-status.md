@@ -22,23 +22,16 @@
 
 ## ❌ ยังค้าง
 
-1. **เก็บค่า EmailJS** — ต้องไปดูที่ emailjs.com แล้วเก็บ 3 ค่า:
-   - Service ID → หน้า Email Services
-   - Template ID → หน้า Email Templates
-   - Public Key → Account → General
+~~**เก็บค่า EmailJS**~~ ✅ เสร็จแล้ว (2026-05-02)
+   - Service ID: `service_yamka`
+   - Template ID: `template_nfo6sld`
+   - Public Key: `YY8IVNkVN-qhgglkU`
 
-2. ~~**แก้โค้ดใส่ EmailJS**~~ ✅ เสร็จแล้ว (2026-04-18)
-   - `src/components/Requests.tsx` — แทน Line Notify ด้วย EmailJS
-   - `src/components/TeamSchedule.tsx` — เพิ่ม notification ตอน admin แก้ shift
-   - `src/types.ts` — เพิ่ม `email?: string` ใน Member
+~~**เปิด Google Authentication**~~ ✅ เสร็จแล้ว (2026-05-02)
 
-3. ~~**แก้ `firebase.json`**~~ ✅ สร้างใหม่แล้ว (2026-04-18)
+~~**GAS เชื่อมต่อ + Sync สมาชิก**~~ ✅ เสร็จแล้ว (2026-05-02) — Sync แล้ว 18 คน (ใหม่ 1, อัปเดต 17)
 
-4. ~~**`npm run build` + `firebase deploy --only hosting`**~~ ✅ Deploy สำเร็จ (2026-04-18)
-
-5. **เปิด Google Authentication** ใน Firebase Console → Authentication → Sign-in method
-
-6. **ทดสอบระบบ** ที่ `https://gen-lang-client-0528383957.web.app`
+1. **ทดสอบระบบ** ที่ `https://gen-lang-client-0528383957.web.app` — login, ดูกะ, ยื่น swap request, ทดสอบ email notification
 
 ---
 
