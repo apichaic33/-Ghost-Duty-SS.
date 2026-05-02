@@ -31,11 +31,11 @@ service cloud.firestore {
       allow write: if isAuthenticated();
     }
 
-    // SwapRequests — PIN login uses anonymous auth so auth.uid != member.id
+    // SwapRequests — authenticated users update (target approve/reject, requester cancel)
     match /swapRequests/{requestId} {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated();
-      allow update: if isAuthenticated() && isAdmin();
+      allow update: if isAuthenticated();
       allow delete: if isAdmin();
     }
 
