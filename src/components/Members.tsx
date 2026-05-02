@@ -15,6 +15,7 @@ interface GasMember {
   department: string;
   status: string;
   phone: string;
+  email?: string;
 }
 
 export default function Members() {
