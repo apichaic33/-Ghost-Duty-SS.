@@ -177,10 +177,9 @@ export default function Requests({ member }: RequestsProps) {
               <span className="px-3 py-1.5 bg-amber-50 text-amber-600 border border-amber-200 text-xs font-bold rounded-full">
                 รอการยืนยัน
               </span>
-              <button onClick={() => handleDelete(req.id)}
-                className="p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors"
-                title="ลบคำขอ">
-                <Trash2 size={15} />
+              <button onClick={() => handleCancel(req.id)}
+                className="px-3 py-1.5 text-xs font-bold text-red-500 hover:bg-red-50 border border-red-200 rounded-full transition-colors">
+                ยกเลิก
               </button>
             </div>
           )}
