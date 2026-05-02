@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { collection, query, where, onSnapshot, doc, writeBatch, updateDoc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, doc, writeBatch, updateDoc, addDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Member, SwapRequest } from '../types';
 import { format } from 'date-fns';
 import { th } from 'date-fns/locale';
-import { Check, X, ArrowRightLeft, Repeat } from 'lucide-react';
+import { Check, X, ArrowRightLeft, Repeat, RotateCcw, History } from 'lucide-react';
 import { toast } from 'sonner';
 import emailjs from '@emailjs/browser';
 import { useShiftProperties } from '../hooks/useShiftProperties';
@@ -23,6 +23,7 @@ export default function Requests({ member }: RequestsProps) {
   const { getShiftStyle } = useShiftProperties();
   const [incoming, setIncoming] = useState<SwapRequest[]>([]);
   const [outgoing, setOutgoing] = useState<SwapRequest[]>([]);
+  const [history, setHistory] = useState<SwapRequest[]>([]);
 
   useEffect(() => {
     const q1 = query(
@@ -35,6 +36,17 @@ export default function Requests({ member }: RequestsProps) {
       where('requesterId', '==', member.id),
       where('status', '==', 'pending')
     );
+    const q3 = query(
+      collection(db, 'swapRequests'),
+      where('requesterId', '==', member.id),
+      where('status', '==', 'approved')
+    );
+    const q4 = query(
+      collection(db, 'swapRequests'),
+      where('targetId', '==', member.id),
+      where('status', '==', 'approved')
+    );
+
     const unsub1 = onSnapshot(q1, snap =>
       setIncoming(snap.docs.map(d => ({ id: d.id, ...d.data() } as SwapRequest))
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt)))
@@ -43,7 +55,25 @@ export default function Requests({ member }: RequestsProps) {
       setOutgoing(snap.docs.map(d => ({ id: d.id, ...d.data() } as SwapRequest))
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt)))
     );
-    return () => { unsub1(); unsub2(); };
+
+    // Merge approved from both queries, deduplicate by id
+    let approvedAsRequester: SwapRequest[] = [];
+    let approvedAsTarget: SwapRequest[] = [];
+    const mergeHistory = () => {
+      const all = [...approvedAsRequester, ...approvedAsTarget];
+      const unique = Array.from(new Map(all.map(r => [r.id, r])).values());
+      setHistory(unique.sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 30));
+    };
+    const unsub3 = onSnapshot(q3, snap => {
+      approvedAsRequester = snap.docs.map(d => ({ id: d.id, ...d.data() } as SwapRequest));
+      mergeHistory();
+    });
+    const unsub4 = onSnapshot(q4, snap => {
+      approvedAsTarget = snap.docs.map(d => ({ id: d.id, ...d.data() } as SwapRequest));
+      mergeHistory();
+    });
+
+    return () => { unsub1(); unsub2(); unsub3(); unsub4(); };
   }, [member.id]);
 
   const handleAction = async (req: SwapRequest, action: 'approved' | 'rejected') => {
@@ -98,6 +128,44 @@ export default function Requests({ member }: RequestsProps) {
       toast.success('ยกเลิกคำขอเรียบร้อย');
     } catch (err: any) {
       console.error('[handleCancel]', err?.code, err?.message, err);
+      toast.error(`ผิดพลาด: ${err?.code || err?.message || 'unknown'}`);
+    }
+  };
+
+  const handleReverseSwap = async (req: SwapRequest) => {
+    if (!req.targetId || !req.targetDate || !req.targetShift) {
+      toast.error('ไม่สามารถขอแลกคืนได้ — ข้อมูลไม่ครบ');
+      return;
+    }
+    try {
+      const iAmRequester = req.requesterId === member.id;
+      // ถ้าฉันเป็นคนขอเดิม: ฉันมีกะของอีกฝ่าย (req.targetShift) อยู่ที่วันของฉัน (req.requesterDate)
+      // ถ้าฉันเป็น target เดิม: ฉันมีกะของอีกฝ่าย (req.requesterShift) อยู่ที่วันของฉัน (req.targetDate)
+      const newReq = {
+        requesterId:    member.id,
+        requesterName:  member.name,
+        targetId:       iAmRequester ? req.targetId   : req.requesterId,
+        targetName:     iAmRequester ? req.targetName : req.requesterName,
+        type:           'swap' as const,
+        status:         'pending' as const,
+        requesterDate:  iAmRequester ? req.requesterDate : req.targetDate,
+        requesterShift: iAmRequester ? req.targetShift  : req.requesterShift,
+        targetDate:     iAmRequester ? req.targetDate   : req.requesterDate,
+        targetShift:    iAmRequester ? req.requesterShift : req.targetShift,
+        isReverseOf:    req.id,
+        createdAt:      new Date().toISOString(),
+      };
+      await addDoc(collection(db, 'swapRequests'), newReq);
+      toast.success('ส่งคำขอแลกคืนกะเรียบร้อย');
+
+      emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        subject: `[ระบบยำกะผี] คำขอแลกคืนกะจาก ${member.name}`,
+        from_name: 'ระบบยำกะผี',
+        to_email: (iAmRequester ? req.targetName : req.requesterName) ? ADMIN_EMAIL : ADMIN_EMAIL,
+        message: `ประเภท: คำขอแลกคืนกะ\nผู้ขอ: ${member.name}\nส่งถึง: ${newReq.targetName}\nวันที่ขอคืน: ${newReq.requesterDate} (กะ ${newReq.requesterShift})\nวันที่แลก: ${newReq.targetDate} (กะ ${newReq.targetShift})\n\nตรวจสอบ: https://gen-lang-client-0528383957.web.app`,
+      }, EMAILJS_PUBLIC_KEY).catch(() => {});
+    } catch (err: any) {
+      console.error('[handleReverseSwap]', err?.code, err?.message, err);
       toast.error(`ผิดพลาด: ${err?.code || err?.message || 'unknown'}`);
     }
   };
@@ -195,6 +263,70 @@ export default function Requests({ member }: RequestsProps) {
     </div>
   );
 
+  const HistoryCard: React.FC<{ req: SwapRequest }> = ({ req }) => {
+    const iAmRequester = req.requesterId === member.id;
+    const counterpart = iAmRequester ? req.targetName : req.requesterName;
+    const canReverse = req.type === 'swap' && req.targetId && req.targetDate;
+
+    return (
+      <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="flex items-center space-x-3">
+            <div className="p-2.5 rounded-full bg-green-50 text-green-600">
+              <Check size={18} />
+            </div>
+            <div>
+              <p className="font-bold text-gray-800 text-sm">
+                {req.type === 'swap' ? 'สลับกะ' : 'ควงกะ'}
+                {(req as any).isReverseOf && (
+                  <span className="ml-1.5 text-[10px] font-normal text-blue-500 bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded-full">แลกคืน</span>
+                )}
+              </p>
+              <p className="text-xs text-gray-500">
+                {iAmRequester ? `ส่งถึง: ${counterpart}` : `จาก: ${counterpart}`}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4 text-xs">
+            <div className="text-center">
+              <p className="text-[10px] font-bold text-gray-400 uppercase mb-0.5">วันผู้ขอ</p>
+              <span className="px-2 py-0.5 rounded font-bold border" style={getShiftStyle(req.requesterShift)}>
+                {req.requesterShift}
+              </span>
+              <p className="text-gray-500 mt-0.5">{formatDate(req.requesterDate)}</p>
+            </div>
+            {req.type === 'swap' && req.targetDate && (
+              <>
+                <ArrowRightLeft size={12} className="text-gray-300" />
+                <div className="text-center">
+                  <p className="text-[10px] font-bold text-gray-400 uppercase mb-0.5">วันที่แลก</p>
+                  <span className="px-2 py-0.5 rounded font-bold border" style={getShiftStyle(req.targetShift || '')}>
+                    {req.targetShift}
+                  </span>
+                  <p className="text-gray-500 mt-0.5">{formatDate(req.targetDate)}</p>
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="px-3 py-1.5 bg-green-50 text-green-600 border border-green-200 text-xs font-bold rounded-full">
+              อนุมัติแล้ว
+            </span>
+            {canReverse && (
+              <button onClick={() => handleReverseSwap(req)}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-blue-600 hover:bg-blue-50 border border-blue-200 rounded-full transition-colors">
+                <RotateCcw size={13} />
+                ขอแลกคืน
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-800">คำขอสลับกะ</h2>
@@ -227,6 +359,18 @@ export default function Requests({ member }: RequestsProps) {
           outgoing.map(req => <RequestCard key={req.id} req={req} showActions={false} />)
         )}
       </div>
+
+      {/* History — approved requests */}
+      {history.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center space-x-2">
+            <History size={14} className="text-gray-400" />
+            <h3 className="text-sm font-bold text-gray-700">ประวัติที่อนุมัติแล้ว</h3>
+            <span className="text-[10px] text-gray-400">(30 รายการล่าสุด)</span>
+          </div>
+          {history.map(req => <HistoryCard key={req.id} req={req} />)}
+        </div>
+      )}
     </div>
   );
 }
