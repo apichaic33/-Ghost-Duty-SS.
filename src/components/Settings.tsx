@@ -46,8 +46,11 @@ export default function Settings({ member, setMember }: SettingsProps) {
         timeSlot: newShiftProp.timeSlot || 'morning',
         isMain,
         group,
+        startTime: newShiftProp.startTime || '',
+        endTime: newShiftProp.endTime || '',
+        isOvernight: newShiftProp.isOvernight || false,
       });
-      setNewShiftProp({ id: '', name: '', color: '#ea580c', timeSlot: 'morning', isMain: true, group: 'main' });
+      setNewShiftProp({ id: '', name: '', color: '#ea580c', timeSlot: 'morning', isMain: true, group: 'main', startTime: '', endTime: '', isOvernight: false });
       toast.success('เพิ่มรหัสกะสำเร็จ');
     } catch { toast.error('เกิดข้อผิดพลาด'); }
   };
