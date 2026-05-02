@@ -80,7 +80,7 @@
     </li>
     <li class="nav-item">
       <button class="nav-link" onclick="switchTab('requests',this)" id="tabRequestsBtn">
-        <i class="bi bi-arrow-left-right me-1"></i>คำขอสลับกะ
+        <i class="bi bi-clock-history me-1"></i>ประวัติคำขอ
         <span id="pendingBadge" class="badge bg-danger ms-1 d-none"></span>
       </button>
     </li>
@@ -197,7 +197,7 @@ var _SHIFT_POS   = 'AStS';
 var _POS_COLOR   = '#0891b2';
 var _POS_STORAGE = 'shift_memberId_AStS';
 var _POS_TITLE   = 'ผู้ช่วยนายสถานี (AStS)';
-var _POS_SUB     = 'ตารางกะและคำขอสลับกะ — AStS';
+var _POS_SUB     = 'ตารางกะและประวัติคำขอ — AStS';
 var _SESSION_KEY = 'shift_session_AStS';
 var _SESSION_TTL = 12 * 3600 * 1000;
 
@@ -442,7 +442,7 @@ function renderTeamTable(ym, todayStr, admin) {
 function renderRequests() {
   var el = document.getElementById('requestsContent'), admin = isAdmin();
   var visible = admin ? _requests : _requests.filter(function(r){ return r.requesterId===_currentMemberId||r.targetId===_currentMemberId; });
-  if (!visible.length) { el.innerHTML = '<div class="alert alert-info"><i class="bi bi-inbox me-2"></i>'+(admin?'ยังไม่มีคำขอสลับกะ':'ไม่มีคำขอสลับกะที่เกี่ยวข้องกับคุณ')+'</div>'; return; }
+  if (!visible.length) { el.innerHTML = '<div class="alert alert-info"><i class="bi bi-inbox me-2"></i>'+(admin?'ยังไม่มีประวัติคำขอ':'ไม่มีประวัติคำขอที่เกี่ยวข้องกับคุณ')+'</div>'; return; }
   var pending=visible.filter(function(r){return r.status==='pending';}),history=visible.filter(function(r){return r.status!=='pending';}),html='';
   if(pending.length){ html+='<h6 class="fw-bold mb-2"><i class="bi bi-hourglass-split me-1 text-warning"></i>รอดำเนินการ ('+pending.length+')</h6>'; pending.forEach(function(r){html+=requestCard(r,admin);}); }
   if(history.length){ html+='<h6 class="fw-bold mt-3 mb-2 text-secondary"><i class="bi bi-clock-history me-1"></i>ประวัติ</h6>'; history.slice(0,20).forEach(function(r){html+=requestCard(r,false);}); }
