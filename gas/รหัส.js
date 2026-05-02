@@ -1090,7 +1090,7 @@ function gasGetAllMembersJSON(callback) {
       result = { status: 'success', members: [] };
     } else {
       var lastRow = sheet.getLastRow();
-      var rows = sheet.getRange(2, 1, lastRow - 1, 10).getValues();
+      var rows = sheet.getRange(2, 1, lastRow - 1, 12).getValues();
       var members = [];
       rows.forEach(function(r) {
         var empId = r[1].toString().trim();
@@ -1102,7 +1102,8 @@ function gasGetAllMembersJSON(callback) {
           position:   r[3].toString().trim(),
           department: r[4].toString().trim(),
           status:     r[5].toString().trim(),
-          phone:      r[7].toString().trim()
+          phone:      r[7].toString().trim(),
+          email:      r[11] ? r[11].toString().trim() : ''
         });
       });
       result = { status: 'success', members: members };
