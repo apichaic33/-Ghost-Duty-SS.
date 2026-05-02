@@ -209,6 +209,7 @@ export default function Members() {
             name: m.name,
             ...(cleanPosition && { position: cleanPosition }),
             ...(m.department && { station: m.department }),
+            ...(m.email && { email: m.email }),
           });
           updated++;
         } else {
@@ -226,6 +227,7 @@ export default function Members() {
             shiftPattern: '',
             cycleStartDate: today,
             role: 'member',
+            email: m.email || '',
           });
           imported++;
         }
