@@ -88,11 +88,10 @@ export default function Requests({ member }: RequestsProps) {
     } catch { toast.error('เกิดข้อผิดพลาด'); }
   };
 
-  const handleDelete = async (reqId: string) => {
-    if (!confirm('ต้องการลบคำขอนี้ใช่ไหม?')) return;
+  const handleCancel = async (reqId: string) => {
     try {
-      await deleteDoc(doc(db, 'swapRequests', reqId));
-      toast.success('ลบคำขอเรียบร้อย');
+      await updateDoc(doc(db, 'swapRequests', reqId), { status: 'cancelled' });
+      toast.success('ยกเลิกคำขอเรียบร้อย');
     } catch { toast.error('เกิดข้อผิดพลาด'); }
   };
 
