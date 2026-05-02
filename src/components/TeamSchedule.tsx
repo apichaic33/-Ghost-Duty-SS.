@@ -330,8 +330,8 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
           )}
           {member.position && (
             <span className={`text-xs font-bold px-2.5 py-1 rounded-lg border ${
-              member.position === 'SS' ? 'bg-orange-50 text-orange-600 border-orange-200' :
-              member.position === 'AStS' ? 'bg-cyan-50 text-cyan-600 border-cyan-200' :
+              normalizePos(member.position) === 'SS' ? 'bg-orange-50 text-orange-600 border-orange-200' :
+              normalizePos(member.position) === 'AStS' ? 'bg-cyan-50 text-cyan-600 border-cyan-200' :
               'bg-purple-50 text-purple-600 border-purple-200'
             }`}>
               {member.position}
