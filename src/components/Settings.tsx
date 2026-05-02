@@ -112,17 +112,17 @@ export default function Settings({ member, setMember }: SettingsProps) {
   const handleSeedShiftProps = async () => {
     if (!confirm('Seed รหัสกะเริ่มต้น 10 รายการเข้า Firestore ใช่ไหม? (จะข้ามถ้ามีอยู่แล้ว)')) return;
     const defaults = [
-      { id: 'S11',    name: 'กะเช้า',             color: '#ea580c', timeSlot: 'morning',   isMain: true,  group: 'main'    },
-      { id: 'S12',    name: 'กะบ่าย',             color: '#ea580c', timeSlot: 'afternoon', isMain: true,  group: 'main'    },
-      { id: 'S13',    name: 'กะดึก',              color: '#ea580c', timeSlot: 'night',     isMain: true,  group: 'main'    },
-      { id: 'S78',    name: 'กะพิเศษ',            color: '#ea580c', timeSlot: 'morning',   isMain: true,  group: 'main'    },
-      { id: 'AL-S11', name: 'ลา + กะเช้า',        color: '#d97706', timeSlot: 'morning',   isMain: false, group: 'spare'   },
-      { id: 'AL-S12', name: 'ลา + กะบ่าย',        color: '#d97706', timeSlot: 'afternoon', isMain: false, group: 'spare'   },
-      { id: 'AL-S13', name: 'ลา + กะดึก',         color: '#d97706', timeSlot: 'night',     isMain: false, group: 'spare'   },
-      { id: 'X',      name: 'วันหยุด',            color: '#9ca3af', timeSlot: 'rest',      isMain: false, group: 'rest'    },
-      { id: 'XO',     name: 'หยุด (แลกนอกสถานี)', color: '#3b82f6', timeSlot: 'rest',      isMain: false, group: 'rest'    },
-      { id: 'A',      name: 'ลาพักร้อน',          color: '#ef4444', timeSlot: 'leave',     isMain: false, group: 'leave'   },
-      { id: 'H',      name: 'หยุดนักขัตฤกษ์',    color: '#f43f5e', timeSlot: 'holiday',   isMain: false, group: 'holiday' },
+      { id: 'S11',    name: 'กะเช้า',             color: '#ea580c', timeSlot: 'morning',   isMain: true,  group: 'main',    startTime: '06:00', endTime: '14:00', isOvernight: false },
+      { id: 'S12',    name: 'กะบ่าย',             color: '#ea580c', timeSlot: 'afternoon', isMain: true,  group: 'main',    startTime: '14:00', endTime: '22:00', isOvernight: false },
+      { id: 'S13',    name: 'กะดึก',              color: '#ea580c', timeSlot: 'night',     isMain: true,  group: 'main',    startTime: '22:00', endTime: '06:00', isOvernight: true  },
+      { id: 'S78',    name: 'กะพิเศษ',            color: '#ea580c', timeSlot: 'morning',   isMain: true,  group: 'main',    startTime: '',      endTime: '',      isOvernight: false },
+      { id: 'AL-S11', name: 'ลา + กะเช้า',        color: '#d97706', timeSlot: 'morning',   isMain: false, group: 'spare',   startTime: '06:00', endTime: '14:00', isOvernight: false },
+      { id: 'AL-S12', name: 'ลา + กะบ่าย',        color: '#d97706', timeSlot: 'afternoon', isMain: false, group: 'spare',   startTime: '14:00', endTime: '22:00', isOvernight: false },
+      { id: 'AL-S13', name: 'ลา + กะดึก',         color: '#d97706', timeSlot: 'night',     isMain: false, group: 'spare',   startTime: '22:00', endTime: '06:00', isOvernight: true  },
+      { id: 'X',      name: 'วันหยุด',            color: '#9ca3af', timeSlot: 'rest',      isMain: false, group: 'rest',    startTime: '',      endTime: '',      isOvernight: false },
+      { id: 'XO',     name: 'หยุด (แลกนอกสถานี)', color: '#3b82f6', timeSlot: 'rest',      isMain: false, group: 'rest',    startTime: '',      endTime: '',      isOvernight: false },
+      { id: 'A',      name: 'ลาพักร้อน',          color: '#ef4444', timeSlot: 'leave',     isMain: false, group: 'leave',   startTime: '',      endTime: '',      isOvernight: false },
+      { id: 'H',      name: 'หยุดนักขัตฤกษ์',    color: '#f43f5e', timeSlot: 'holiday',   isMain: false, group: 'holiday', startTime: '',      endTime: '',      isOvernight: false },
     ];
     try {
       const existingIds = new Set(shiftProps.map(p => p.id));
