@@ -563,7 +563,7 @@ export default function Members() {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-500 uppercase mb-1">ตำแหน่ง (GAS)</label>
-                  <select name="position" defaultValue={editingMember?.position || ''}
+                  <select name="position" defaultValue={(editingMember?.position || '').replace(/\.$/, '').trim()}
                     className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-500">
                     <option value="">— ไม่ระบุ —</option>
                     <option value="SS">SS — นายสถานี</option>
