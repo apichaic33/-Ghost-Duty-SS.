@@ -17,3 +17,4 @@
 |---|---|
 | 2026-04-18 | ingest ครั้งแรก — อ่านโค้ดทั้งหมด สร้าง wiki จาก HANDOFF + source files |
 | 2026-04-26 | แก้ไขการคำนวณกะ — Debug Panel, ล้าง shift overrides, แก้ position selection ใช้วันที่ 1 ของเดือน |
+| 2026-05-02 | เชื่อมต่อ GAS สำเร็จ, เปิด Google Auth, ใส่ค่า EmailJS ครบ, Sync สมาชิก 18 คน, Deploy ล่าสุด |
