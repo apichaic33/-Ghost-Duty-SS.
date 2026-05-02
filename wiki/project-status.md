@@ -49,9 +49,9 @@
 | Key | Value |
 |---|---|
 | Account | `ApichaiC.583986@outlook.co.th` |
-| Service ID | ⚠️ ยังไม่ได้เก็บ |
-| Template ID | ⚠️ ยังไม่ได้เก็บ |
-| Public Key | ⚠️ ยังไม่ได้เก็บ |
+| Service ID | `service_yamka` |
+| Template ID | `template_nfo6sld` |
+| Public Key | `YY8IVNkVN-qhgglkU` |
 
 ---
 
