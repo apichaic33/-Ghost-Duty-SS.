@@ -363,8 +363,26 @@ export default function Settings({ member, setMember }: SettingsProps) {
                         <option value="leave">ลา</option>
                       </select>
                     </div>
+                    <div>
+                      <label className="block text-[10px] text-gray-400 mb-1">เวลาเข้างาน</label>
+                      <input
+                        type="time"
+                        value={newShiftProp.startTime || ''}
+                        onChange={e => setNewShiftProp(prev => ({ ...prev, startTime: e.target.value }))}
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-orange-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] text-gray-400 mb-1">เวลาออกงาน</label>
+                      <input
+                        type="time"
+                        value={newShiftProp.endTime || ''}
+                        onChange={e => setNewShiftProp(prev => ({ ...prev, endTime: e.target.value }))}
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-orange-500"
+                      />
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 flex-wrap">
                     <div>
                       <label className="block text-[10px] text-gray-400 mb-1">สี</label>
                       <div className="flex items-center gap-2">
@@ -377,6 +395,15 @@ export default function Settings({ member, setMember }: SettingsProps) {
                         <span className="text-xs font-mono text-gray-500">{newShiftProp.color}</span>
                       </div>
                     </div>
+                    <label className="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={newShiftProp.isOvernight || false}
+                        onChange={e => setNewShiftProp(prev => ({ ...prev, isOvernight: e.target.checked }))}
+                        className="rounded"
+                      />
+                      กะข้ามวัน (ดึก)
+                    </label>
                     <button
                       onClick={handleAddShiftProp}
                       className="ml-auto bg-orange-600 text-white rounded-lg px-4 py-2 text-xs font-bold flex items-center space-x-1 hover:bg-orange-700"
