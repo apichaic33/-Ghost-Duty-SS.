@@ -228,8 +228,9 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
       {
         emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
           subject: `[ระบบยำกะผี] กะของคุณถูกแก้ไข วันที่ ${editingShift.date}`,
+          from_name: 'ระบบยำกะผี',
           to_email: editingShift.member.email || ADMIN_EMAIL,
-          message: `ประเภท: แก้ไขกะโดย Admin\nพนักงาน: ${editingShift.member.name}\nวันที่: ${editingShift.date}\nกะใหม่: ${code}\n\n---\nระบบยำกะผี — แจ้งเตือนอัตโนมัติ`,
+          message: `ประเภท: แก้ไขกะโดย Admin\nพนักงาน: ${editingShift.member.name}\nวันที่: ${editingShift.date}\nกะใหม่: ${code}\n\nตรวจสอบ: https://gen-lang-client-0528383957.web.app`,
         }, EMAILJS_PUBLIC_KEY).catch(() => {});
       }
       toast.success('อัปเดตกะสำเร็จ');
