@@ -55,6 +55,9 @@ export interface ShiftProperty {
   timeSlot: ShiftTimeSlot;
   isMain: boolean;
   group?: ShiftGroup;
+  startTime?: string;   // HH:MM
+  endTime?: string;     // HH:MM
+  isOvernight?: boolean; // true = กะข้ามวัน เช่น 22:00-06:00
 }
 
 export interface Shift {
