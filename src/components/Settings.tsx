@@ -431,7 +431,7 @@ export default function Settings({ member, setMember }: SettingsProps) {
                           </div>
                           <div className="divide-y divide-gray-50">
                             {items.map(prop => (
-                              <div key={prop.id} className="grid grid-cols-5 items-center px-3 py-2.5 hover:bg-gray-50">
+                              <div key={prop.id} className="px-3 py-2.5 hover:bg-gray-50 space-y-1.5">
                                 <div className="flex items-center gap-2">
                                   <input
                                     type="color"
@@ -446,17 +446,61 @@ export default function Settings({ member, setMember }: SettingsProps) {
                                     }}
                                     className="w-6 h-6 rounded-md border border-gray-200 cursor-pointer p-0 flex-shrink-0"
                                   />
-                                  <span className="text-xs font-bold font-mono text-gray-700">{prop.id}</span>
-                                </div>
-                                <span className="col-span-3 text-xs text-gray-600">{prop.name}</span>
-                                <div className="flex justify-end">
+                                  <span className="text-xs font-bold font-mono text-gray-700 w-16 shrink-0">{prop.id}</span>
+                                  <span className="text-xs text-gray-600 flex-1">{prop.name}</span>
                                   <button
                                     onClick={() => handleDeleteShiftProp(prop.id)}
-                                    className="p-1 text-gray-300 hover:text-red-500 transition-colors"
+                                    className="p-1 text-gray-300 hover:text-red-500 transition-colors shrink-0"
                                   >
                                     <Trash2 size={14} />
                                   </button>
                                 </div>
+                                {/* Time row — show only for work shifts (not rest/leave/holiday) */}
+                                {!['rest', 'leave', 'holiday'].includes(prop.timeSlot) && (
+                                  <div className="flex items-center gap-2 pl-8">
+                                    <span className="text-[10px] text-gray-400 w-12 shrink-0">เวลา</span>
+                                    <input
+                                      type="time"
+                                      defaultValue={prop.startTime || ''}
+                                      onBlur={async e => {
+                                        if (e.target.value !== (prop.startTime || '')) {
+                                          try {
+                                            await setDoc(doc(db, 'shiftProperties', prop.id), { ...prop, startTime: e.target.value });
+                                            toast.success(`อัปเดตเวลาเข้า ${prop.id}`);
+                                          } catch { toast.error('เกิดข้อผิดพลาด'); }
+                                        }
+                                      }}
+                                      className="border border-gray-200 rounded px-2 py-1 text-[10px] outline-none focus:ring-1 focus:ring-orange-400 w-24"
+                                    />
+                                    <span className="text-[10px] text-gray-400">–</span>
+                                    <input
+                                      type="time"
+                                      defaultValue={prop.endTime || ''}
+                                      onBlur={async e => {
+                                        if (e.target.value !== (prop.endTime || '')) {
+                                          try {
+                                            await setDoc(doc(db, 'shiftProperties', prop.id), { ...prop, endTime: e.target.value });
+                                            toast.success(`อัปเดตเวลาออก ${prop.id}`);
+                                          } catch { toast.error('เกิดข้อผิดพลาด'); }
+                                        }
+                                      }}
+                                      className="border border-gray-200 rounded px-2 py-1 text-[10px] outline-none focus:ring-1 focus:ring-orange-400 w-24"
+                                    />
+                                    <label className="flex items-center gap-1 text-[10px] text-gray-500 cursor-pointer select-none">
+                                      <input
+                                        type="checkbox"
+                                        defaultChecked={prop.isOvernight || false}
+                                        onChange={async e => {
+                                          try {
+                                            await setDoc(doc(db, 'shiftProperties', prop.id), { ...prop, isOvernight: e.target.checked });
+                                          } catch { toast.error('เกิดข้อผิดพลาด'); }
+                                        }}
+                                        className="rounded"
+                                      />
+                                      ข้ามวัน
+                                    </label>
+                                  </div>
+                                )}
                               </div>
                             ))}
                           </div>
