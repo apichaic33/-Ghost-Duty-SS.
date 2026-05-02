@@ -202,8 +202,10 @@ export default function Members() {
     try {
       for (const m of gasMembers) {
         if (!selectedEmpIds.has(m.empId)) continue;
-        const existing = members.find(ex => ex.uid === m.empId || ex.id === m.empId);
         const cleanPosition = m.position?.replace(/\.$/, '').trim() as Member['position'];
+        const existing =
+          members.find(ex => ex.uid === m.empId || ex.id === m.empId) ||
+          members.find(ex => ex.name.trim().toLowerCase() === m.name.trim().toLowerCase());
         if (existing) {
           await updateDoc(doc(db, 'members', existing.id), {
             name: m.name,
@@ -218,7 +220,7 @@ export default function Members() {
             empId: m.empId,
             pin: m.empId.slice(-4),
             name: m.name,
-            position: cleanPosition || undefined,
+            ...(cleanPosition && { position: cleanPosition }),
             station: m.department || '',
             zone: '',
             quotaA: 0,
@@ -228,7 +230,7 @@ export default function Members() {
             cycleStartDate: today,
             role: 'member',
             email: m.email || '',
-          });
+          }, { merge: true });
           imported++;
         }
       }
