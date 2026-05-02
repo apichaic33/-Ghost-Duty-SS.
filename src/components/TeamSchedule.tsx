@@ -492,61 +492,122 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
       )}
 
       {/* Member: Step 2 — fill in dates & submit */}
-      {requestForm && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center p-4"
-          onClick={() => setRequestForm(null)}>
-          <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl p-5" onClick={e => e.stopPropagation()}>
-            <div className="flex justify-between items-center mb-4">
-              <div>
-                <p className="text-xs text-gray-400 uppercase font-bold">
-                  {requestForm.type === 'swap' ? 'คำขอสลับกะ' : 'คำขอควงกะ'}
-                </p>
-                <p className="font-bold text-gray-800 text-sm mt-0.5">กับ {requestForm.targetMember.name}</p>
-              </div>
-              <span className="px-3 py-1.5 rounded-lg text-sm font-bold" style={getOtherShiftStyle(requestForm.targetShift)}>{requestForm.targetShift}</span>
-            </div>
-
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
-                  {requestForm.type === 'swap' ? 'วันของคุณที่ต้องการแลก' : 'วันที่คุณต้องการควง'}
-                </label>
-                <input type="date" value={requestForm.requesterDate}
-                  onChange={e => setRequestForm(f => f ? { ...f, requesterDate: e.target.value } : null)}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 outline-none" />
+      {requestForm && (() => {
+        const liveRequesterShift = getShiftCode(member, requestForm.requesterDate, allShifts);
+        const isSameDate = requestForm.requesterDate === requestForm.targetDate;
+        const targetIsOff = ['X', 'A', 'H'].includes(requestForm.targetShift);
+        const requesterIsOff = ['X', 'A', 'H'].includes(liveRequesterShift);
+        return (
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center p-4"
+            onClick={() => setRequestForm(null)}>
+            <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl p-5" onClick={e => e.stopPropagation()}>
+              <div className="flex justify-between items-center mb-4">
+                <div>
+                  <p className="text-xs text-gray-400 uppercase font-bold">
+                    {requestForm.type === 'swap' ? 'คำขอสลับกะ' : 'คำขอควงกะ'}
+                  </p>
+                  <p className="font-bold text-gray-800 text-sm mt-0.5">กับ {requestForm.targetMember.name}</p>
+                </div>
+                <button onClick={() => setRequestForm(null)} className="text-gray-400 hover:text-gray-600">
+                  <CloseIcon size={18} />
+                </button>
               </div>
 
               {requestForm.type === 'swap' && (
-                <div className="bg-orange-50 rounded-lg px-3 py-2 text-xs text-orange-700">
-                  วันที่แลก: <span className="font-bold">{format(new Date(requestForm.targetDate + 'T00:00:00'), 'd MMM yyyy', { locale: th })}</span>
-                  {' '}กะ <span className="px-1.5 py-0.5 rounded font-bold" style={getOtherShiftStyle(requestForm.targetShift)}>{requestForm.targetShift}</span>
+                <div className="space-y-3">
+                  {/* Two-column swap card */}
+                  <div className="grid grid-cols-[1fr_auto_1fr] gap-2 items-center">
+                    {/* Your side */}
+                    <div className="bg-orange-50 border border-orange-100 rounded-xl p-3 text-center">
+                      <p className="text-[10px] font-bold text-orange-500 uppercase mb-2">คุณ</p>
+                      <input
+                        type="date"
+                        value={requestForm.requesterDate}
+                        onChange={e => setRequestForm(f => f ? { ...f, requesterDate: e.target.value } : null)}
+                        disabled={targetIsOff}
+                        className="w-full border border-orange-200 rounded-lg px-1 py-1.5 text-[10px] text-center focus:ring-2 focus:ring-orange-500 outline-none bg-white mb-2 disabled:bg-gray-100 disabled:text-gray-400"
+                      />
+                      <span className="inline-block px-3 py-1.5 rounded-lg text-base font-bold" style={getSelfShiftStyle(liveRequesterShift)}>
+                        {liveRequesterShift}
+                      </span>
+                    </div>
+                    {/* Arrow */}
+                    <div className="text-xl font-bold text-gray-400 pb-2">⇄</div>
+                    {/* Their side */}
+                    <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 text-center">
+                      <p className="text-[10px] font-bold text-gray-500 uppercase mb-2">{requestForm.targetMember.name.split(' ')[0]}</p>
+                      <p className="text-[10px] text-gray-500 font-medium py-1.5 leading-tight mb-2">
+                        {format(new Date(requestForm.targetDate + 'T00:00:00'), 'd MMM yy', { locale: th })}
+                      </p>
+                      <span className="inline-block px-3 py-1.5 rounded-lg text-base font-bold" style={getOtherShiftStyle(requestForm.targetShift)}>
+                        {requestForm.targetShift}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Summary */}
+                  {!requesterIsOff && (
+                    <div className={`rounded-lg px-3 py-2 text-xs font-medium ${isSameDate ? 'bg-blue-50 text-blue-700' : 'bg-amber-50 text-amber-700'}`}>
+                      {isSameDate
+                        ? `สลับกะ ${liveRequesterShift} ↔ ${requestForm.targetShift} วันที่ ${format(new Date(requestForm.targetDate + 'T00:00:00'), 'd MMMM', { locale: th })}`
+                        : `คุณให้กะ ${liveRequesterShift} วัน ${format(new Date(requestForm.requesterDate + 'T00:00:00'), 'd MMM', { locale: th })} — ${requestForm.targetMember.name.split(' ')[0]} ให้กะ ${requestForm.targetShift} วัน ${format(new Date(requestForm.targetDate + 'T00:00:00'), 'd MMM', { locale: th })}`
+                      }
+                    </div>
+                  )}
+
+                  {/* Warnings */}
+                  {targetIsOff && (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2 text-xs text-yellow-700">
+                      🔒 กะ {requestForm.targetShift} เป็นวันหยุด — ต้องสลับวันเดียวกันเท่านั้น
+                    </div>
+                  )}
+                  {requesterIsOff && !targetIsOff && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-xs text-red-700">
+                      ⚠️ วัน {format(new Date(requestForm.requesterDate + 'T00:00:00'), 'd MMM', { locale: th })} ของคุณเป็นวัน{liveRequesterShift} — กรุณาเลือกวันที่ทำงาน
+                    </div>
+                  )}
                 </div>
               )}
 
               {requestForm.type === 'cover' && (
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">วันที่คืนกะ</label>
-                  <input type="date" value={requestForm.returnDate}
-                    onChange={e => setRequestForm(f => f ? { ...f, returnDate: e.target.value } : null)}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 outline-none" />
-                  <p className="text-[10px] text-purple-500 mt-1">⚠️ ต้องคืนภายในเดือนนี้หรือเดือนถัดไป</p>
+                <div className="space-y-3">
+                  <div className="bg-orange-50 border border-orange-100 rounded-xl p-3">
+                    <p className="text-[10px] font-bold text-orange-500 uppercase mb-1.5">วันที่คุณต้องการควง</p>
+                    <div className="flex items-center gap-2">
+                      <input type="date" value={requestForm.requesterDate}
+                        onChange={e => setRequestForm(f => f ? { ...f, requesterDate: e.target.value } : null)}
+                        className="flex-1 border border-orange-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 outline-none bg-white" />
+                      <span className="px-2 py-1.5 rounded-lg text-sm font-bold shrink-0" style={getOtherShiftStyle(requestForm.targetShift)}>
+                        {requestForm.targetShift}
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">วันที่คืนกะ</label>
+                    <input type="date" value={requestForm.returnDate}
+                      onChange={e => setRequestForm(f => f ? { ...f, returnDate: e.target.value } : null)}
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 outline-none" />
+                    <p className="text-[10px] text-purple-500 mt-1">⚠️ ต้องคืนภายในเดือนนี้หรือเดือนถัดไป</p>
+                  </div>
                 </div>
               )}
-            </div>
 
-            <div className="flex space-x-2 mt-5">
-              <button onClick={() => setRequestForm(null)}
-                className="flex-1 py-2 text-sm text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors">
-                ยกเลิก
-              </button>
-              <button onClick={submitRequest} disabled={requestForm.submitting}
-                className={`flex-1 py-2 text-sm text-white font-bold rounded-lg transition-colors disabled:opacity-50 ${requestForm.type === 'swap' ? 'bg-orange-600 hover:bg-orange-700' : 'bg-purple-600 hover:bg-purple-700'}`}>
-                {requestForm.submitting ? 'กำลังส่ง...' : 'ยืนยันส่งคำขอ'}
-              </button>
+              <div className="flex space-x-2 mt-5">
+                <button onClick={() => setRequestForm(null)}
+                  className="flex-1 py-2 text-sm text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors">
+                  ยกเลิก
+                </button>
+                <button
+                  onClick={submitRequest}
+                  disabled={requestForm.submitting || (requestForm.type === 'swap' && requesterIsOff)}
+                  className={`flex-1 py-2 text-sm text-white font-bold rounded-lg transition-colors disabled:opacity-50 ${requestForm.type === 'swap' ? 'bg-orange-600 hover:bg-orange-700' : 'bg-purple-600 hover:bg-purple-700'}`}>
+                  {requestForm.submitting ? 'กำลังส่ง...' : 'ยืนยันส่งคำขอ'}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
       {/* Swap Detail Modal */}
       {swapDetail && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-end md:items-center justify-center p-4"
