@@ -78,10 +78,11 @@ export default function Requests({ member }: RequestsProps) {
       toast.success(`${label}คำขอเรียบร้อย`);
 
       if (req.requesterId) {
+        const typeLabel = req.type === 'swap' ? 'สลับกะ' : 'ควงกะ';
         emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-          subject: `คำขอของคุณได้รับการ${label}`,
+          subject: `[ระบบยำกะผี] คำขอ${typeLabel}ของคุณได้รับการ${label}`,
           to_email: member.email || ADMIN_EMAIL,
-          message: `คำขอ${req.type === 'swap' ? 'สลับกะ' : 'ควงกะ'} ของ ${req.requesterName} ได้รับการ${label} โดย ${member.name}`,
+          message: `ประเภท: คำขอ${typeLabel}\nผู้ขอ: ${req.requesterName}\nวันที่ขอ: ${req.requesterDate} (กะ ${req.requesterShift})${req.targetDate ? `\nวันที่แลก: ${req.targetDate} (กะ ${req.targetShift || '—'})` : ''}\nสถานะ: ${label} โดย ${member.name}\n\n---\nระบบยำกะผี — แจ้งเตือนอัตโนมัติ`,
         }, EMAILJS_PUBLIC_KEY).catch(() => {});
       }
     } catch { toast.error('เกิดข้อผิดพลาด'); }
