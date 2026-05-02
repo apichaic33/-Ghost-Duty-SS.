@@ -201,8 +201,9 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
         const label = type === 'swap' ? 'สลับกะ' : 'ควงกะ';
         emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
           subject: `[ระบบยำกะผี] คำขอ${label}ใหม่จาก ${member.name}`,
+          from_name: 'ระบบยำกะผี',
           to_email: targetMember.email || ADMIN_EMAIL,
-          message: `ประเภท: คำขอ${label}\nผู้ขอ: ${member.name}\nส่งถึง: ${targetMember.name}\nวันที่ขอ: ${requesterDate} (กะ ${requesterShift})${type === 'swap' && targetDate ? `\nวันที่แลก: ${targetDate} (กะ ${targetShift || '—'})` : ''}\nสถานะ: รอการอนุมัติ\nกรุณาตรวจสอบในระบบ\n\n---\nระบบยำกะผี — แจ้งเตือนอัตโนมัติ`,
+          message: `ประเภท: คำขอ${label}\nผู้ขอ: ${member.name}\nส่งถึง: ${targetMember.name}\nวันที่ขอ: ${requesterDate} (กะ ${requesterShift})${type === 'swap' && targetDate ? `\nวันที่แลก: ${targetDate} (กะ ${targetShift || '—'})` : ''}\nสถานะ: รอการอนุมัติ\n\nตรวจสอบ: https://gen-lang-client-0528383957.web.app`,
         }, EMAILJS_PUBLIC_KEY).catch(() => {});
       }
 
