@@ -197,11 +197,11 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
       }
       await addDoc(collection(db, 'swapRequests'), payload);
 
-      if (targetMember.email) {
+      if (targetMember.email || true) {
         const label = type === 'swap' ? 'สลับกะ' : 'ควงกะ';
         emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
           subject: `คำขอ${label}ใหม่จาก ${member.name}`,
-          to_email: targetMember.email,
+          to_email: targetMember.email || ADMIN_EMAIL,
           message: `คำขอ${label}ใหม่!\nจาก: ${member.name}\nวันที่: ${requesterDate} (${requesterShift})\nกรุณาตรวจสอบในระบบ`,
         }, EMAILJS_PUBLIC_KEY).catch(() => {});
       }
