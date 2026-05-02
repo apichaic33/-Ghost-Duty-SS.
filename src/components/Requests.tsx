@@ -85,14 +85,20 @@ export default function Requests({ member }: RequestsProps) {
           message: `ประเภท: คำขอ${typeLabel}\nผู้ขอ: ${req.requesterName}\nวันที่ขอ: ${req.requesterDate} (กะ ${req.requesterShift})${req.targetDate ? `\nวันที่แลก: ${req.targetDate} (กะ ${req.targetShift || '—'})` : ''}\nสถานะ: ${label} โดย ${member.name}\n\n---\nระบบยำกะผี — แจ้งเตือนอัตโนมัติ`,
         }, EMAILJS_PUBLIC_KEY).catch(() => {});
       }
-    } catch { toast.error('เกิดข้อผิดพลาด'); }
+    } catch (err: any) {
+      console.error('[handleAction]', err?.code, err?.message, err);
+      toast.error(`ผิดพลาด: ${err?.code || err?.message || 'unknown'}`);
+    }
   };
 
   const handleCancel = async (reqId: string) => {
     try {
       await updateDoc(doc(db, 'swapRequests', reqId), { status: 'cancelled' });
       toast.success('ยกเลิกคำขอเรียบร้อย');
-    } catch { toast.error('เกิดข้อผิดพลาด'); }
+    } catch (err: any) {
+      console.error('[handleCancel]', err?.code, err?.message, err);
+      toast.error(`ผิดพลาด: ${err?.code || err?.message || 'unknown'}`);
+    }
   };
 
   const formatDate = (d: string) => {
