@@ -466,7 +466,7 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
                   <p className="text-[10px] text-orange-500">สลับกะระหว่างกัน</p>
                 </div>
               </button>
-              {member.position === 'SS' ? (
+              {normalizePos(member.position) === 'SS' ? (
                 <button onClick={() => openRequestForm('cover', swapPopup)}
                   className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-medium text-sm transition-colors">
                   <span className="text-lg">🔄</span>
