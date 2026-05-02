@@ -1,0 +1,643 @@
+<!-- CouponApp.html -->
+
+<div class="header-banner text-center shadow-sm mb-2 px-3 py-2" style="background:#fff;border-bottom:2px solid #0d6efd;">
+  <h5 class="fw-bold mb-0 text-primary"><i class="bi bi-journal-check me-1"></i>แอพบันทึกการใช้คูปองพิเศษ</h5>
+</div>
+
+<div style="display:flex; gap:10px; align-items:flex-start; width:100%; min-width:900px;">
+
+  <!-- ฝั่งซ้าย -->
+  <div style="flex: 0 0 42%; width: 42%; max-width: 42%;">
+    <div class="card p-2 mb-2 border-start border-primary border-4 text-start">
+      <h6 class="fw-bold text-primary mb-2 pb-1 border-bottom">
+        <i class="bi bi-pencil-square me-1"></i>บันทึกข้อมูลคูปอง (คีย์รวบยอด)
+      </h6>
+
+      <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
+        <label for="entryDate" class="small fw-bold text-dark text-nowrap mb-0" style="width:90px;">วันที่บันทึก</label>
+        <input type="date" id="entryDate" class="form-control form-control-sm" style="max-width:150px;" required onchange="renderAll()">
+      </div>
+
+      <div id="bookList" class="mb-1">
+        <div class="book-row mb-1">
+          <div class="d-flex align-items-center gap-1">
+            <input type="text" class="form-control form-control-sm book-no" placeholder="เลขเล่ม" style="flex:2;min-width:0;" onchange="fetchRowStart(this)">
+            <input type="text" class="form-control form-control-sm locked-input book-start bg-light text-center" readonly value="000" style="flex:1;min-width:0;">
+            <div class="input-group input-group-sm" style="flex:2.2;min-width:0;">
+              <input type="number" class="form-control form-control-sm book-end" placeholder="สุดท้าย" oninput="calculateAll()">
+              <span class="input-group-text book-count-badge fw-bold text-primary border-primary px-1" style="display:none;font-size:0.75rem;background:#eef4ff;min-width:45px;justify-content:center;"></span>
+              <span class="input-group-text book-done-badge fw-bold text-warning border-warning px-1" style="display:none;font-size:0.7rem;background:#fff8e1;">หมดเล่ม</span>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-primary flex-shrink-0" style="width:30px;padding:2px 0;" onclick="addBookRow()">
+              <i class="bi bi-plus"></i>
+            </button>
+          </div>
+          <div class="book-status" style="display:none;font-size:0.75rem;padding:1px 2px;"></div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-center align-items-center bg-light px-2 py-1 rounded border mb-2">
+        <span class="small fw-bold text-dark me-2">คูปองรวมใช้ไป:</span>
+        <span class="text-primary fw-bold fs-6"><span id="totalCouponsShow">000</span> ใบ</span>
+      </div>
+
+      <div class="small fw-bold text-dark mb-1 mt-3">ยอดผู้พิการรวมของวันนี้</div>
+      <div id="catInputArea" class="row g-1 mb-1"></div>
+
+      <div id="validationMsg" class="validation-badge text-muted small text-center mb-1">กรุณากรอกข้อมูลเล่มคูปอง</div>
+      <button type="button" class="btn btn-primary w-100 fw-bold py-1 shadow-sm" id="saveBtn" disabled onclick="submitBatch()">บันทึกข้อมูลรวบยอด</button>
+
+      <hr class="my-2">
+      <div class="text-center">
+        <button type="button" class="btn btn-sm btn-outline-warning" id="adminSetupBtn" onclick="loginAdmin()">
+          <i class="bi bi-gear-fill me-1"></i>Admin Setup
+        </button>
+      </div>
+
+      <div id="adminBox" class="admin-box mt-2">
+        <form id="setupForm" class="small">
+          <div class="d-flex align-items-center justify-content-center gap-2 mb-1">
+            <label for="adminDate" class="fw-bold text-dark text-nowrap mb-0" style="width:90px;">วันที่ยกมา</label>
+            <input type="date" id="adminDate" class="form-control form-control-sm" style="max-width:150px;" required>
+          </div>
+          <div id="adminBookList">
+            <div class="row g-1 mb-1 admin-book-row">
+              <div class="col-6"><input type="text" class="form-control form-control-sm a-book-no" placeholder="เลขเล่ม" required onchange="fetchAdminRowStart(this)"></div>
+              <div class="col-4"><input type="number" class="form-control form-control-sm a-book-end" placeholder="ใช้ล่าสุด" required></div>
+              <div class="col-2"><button type="button" class="btn btn-sm btn-warning w-100" onclick="addAdminBookRow()"><i class="bi bi-plus"></i></button></div>
+              <input type="hidden" class="a-book-start" value="0">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-warning btn-sm w-100 fw-bold mt-2" id="adminSaveBtn">บันทึกตั้งค่าเริ่มต้น</button>
+          <button class="btn btn-link btn-sm w-100 mt-1 text-danger text-decoration-none" type="button" onclick="logoutAdmin()">ออกจากโหมด Admin</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ฝั่งขวา -->
+  <div style="flex: 0 0 calc(58% - 10px); width: calc(58% - 10px); max-width: calc(58% - 10px); min-width: 0;">
+    <div class="card p-2 h-100 text-start">
+      <div style="display:flex;justify-content:flex-start;align-items:center;gap:8px;border-bottom:2px solid #dee2e6;margin-bottom:8px;">
+        <div style="display:flex;gap:2px;">
+          <button id="tab-daily" onclick="switchTab('daily')" style="border:none;background:none;padding:5px 12px;font-size:0.88rem;cursor:pointer;border-bottom:2px solid #0d6efd;margin-bottom:-2px;color:#0d6efd;font-weight:bold;">รายวัน</button>
+          <button id="tab-weekly" onclick="switchTab('weekly')" style="border:none;background:none;padding:5px 12px;font-size:0.88rem;cursor:pointer;color:#6c757d;">รายสัปดาห์</button>
+          <button id="tab-history" onclick="switchTab('history')" style="border:none;background:none;padding:5px 12px;font-size:0.88rem;cursor:pointer;color:#6c757d;">ย้อนหลัง</button>
+        </div>
+        <button id="btnRefresh" onclick="loadData()" style="border:1px solid #adb5bd;background:white;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:0.82rem;margin-left:auto; display:flex; align-items:center; gap:4px;">
+          <i id="refreshIcon" class="bi bi-arrow-clockwise"></i>
+          <span id="refreshText">รีเฟรช</span>
+        </button>
+      </div>
+
+      <div style="height: 700px; overflow-y: auto; overflow-x: hidden;">
+        <div id="daily" style="display:block;"></div>
+        <div id="weekly" style="display:none;"></div>
+        <div id="history" style="display:none;">
+          <div class="d-flex flex-wrap align-items-center gap-2 bg-light p-2 rounded mb-2">
+            <label class="small fw-bold text-nowrap mb-0">เลือกเดือน:</label>
+            <select id="monthSelect" class="form-select form-select-sm" style="width:180px;" onchange="renderHistory()">
+              <option value="">--- เลือกเดือน ---</option>
+            </select>
+            <div id="historyTotal" class="fw-bold text-primary small ms-auto"></div>
+          </div>
+          <div id="historyBody"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modals -->
+<div class="modal fade" id="msgModal" tabindex="-1"><div class="modal-dialog modal-sm modal-dialog-centered"><div class="modal-content shadow-lg border-0"><div class="modal-body text-center p-4"><div id="msgIcon" class="mb-3"></div><h6 id="msgText" class="fw-bold"></h6><button type="button" class="btn btn-dark btn-sm mt-3 px-4" data-bs-dismiss="modal">ตกลง</button></div></div></div></div>
+
+<div class="modal fade" id="editModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content shadow">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>แก้ไขข้อมูล</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editId">
+        <div class="mb-3 small text-dark">เล่ม: <b id="textBook"></b> | เริ่ม: <b id="textStart"></b></div>
+        <div class="mb-2">
+          <label for="editEnd" class="small fw-bold">เลขใบสุดท้าย</label>
+          <input type="number" id="editEnd" class="form-control" required>
+        </div>
+        <div id="editCatArea"></div>
+        <button type="button" class="btn btn-primary w-100 mt-3 fw-bold" id="btnConfirmEdit" onclick="confirmEdit()">
+          <i class="bi bi-save me-1"></i>บันทึกการแก้ไข
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="adminLoginModal" tabindex="-1"><div class="modal-dialog modal-sm modal-dialog-centered"><div class="modal-content shadow-lg border-0"><div class="modal-header bg-warning"><h6 class="modal-title fw-bold"><i class="bi bi-shield-lock me-2"></i>Admin Login</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><label class="small fw-bold text-dark mb-1">รหัสผ่าน</label><input type="password" id="adminPwdInput" class="form-control mb-3" placeholder="••••••••" onkeydown="if(event.key==='Enter') confirmAdminLogin()"><div id="adminLoginError" class="text-danger small mb-2" style="display:none"><i class="bi bi-x-circle me-1"></i>รหัสผ่านไม่ถูกต้อง</div><button type="button" class="btn btn-warning w-100 fw-bold" onclick="confirmAdminLogin()"><i class="bi bi-unlock me-1"></i>เข้าสู่ระบบ</button></div></div></div></div>
+
+<style>
+  #entryDate { margin-bottom: 0 !important; }
+  .form-control-sm { padding-top: 2px !important; padding-bottom: 2px !important; height: auto !important; }
+  .validation-badge { padding: 2px 6px !important; margin-bottom: 4px !important; font-size: 0.8rem; }
+  .day-header { background: #e9ecef; padding: 5px 10px; font-weight: bold; border-radius: 4px; color: #495057; font-size: 0.9rem; }
+  .week-header { background: #cfe2ff; padding: 5px 10px; font-weight: bold; border-radius: 4px; color: #084298; font-size: 0.9rem; }
+  .report-book-badge { font-size: 0.75rem; padding: 3px 6px; }
+  .range-info { font-size: 0.85rem; color: #555; }
+  .cat-table { width: 100%; border-collapse: collapse; margin-top: 5px; min-width: 400px; }
+  .cat-table th { font-size: 0.85rem; background: #f8f9fa; border: 1px solid #dee2e6; padding: 4px 2px; text-align: center; color: #333; font-weight: bold; }
+  .cat-table td { font-size: 0.85rem; border: 1px solid #dee2e6; padding: 4px 2px; text-align: center; font-weight: bold; }
+  .admin-box { display: none; background: #fff3cd; padding: 10px; border-radius: 6px; border: 1px solid #ffeeba; }
+  .report-flex-row { display: flex; flex-wrap: wrap; gap: 15px; }
+  .report-col { flex: 1; min-width: 250px; }
+  .book-done-badge { min-width: 52px; justify-content: center; }
+</style>
+
+<script>
+  var cats = ["การเห็น", "การได้ยิน", "ร่างกาย", "จิตใจ", "สติปัญญา", "การเรียนรู้", "ออทิสติก"];
+  var rawData = [], isAdmin = false, currentAdminPass = "";
+  var pad = function(n) { return (n || 0).toString().padStart(3, '0'); };
+
+  var _ROW_BADGES = `<span class="input-group-text book-count-badge fw-bold text-primary border-primary px-1" style="display:none;font-size:0.75rem;background:#eef4ff;min-width:45px;justify-content:center;"></span><span class="input-group-text book-done-badge fw-bold text-warning border-warning px-1" style="display:none;font-size:0.7rem;background:#fff8e1;">หมดเล่ม</span>`;
+
+  function _bookRowHtml(isFirst) {
+    var btn = isFirst
+      ? `<button type="button" class="btn btn-sm btn-outline-primary flex-shrink-0" style="width:30px;padding:2px 0;" onclick="addBookRow()"><i class="bi bi-plus"></i></button>`
+      : `<button type="button" class="btn btn-sm btn-outline-danger flex-shrink-0" style="width:30px;padding:2px 0;" onclick="this.closest('.book-row').remove();calculateAll()"><i class="bi bi-trash"></i></button>`;
+    return `<div class="book-row mb-1">` +
+      `<div class="d-flex align-items-center gap-1">` +
+      `<input type="text" class="form-control form-control-sm book-no" placeholder="เลขเล่ม" style="flex:2;min-width:0;" onchange="fetchRowStart(this)">` +
+      `<input type="text" class="form-control form-control-sm locked-input book-start bg-light text-center" readonly value="000" style="flex:1;min-width:0;">` +
+      `<div class="input-group input-group-sm" style="flex:2.2;min-width:0;">` +
+      `<input type="number" class="form-control form-control-sm book-end" placeholder="สุดท้าย" oninput="calculateAll()">` +
+      _ROW_BADGES +
+      `</div>${btn}</div>` +
+      `<div class="book-status" style="display:none;font-size:0.75rem;padding:1px 2px;"></div>` +
+      `</div>`;
+  }
+
+  function _initCouponApp() {
+    var dateEl = document.getElementById('entryDate');
+    if (dateEl) dateEl.value = new Date().toISOString().split('T')[0];
+    var area = document.getElementById('catInputArea');
+    if (area && area.innerHTML === "") {
+      cats.forEach(function(c, i) {
+        area.innerHTML += '<div class="col-6 mb-1"><div class="input-group input-group-sm border rounded">'
+          + '<label class="input-group-text bg-white border-0 small" style="width:110px">' + c + '</label>'
+          + '<input type="number" id="v'+(i+1)+'" class="form-control border-0 cat-input" value="0" min="0" oninput="calculateAll()">'
+          + '</div></div>';
+      });
+    }
+    loadData();
+  }
+
+  function _initEvents() {
+    var setupForm = document.getElementById('setupForm');
+    if (setupForm) {
+      setupForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var btn = document.getElementById('adminSaveBtn'); btn.disabled = true;
+        var books = [];
+        document.querySelectorAll('.admin-book-row').forEach(function(row) {
+          var bNo = row.querySelector('.a-book-no').value.trim();
+          var bEnd = parseInt(row.querySelector('.a-book-end').value);
+          if (bNo && !isNaN(bEnd)) books.push({no:bNo, start:0, end:bEnd, count:0});
+        });
+        google.script.run.withSuccessHandler(function(resStr) {
+          if (JSON.parse(resStr).status === 'success') { notify("✅ ตั้งค่าสำเร็จ"); resetApp(); }
+          else { notify("ผิดพลาด", "error"); btn.disabled = false; }
+        }).saveBatchData({books:books, totals:[0,0,0,0,0,0,0], totalCoupons:0, customDate:document.getElementById('adminDate').value, isInitial:true});
+      });
+    }
+  }
+
+  setTimeout(function() { _initCouponApp(); _initEvents(); }, 0);
+
+  function loadData() {
+    var btn = document.getElementById('btnRefresh');
+    var icon = document.getElementById('refreshIcon');
+    var text = document.getElementById('refreshText');
+    if (btn) {
+      btn.disabled = true;
+      icon.className = "spinner-border spinner-border-sm text-primary";
+      text.innerText = "กำลังอัปเดต...";
+      text.className = "text-primary fw-bold";
+    }
+    google.script.run
+      .withSuccessHandler(function(resStr) {
+        try {
+          var res = JSON.parse(resStr);
+          rawData = res.data || [];
+          populateMonthSelector();
+          renderAll();
+          prefillCurrentBook();
+        } catch(e) { console.error("LoadData Error:", e); }
+        if (btn) {
+          btn.disabled = false;
+          icon.className = "bi bi-arrow-clockwise";
+          text.innerText = "รีเฟรช";
+          text.className = "";
+        }
+      })
+      .withFailureHandler(function(error) {
+        if (btn) {
+          btn.disabled = false;
+          icon.className = "bi bi-x-circle text-danger";
+          text.innerText = "ล้มเหลว";
+          text.className = "text-danger fw-bold";
+          setTimeout(function() {
+            icon.className = "bi bi-arrow-clockwise";
+            text.innerText = "รีเฟรช";
+            text.className = "";
+          }, 2000);
+        }
+      })
+      .getDataSummary();
+  }
+
+  function renderAll() { renderDaily(); renderWeekly(); }
+
+  function addBookRow() {
+    document.getElementById('bookList').insertAdjacentHTML('beforeend', _bookRowHtml(false));
+  }
+
+  function fetchRowStart(inp) {
+    if (!inp.value) return;
+    var row = inp.closest('.book-row'), startInp = row.querySelector('.book-start');
+    startInp.value = "...";
+    google.script.run.withSuccessHandler(function(n) { startInp.value = pad(n); calculateAll(); }).getNextAvailablePage(inp.value);
+  }
+
+  function calculateAll() {
+    var totalC = 0, isRangeError = false, overLimit = false, hasDuplicate = false, hasFinishedBook = false;
+    var bookNos = [];
+
+    // สร้าง lookup จาก rawData: maxEnd + วันที่ของ maxEnd + เล่มที่มีในวันที่เลือก
+    var bookMaxEnd = {}, bookMaxEndDate = {}, sameDayBooks = {};
+    var selectedDate = (document.getElementById('entryDate') || {}).value || '';
+    rawData.forEach(function(r) {
+      var bNo = (r[2] || '').toString().trim();
+      if (!bNo) return;
+      var endVal = parseInt(r[12]) || 0;
+      var dateStr = (r[1] || '').toString().substring(0, 10);
+      if (!bookMaxEnd[bNo] || endVal > bookMaxEnd[bNo]) {
+        bookMaxEnd[bNo] = endVal;
+        bookMaxEndDate[bNo] = dateStr;
+      }
+      if (selectedDate && dateStr === selectedDate) sameDayBooks[bNo] = true;
+    });
+
+    document.querySelectorAll('.book-row').forEach(function(row) {
+      var sVal = row.querySelector('.book-start').value;
+      var noVal = row.querySelector('.book-no').value.trim();
+      var s = parseInt(sVal) || 0;
+      var e = parseInt(row.querySelector('.book-end').value) || 0;
+      var badge = row.querySelector('.book-count-badge');
+      var doneBadge = row.querySelector('.book-done-badge');
+      var statusDiv = row.querySelector('.book-status');
+
+      if (doneBadge) doneBadge.style.display = 'none';
+
+      if (badge) {
+        if (noVal && s > 0 && e >= s) {
+          var count = e - s + 1;
+          badge.style.setProperty('display', 'flex', 'important');
+          if (count > 100) {
+            badge.className = 'input-group-text book-count-badge fw-bold text-danger border-danger px-1';
+            badge.style.background = '#ffeaea';
+            badge.innerHTML = '❌ เกิน';
+            overLimit = true;
+          } else {
+            badge.className = 'input-group-text book-count-badge fw-bold text-primary border-primary px-1';
+            badge.style.background = '#eef4ff';
+            badge.innerHTML = count + ' ใบ';
+            totalC += count;
+            if (e > 0 && e % 100 === 0 && doneBadge) {
+              doneBadge.style.setProperty('display', 'flex', 'important');
+            }
+          }
+        } else if (noVal && s > 0 && e > 0 && e < s) {
+          badge.style.setProperty('display', 'flex', 'important');
+          badge.className = 'input-group-text book-count-badge fw-bold text-danger border-danger px-1';
+          badge.style.background = '#ffeaea';
+          badge.innerHTML = '<span>❌</span>';
+          isRangeError = true;
+        } else {
+          badge.style.display = 'none';
+        }
+      }
+
+      // แสดง status warnings ใต้แถว
+      if (statusDiv && noVal) {
+        var msgs = [];
+        var maxEnd = bookMaxEnd[noVal] || 0;
+        if (maxEnd > 0 && maxEnd % 100 === 0) {
+          var doneDate = bookMaxEndDate[noVal] || '';
+          var doneDateThai = doneDate ? (function() {
+            var p = doneDate.split('-');
+            return new Date(p[0], p[1]-1, p[2]).toLocaleDateString('th-TH', {day:'2-digit', month:'short', year:'numeric'});
+          })() : '';
+          msgs.push('<span class="text-danger fw-semibold">⚠️ เล่มนี้ใช้หมดครั้งล่าสุด' + (doneDateThai ? ' (' + doneDateThai + ')' : '') + ' — กรุณาตรวจสอบ</span>');
+          hasFinishedBook = true;
+        }
+        if (msgs.length) {
+          statusDiv.innerHTML = msgs.join('<span class="mx-1 text-muted">|</span>');
+          statusDiv.style.display = 'block';
+        } else {
+          statusDiv.style.display = 'none';
+        }
+      } else if (statusDiv) {
+        statusDiv.style.display = 'none';
+      }
+
+      if (noVal) {
+        if (bookNos.indexOf(noVal) !== -1) hasDuplicate = true;
+        else bookNos.push(noVal);
+      }
+    });
+
+    document.getElementById('totalCouponsShow').innerText = pad(totalC);
+    var totalV = 0;
+    document.querySelectorAll('.cat-input').forEach(function(i) { totalV += (parseInt(i.value) || 0); });
+    var msg = document.getElementById('validationMsg'), btn = document.getElementById('saveBtn');
+
+    if (hasFinishedBook) {
+      msg.className = "validation-badge text-danger text-center fw-semibold";
+      msg.innerText = "❌ มีเล่มที่ใช้หมดแล้ว — กรุณาตรวจสอบ";
+      btn.disabled = true;
+    } else if (overLimit) {
+      msg.className = "validation-badge text-danger text-center fw-semibold";
+      msg.innerText = "❌ เกิน 100 ใบต่อเล่ม";
+      btn.disabled = true;
+    } else if (isRangeError) {
+      msg.className = "validation-badge text-danger text-center fw-semibold";
+      msg.innerText = "❌ ช่วงเลขใบไม่ถูกต้อง";
+      btn.disabled = true;
+    } else if (hasDuplicate) {
+      msg.className = "validation-badge text-danger text-center fw-semibold";
+      msg.innerText = "❌ มีเลขเล่มซ้ำกัน";
+      btn.disabled = true;
+    } else if (totalC === 0) {
+      msg.className = "validation-badge text-muted text-center";
+      msg.innerText = "กรุณากรอกข้อมูลเล่มคูปอง";
+      btn.disabled = true;
+    } else if (totalV > totalC) {
+      msg.className = "validation-badge text-danger text-center fw-semibold";
+      msg.innerText = "❌ ยอดคน (" + totalV + ") เกินคูปอง (" + totalC + ") !";
+      btn.disabled = true;
+    } else {
+      msg.className = "validation-badge text-success text-center fw-semibold";
+      msg.innerText = "✅ ยอดคน (" + totalV + "/" + totalC + ") บันทึกได้";
+      btn.disabled = false;
+    }
+  }
+
+  function prefillCurrentBook() {
+    if (!rawData || rawData.length === 0) return;
+    var firstRow = document.querySelector('.book-row');
+    if (!firstRow) return;
+    var bookNoInput = firstRow.querySelector('.book-no');
+    if (!bookNoInput || bookNoInput.value.trim()) return;
+
+    // หา max end และ last date ของแต่ละเล่ม
+    var bookMap = {};
+    rawData.forEach(function(r) {
+      var bNo = (r[2] || '').toString().trim();
+      if (!bNo) return;
+      var endVal = parseInt(r[12]) || 0;
+      var dateStr = (r[1] || '').toString();
+      if (!bookMap[bNo]) {
+        bookMap[bNo] = { maxEnd: endVal, lastDate: dateStr };
+      } else {
+        if (endVal > bookMap[bNo].maxEnd) bookMap[bNo].maxEnd = endVal;
+        if (dateStr > bookMap[bNo].lastDate) bookMap[bNo].lastDate = dateStr;
+      }
+    });
+
+    // กรองเฉพาะเล่มที่ยังใช้งานอยู่ (maxEnd % 100 !== 0)
+    var activeBooks = [];
+    Object.keys(bookMap).forEach(function(bNo) {
+      var info = bookMap[bNo];
+      if (info.maxEnd > 0 && info.maxEnd % 100 !== 0) {
+        activeBooks.push({ no: bNo, lastDate: info.lastDate });
+      }
+    });
+
+    if (activeBooks.length === 0) return;
+
+    // เรียงตาม lastDate ล่าสุดก่อน
+    activeBooks.sort(function(a, b) {
+      return b.lastDate.localeCompare(a.lastDate);
+    });
+
+    // ใส่เล่มแรกในแถวที่มีอยู่
+    bookNoInput.value = activeBooks[0].no;
+    fetchRowStart(bookNoInput);
+
+    // เพิ่มแถวสำหรับเล่มที่เหลือ
+    var bookList = document.getElementById('bookList');
+    for (var i = 1; i < activeBooks.length; i++) {
+      bookList.insertAdjacentHTML('beforeend', _bookRowHtml(false));
+      var rows = bookList.querySelectorAll('.book-row');
+      var newRow = rows[rows.length - 1];
+      var inp = newRow.querySelector('.book-no');
+      inp.value = activeBooks[i].no;
+      fetchRowStart(inp);
+    }
+  }
+
+  function submitBatch() {
+    var btn = document.getElementById('saveBtn');
+    btn.disabled = true; btn.innerText = "กำลังบันทึก...";
+    var entryDate = document.getElementById('entryDate').value;
+    var books = [], totalC = 0;
+    document.querySelectorAll('.book-row').forEach(function(row) {
+      var no = row.querySelector('.book-no').value.trim();
+      var s = parseInt(row.querySelector('.book-start').value) || 0;
+      var e = parseInt(row.querySelector('.book-end').value) || 0;
+      if (no && s > 0 && e >= s) { var count = (e - s + 1); books.push({ no: no, start: s, end: e, count: count }); totalC += count; }
+    });
+    var totals = [];
+    document.querySelectorAll('.cat-input').forEach(function(i) { totals.push(parseInt(i.value) || 0); });
+    google.script.run.withSuccessHandler(function(resStr) {
+      try {
+        var res = JSON.parse(resStr);
+        if(res.status === 'success') { notify("✅ บันทึกข้อมูลสำเร็จ"); resetApp(); loadData(); }
+        else { notify("❌ เกิดข้อผิดพลาด: " + (res.message || ""), "error"); btn.disabled = false; btn.innerText = "บันทึกข้อมูลรวบยอด"; }
+      } catch(e) { notify("❌ ตอบกลับผิดพลาด", "error"); btn.disabled = false; btn.innerText = "บันทึกข้อมูลรวบยอด"; }
+    }).withFailureHandler(function() {
+      notify("❌ Server Error", "error"); btn.disabled = false; btn.innerText = "บันทึกข้อมูลรวบยอด";
+    }).mergeAndSave({ books: books, totals: totals, totalCoupons: totalC, customDate: entryDate, isInitial: false });
+  }
+
+  function resetApp() {
+    document.getElementById('bookList').innerHTML = _bookRowHtml(true);
+    document.querySelectorAll('.cat-input').forEach(function(i){ i.value = "0"; });
+    calculateAll();
+    document.getElementById('saveBtn').innerText = "บันทึกข้อมูลรวบยอด";
+    prefillCurrentBook();
+  }
+
+  // =====================================================
+  // Admin: openEdit + doDelete (คืนกลับมา)
+  // =====================================================
+  function openEdit(r) {
+    document.getElementById('editId').value    = r[0];
+    document.getElementById('textBook').innerText  = r[2];
+    document.getElementById('textStart').innerText = pad(r[3]);
+    document.getElementById('editEnd').value   = r[12];
+    var area = document.getElementById('editCatArea');
+    area.innerHTML = '';
+    cats.forEach(function(c, i) {
+      area.innerHTML += '<div class="mb-2"><label class="small fw-bold">' + c + '</label>'
+        + '<input type="number" id="ev'+(i+1)+'" class="form-control form-control-sm" value="'+(parseInt(r[i+4])||0)+'" min="0"></div>';
+    });
+    new bootstrap.Modal(document.getElementById('editModal')).show();
+  }
+
+  function confirmEdit() {
+    var id  = document.getElementById('editId').value;
+    var end = document.getElementById('editEnd').value;
+    var d   = { endNo: end };
+    cats.forEach(function(c, i) { d['v'+(i+1)] = document.getElementById('ev'+(i+1)).value; });
+    var btn = document.getElementById('btnConfirmEdit');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>กำลังบันทึก...';
+    google.script.run.withSuccessHandler(function(res) {
+      bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
+      if (res.status === 'success') { notify("✅ แก้ไขสำเร็จ"); loadData(); }
+      else notify("❌ " + (res.message || "ผิดพลาด"), "error");
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-save me-1"></i>บันทึกการแก้ไข';
+    }).withFailureHandler(function() {
+      notify("❌ Server Error", "error");
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-save me-1"></i>บันทึกการแก้ไข';
+    }).updateData(id, d, currentAdminPass);
+  }
+
+  function doDelete(id) {
+    if (!confirm("ยืนยันลบรายการนี้?")) return;
+    google.script.run.withSuccessHandler(function(res) {
+      if (res.status === 'success') { notify("🗑️ ลบสำเร็จ"); loadData(); }
+      else notify("❌ " + (res.message || "ผิดพลาด"), "error");
+    }).deleteEntry(id, currentAdminPass);
+  }
+
+  // =====================================================
+  // Render
+  // =====================================================
+  function renderDaily() {
+    var c=document.getElementById('daily'), entryDate=document.getElementById('entryDate').value;
+    if (!entryDate || !rawData.length) { c.innerHTML="<p class='text-center py-5 text-muted small'>ไม่มีข้อมูล</p>"; return; }
+    var selY=entryDate.substring(0,4), selM=entryDate.substring(5,7);
+    var filtered = rawData.filter(function(r){ var ds = r[1] ? r[1].toString() : ''; return ds.substring(0,4)===selY && ds.substring(5,7)===selM; });
+    c.innerHTML = filtered.length ? "" : "<p class='text-center py-5 text-muted small'>ไม่มีข้อมูลเดือนนี้</p>";
+    if (!filtered.length) return;
+    var dg={};
+    filtered.forEach(function(r){
+      var label=getDateLabel(r[1].toString());
+      if (!dg[label]) dg[label]={items:[],v:[0,0,0,0,0,0,0],sum:0};
+      dg[label].items.push(r); dg[label].sum += Number(r[11])||0;
+      for(var i=0;i<7;i++) dg[label].v[i] += Number(r[i+4]||0);
+    });
+    Object.keys(dg).reverse().forEach(function(k){
+      c.innerHTML += '<div class="day-header mb-2 shadow-sm">'+k+'</div><div class="bg-white border p-2 mb-3 rounded shadow-sm">'+renderChunked(dg[k].items)+'<div class="mt-2 pt-2 border-top small fw-bold text-dark">รวมรายวัน (ใช้ '+dg[k].sum+' ใบ): '+createSummaryTable(dg[k].v)+'</div></div>';
+    });
+  }
+
+  function renderWeekly() {
+    var c=document.getElementById('weekly'), entryDate=document.getElementById('entryDate').value;
+    if (!entryDate || !rawData.length) { c.innerHTML = ""; return; }
+    var selY=entryDate.substring(0,4), selM=entryDate.substring(5,7);
+    var filtered = rawData.filter(function(r){ var ds = r[1] ? r[1].toString() : ''; return ds.substring(0,4)===selY && ds.substring(5,7)===selM; });
+    c.innerHTML = filtered.length ? "" : "<p class='text-center py-5 text-muted small'>ไม่มีข้อมูลรายสัปดาห์</p>";
+    if (!filtered.length) return;
+    var g={};
+    filtered.forEach(function(r){
+      var ds=r[1].toString(), p=ds.split('-'), d=new Date(p[0],p[1]-1,p[2]), l=getInMonthSundayWeekLabel(d);
+      if (!g[l]) g[l]={v:[0,0,0,0,0,0,0],sum:0,books:{}};
+      g[l].sum+=Number(r[11])||0; for(var i=0;i<7;i++) g[l].v[i]+=Number(r[i+4]||0);
+      if (!g[l].books[r[2]]) g[l].books[r[2]]=0; g[l].books[r[2]]+=Number(r[11])||0;
+    });
+    Object.keys(g).sort().reverse().forEach(function(w){
+      var h='<div class="week-header shadow-sm mb-2">'+w+'</div><div class="bg-white border p-2 mb-3 rounded shadow-sm">';
+      for (var bNo in g[w].books) h+='<div class="small mb-1"><span class="badge bg-primary report-book-badge me-2">เล่ม '+bNo+'</span><span class="range-info">สัปดาห์นี้ใช้ '+g[w].books[bNo]+' ใบ</span></div>';
+      h+='<div class="mt-2 pt-2 border-top small fw-bold text-primary mb-1">รวมรายสัปดาห์ ('+g[w].sum+' ใบ): '+createSummaryTable(g[w].v)+'</div></div>';
+      c.innerHTML += h;
+    });
+  }
+
+  function renderHistory() {
+    var c=document.getElementById('historyBody'), t=document.getElementById('historyTotal'), fVal=document.getElementById('monthSelect').value;
+    if (!fVal) { c.innerHTML='<p class="text-center py-4 text-muted small">กรุณาเลือกเดือน</p>'; t.style.display='none'; return; }
+    t.style.display='block';
+    var f=rawData.filter(function(r){ return fVal==="ALL" || (r[1] && r[1].toString().substring(0,7)===fVal); });
+    t.innerHTML='รวมใบ: '+f.reduce(function(a,r){return a+(Number(r[11])||0);},0)+' ใบ';
+    var dg={};
+    f.forEach(function(r){
+      var label=getDateLabel(r[1].toString());
+      if (!dg[label]) dg[label]={items:[],v:[0,0,0,0,0,0,0],sum:0};
+      dg[label].items.push(r); dg[label].sum+=Number(r[11])||0;
+      for(var i=0;i<7;i++) dg[label].v[i]+=Number(r[i+4]||0);
+    });
+    c.innerHTML="";
+    Object.keys(dg).reverse().forEach(function(k){
+      c.innerHTML+='<div class="day-header mb-2">'+k+'</div><div class="bg-white border p-2 mb-3 rounded shadow-sm">'+renderChunked(dg[k].items)+'<div class="mt-2 pt-2 border-top small fw-bold">รวม: '+createSummaryTable(dg[k].v)+'</div></div>';
+    });
+  }
+
+  function populateMonthSelector() {
+    var s = document.getElementById('monthSelect'), m = new Set();
+    rawData.forEach(function(r) { if (r[1]) m.add(r[1].toString().substring(0,7)); });
+    s.innerHTML = '<option value="">--- เลือกเดือน ---</option><option value="ALL">ดูทั้งหมด</option>';
+    Array.from(m).sort().reverse().forEach(function(x) {
+      var p = x.split('-'); s.innerHTML += '<option value="'+x+'">' + new Date(p[0],p[1]-1).toLocaleDateString('th-TH',{month:'long',year:'numeric'}) + '</option>';
+    });
+  }
+
+  function getDateLabel(ds) { if(!ds) return ""; var p=ds.split('-'); return new Date(p[0],p[1]-1,p[2]).toLocaleDateString('th-TH',{day:'2-digit',month:'long',year:'numeric'}); }
+  function createSummaryTable(v) { return '<div style="overflow-x: auto; width: 100%;"><table class="cat-table"><tr>'+cats.map(function(c){return '<th>'+c+'</th>';}).join('')+'</tr><tr>'+v.map(function(val){return '<td>'+val+'</td>';}).join('')+'</tr></table></div>'; }
+  function getInMonthSundayWeekLabel(d) {
+    var cur=d.getDate(), mm=(d.getMonth()+1).toString().padStart(2,'0'), last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate(), st=1;
+    for(var i=1;i<=last;i++){
+      var t=new Date(d.getFullYear(),d.getMonth(),i);
+      if(t.getDay()===0||i===last){ if(cur>=st&&cur<=i) return 'ช่วง: '+st.toString().padStart(2,'0')+'/'+mm+' - '+i.toString().padStart(2,'0')+'/'+mm; st=i+1; }
+    }
+    return mm;
+  }
+  function switchTab(name) { ['daily','weekly','history'].forEach(function(t) { document.getElementById(t).style.display = (t === name) ? 'block' : 'none'; var btn = document.getElementById('tab-' + t); if(btn){ btn.style.borderBottom = (t === name) ? '2px solid #0d6efd' : 'none'; btn.style.color = (t === name) ? '#0d6efd' : '#6c757d'; btn.style.fontWeight = (t === name) ? 'bold' : 'normal'; } }); }
+  function notify(msg, type) { document.getElementById('msgIcon').innerHTML = (type==='error'?'<i class="bi bi-x-circle-fill text-danger fs-1"></i>':'<i class="bi bi-check-circle-fill text-success fs-1"></i>'); document.getElementById('msgText').innerText = msg; new bootstrap.Modal(document.getElementById('msgModal')).show(); }
+  function loginAdmin() { document.getElementById('adminPwdInput').value=''; new bootstrap.Modal(document.getElementById('adminLoginModal')).show(); }
+  function confirmAdminLogin() {
+    var pass = document.getElementById('adminPwdInput').value;
+    google.script.run.withSuccessHandler(function(ok){
+      if(ok){ isAdmin=true; currentAdminPass=pass; bootstrap.Modal.getInstance(document.getElementById('adminLoginModal')).hide(); document.getElementById('adminBox').style.setProperty('display','block','important'); document.getElementById('adminSetupBtn').style.display='none'; renderAll(); }
+      else { document.getElementById('adminLoginError').style.display='block'; }
+    }).verifyAdmin(pass);
+  }
+  function logoutAdmin() { isAdmin=false; currentAdminPass=""; document.getElementById('adminBox').style.removeProperty('display'); document.getElementById('adminSetupBtn').style.display='inline-block'; renderAll(); }
+  function addAdminBookRow() {
+    document.getElementById('adminBookList').insertAdjacentHTML('beforeend','<div class="row g-1 mb-1 admin-book-row"><div class="col-6"><input type="text" class="form-control form-control-sm a-book-no" placeholder="เลขเล่ม" required onchange="fetchAdminRowStart(this)"></div><div class="col-4"><input type="number" class="form-control form-control-sm a-book-end" placeholder="ใช้ล่าสุด" required></div><div class="col-2"><button type="button" class="btn btn-sm btn-danger w-100" onclick="this.closest(\'.admin-book-row\').remove()"><i class="bi bi-trash"></i></button></div><input type="hidden" class="a-book-start" value="0"></div>');
+  }
+  function fetchAdminRowStart(inp) {
+    if (!inp.value) return;
+    google.script.run.withSuccessHandler(function(n) {
+      inp.closest('.admin-book-row').querySelector('.a-book-start').value = n;
+    }).getNextAvailablePage(inp.value);
+  }
+  function renderChunked(items) {
+    var h='<div class="report-flex-row">';
+    for (var i=0;i<items.length;i+=10) {
+      h+='<div class="report-col">';
+      items.slice(i,i+10).forEach(function(r){
+        var isDone = parseInt(r[12]) > 0 && parseInt(r[12]) % 100 === 0;
+        var doneMark = isDone ? ' <span class="badge bg-warning text-dark" style="font-size:0.65rem;">หมดเล่ม</span>' : '';
+        var btns=isAdmin ? '<i class="bi bi-trash text-danger me-2" onclick=\'doDelete("'+r[0]+'")\' style="cursor:pointer;"></i><i class="bi bi-pencil-square text-primary me-2" onclick=\'openEdit('+JSON.stringify(r)+')\' style="cursor:pointer;"></i>' : '';
+        h+='<div class="d-flex align-items-center mb-1 small">'+btns+'<span class="badge bg-primary report-book-badge">เล่ม '+r[2]+'</span><span class="ms-2 range-info">ใบที่ '+pad(r[3])+'-'+pad(r[12])+' <span class="text-primary fw-bold">('+r[11]+')</span></span>'+doneMark+'</div>';
+      });
+      h+='</div>';
+    }
+    return h+'</div>';
+  }
+</script>

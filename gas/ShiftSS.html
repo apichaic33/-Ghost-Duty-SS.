@@ -1,0 +1,852 @@
+<!-- ShiftSS.html — ระบบยำกะผี โมดูล SS (นายสถานี) -->
+
+<!-- ── Login Screen ── -->
+<div id="loginScreen">
+  <div class="d-flex justify-content-center">
+    <div class="card shadow" style="max-width:360px;width:100%;margin-top:1.5rem;">
+      <div class="card-header fw-bold text-white d-flex align-items-center gap-2" id="loginHeader" style="background:#ea580c;">
+        <i class="bi bi-calendar3-week fs-5"></i>ยำกะ SS — นายสถานี
+      </div>
+      <div class="card-body p-4">
+        <div class="mb-3">
+          <label class="form-label small fw-bold">รหัสพนักงาน</label>
+          <input type="text" id="loginEmpId" class="form-control" placeholder="กรอกรหัสพนักงาน"
+                 onkeydown="if(event.key==='Enter')document.getElementById('loginPin').focus()">
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-bold">PIN (4 หลัก)</label>
+          <input type="password" id="loginPin" class="form-control" maxlength="8"
+                 placeholder="กรอก PIN" onkeydown="if(event.key==='Enter')doLogin()">
+          <div class="text-muted small mt-1">PIN เริ่มต้น = 4 หลักสุดท้ายของรหัสพนักงาน</div>
+        </div>
+        <div id="loginError" class="alert alert-danger d-none small py-2 mb-3"></div>
+        <button class="btn fw-bold w-100 text-white" id="loginBtn" onclick="doLogin()"
+                style="background:#ea580c;border-color:#ea580c;">
+          <i class="bi bi-box-arrow-in-right me-1"></i>เข้าสู่ระบบ
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Main Content ── -->
+<div id="shiftLoading" class="text-center py-5 d-none">
+  <div class="spinner-border" id="shiftSpinner" role="status"></div>
+  <p class="mt-3 text-muted">กำลังโหลดข้อมูล...</p>
+</div>
+<div id="shiftError" class="alert alert-danger d-none"></div>
+
+<div id="shiftContent" class="d-none">
+
+  <div class="card mb-3 shadow-sm">
+    <div class="card-body py-2 px-3">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <div class="d-flex align-items-center flex-wrap gap-2">
+            <i class="bi bi-person-circle" id="memberSelIcon"></i>
+            <span class="fw-bold" id="loggedInName"></span>
+            <span id="loggedInRole" class="badge d-none" style="background:#ea580c;">Admin</span>
+            <button id="btnAdminPin" class="btn btn-sm btn-outline-secondary d-none"
+                    onclick="openPinModal()">
+              <i class="bi bi-key me-1"></i>จัดการ PIN
+            </button>
+          </div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+          <button class="btn btn-sm btn-outline-secondary" onclick="loadData()">
+            <i class="bi bi-arrow-clockwise me-1"></i>รีเฟรช
+          </button>
+          <button class="btn btn-sm btn-outline-secondary" onclick="openChangePinModal()">
+            <i class="bi bi-shield-lock me-1"></i>เปลี่ยน PIN
+          </button>
+          <button class="btn btn-sm btn-outline-danger" onclick="doLogout()">
+            <i class="bi bi-box-arrow-right me-1"></i>ออก
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ul class="nav nav-tabs mb-3" id="shiftTabs">
+    <li class="nav-item">
+      <button class="nav-link active fw-bold" onclick="switchTab('me',this)">
+        <i class="bi bi-person me-1"></i>กะของฉัน
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" onclick="switchTab('team',this)">
+        <i class="bi bi-people me-1"></i>กะทั้งหมด
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" onclick="switchTab('requests',this)" id="tabRequestsBtn">
+        <i class="bi bi-arrow-left-right me-1"></i>คำขอสลับกะ
+        <span id="pendingBadge" class="badge bg-danger ms-1 d-none"></span>
+      </button>
+    </li>
+  </ul>
+
+  <div id="tabMe"><div id="myScheduleContent"></div></div>
+  <div id="tabTeam" class="d-none"><div id="teamScheduleContent"></div></div>
+  <div id="tabRequests" class="d-none"><div id="requestsContent"></div></div>
+</div>
+
+<!-- ── Swap Modal ── -->
+<div class="modal fade" id="swapModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header" id="swapModalHeader" style="color:white;">
+        <h5 class="modal-title fw-bold"><i class="bi bi-arrow-left-right me-2"></i>ขอสลับกะ</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="swapModalBody"></div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+        <button class="btn btn-warning fw-bold" onclick="submitSwapRequest()" id="btnSubmitSwap">
+          <i class="bi bi-send me-1"></i>ส่งคำขอ
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Leave Modal ── -->
+<div class="modal fade" id="leaveModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h6 class="modal-title fw-bold">
+          <i class="bi bi-calendar-x me-2 text-danger"></i>บันทึกวันหยุด
+        </h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="leaveModalBody"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Edit Shift Modal ── -->
+<div class="modal fade" id="editShiftModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title fw-bold" id="editShiftTitle">แก้ไขกะ</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-2 text-muted small" id="editShiftCurrent"></div>
+        <div class="d-flex flex-wrap gap-2 justify-content-center" id="editShiftBtns"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Change Own PIN Modal ── -->
+<div class="modal fade" id="changePinModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-header text-white" style="background:#ea580c;">
+        <h6 class="modal-title fw-bold"><i class="bi bi-shield-lock me-2"></i>เปลี่ยน PIN</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="mb-3">
+          <label class="form-label small fw-bold">PIN ปัจจุบัน</label>
+          <input type="password" id="cpCurrent" class="form-control" maxlength="8" placeholder="PIN ปัจจุบัน">
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-bold">PIN ใหม่</label>
+          <input type="password" id="cpNew" class="form-control" maxlength="8" placeholder="PIN ใหม่">
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-bold">ยืนยัน PIN ใหม่</label>
+          <input type="password" id="cpConfirm" class="form-control" maxlength="8" placeholder="ยืนยัน PIN ใหม่"
+                 onkeydown="if(event.key==='Enter')submitChangePin()">
+        </div>
+        <div id="cpError" class="alert alert-danger d-none small py-2 mb-3"></div>
+        <button class="btn fw-bold w-100 text-white" id="cpBtn" onclick="submitChangePin()"
+                style="background:#ea580c;border-color:#ea580c;">
+          <i class="bi bi-check-lg me-1"></i>บันทึก PIN ใหม่
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PIN Manage Modal ── -->
+<div class="modal fade" id="pinManageModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header text-white" id="pinManageHeader" style="background:#ea580c;">
+        <h5 class="modal-title fw-bold"><i class="bi bi-key me-2"></i>จัดการ PIN พนักงาน SS</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="pinManageBody">
+        <div class="text-center py-3">
+          <div class="spinner-border spinner-border-sm"></div>
+          <span class="ms-2">กำลังโหลด...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── โมดูล SS — hardcoded ──
+var _SHIFT_POS   = 'SS';
+var _POS_COLOR   = '#ea580c';
+var _POS_STORAGE = 'shift_memberId_SS';
+var _POS_TITLE   = 'นายสถานี (SS)';
+var _POS_SUB     = 'ตารางกะและคำขอสลับกะ — SS';
+var _SESSION_KEY = 'shift_session_SS';
+var _SESSION_TTL = 12 * 3600 * 1000;
+
+var _members         = [];
+var _shifts          = [];
+var _requests        = [];
+var _currentMemberId = '';
+var _currentSession  = null;
+var _editShiftData   = null;
+
+(function initPos() {
+  function hexRgb(h) { return { r: parseInt(h.slice(1,3),16), g: parseInt(h.slice(3,5),16), b: parseInt(h.slice(5,7),16) }; }
+  var c = hexRgb(_POS_COLOR), root = document.documentElement;
+  root.style.setProperty('--pos-color',  _POS_COLOR);
+  root.style.setProperty('--pos-light',  'rgba('+c.r+','+c.g+','+c.b+',.06)');
+  root.style.setProperty('--pos-shadow', 'rgba('+c.r+','+c.g+','+c.b+',.18)');
+  document.getElementById('shiftSpinner').style.color         = _POS_COLOR;
+  document.getElementById('memberSelIcon').style.color        = _POS_COLOR;
+  document.getElementById('swapModalHeader').style.background = _POS_COLOR;
+
+  // restore session or show login
+  try {
+    var raw = localStorage.getItem(_SESSION_KEY);
+    if (raw) {
+      var s = JSON.parse(raw);
+      if (s.expiry > Date.now()) {
+        _currentSession  = s;
+        _currentMemberId = s.memberId;
+      }
+    }
+  } catch(e) {}
+
+  if (_currentSession) {
+    document.getElementById('loginScreen').classList.add('d-none');
+    showLoggedIn();
+    loadData();
+  }
+})();
+
+// ── Session ──
+function showLoggedIn() {
+  document.getElementById('loggedInName').textContent = _currentSession.memberName;
+  if (_currentSession.role === 'admin') {
+    document.getElementById('loggedInRole').classList.remove('d-none');
+    document.getElementById('btnAdminPin').classList.remove('d-none');
+  }
+}
+
+function doLogin() {
+  var empId = document.getElementById('loginEmpId').value.trim();
+  var pin   = document.getElementById('loginPin').value.trim();
+  var errEl = document.getElementById('loginError');
+  var btn   = document.getElementById('loginBtn');
+  if (!empId || !pin) { errEl.textContent = 'กรุณากรอกรหัสพนักงานและ PIN'; errEl.classList.remove('d-none'); return; }
+  errEl.classList.add('d-none');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>กำลังตรวจสอบ...';
+  google.script.run
+    .withSuccessHandler(function(result) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-box-arrow-in-right me-1"></i>เข้าสู่ระบบ';
+      try {
+        var res = JSON.parse(result);
+        if (res.status !== 'success') { errEl.textContent = res.message || 'เกิดข้อผิดพลาด'; errEl.classList.remove('d-none'); return; }
+        _currentSession = { memberId: res.member.id, memberName: res.member.name, role: res.member.role, empId: res.member.empId || '', expiry: Date.now() + _SESSION_TTL };
+        _currentMemberId = res.member.id;
+        localStorage.setItem(_SESSION_KEY, JSON.stringify(_currentSession));
+        document.getElementById('loginScreen').classList.add('d-none');
+        showLoggedIn();
+        loadData();
+      } catch(e) { errEl.textContent = 'เกิดข้อผิดพลาด: ' + e.message; errEl.classList.remove('d-none'); }
+    })
+    .withFailureHandler(function(err) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-box-arrow-in-right me-1"></i>เข้าสู่ระบบ';
+      errEl.textContent = 'เกิดข้อผิดพลาด: ' + (err.message || err);
+      errEl.classList.remove('d-none');
+    })
+    .gasPinLogin(empId, pin, _SHIFT_POS);
+}
+
+function doLogout() {
+  localStorage.removeItem(_SESSION_KEY);
+  _currentSession  = null;
+  _currentMemberId = '';
+  _members = []; _shifts = []; _requests = [];
+  document.getElementById('shiftContent').classList.add('d-none');
+  document.getElementById('shiftError').classList.add('d-none');
+  document.getElementById('shiftLoading').classList.add('d-none');
+  document.getElementById('loggedInRole').classList.add('d-none');
+  document.getElementById('btnAdminPin').classList.add('d-none');
+  document.getElementById('loginEmpId').value = '';
+  document.getElementById('loginPin').value   = '';
+  document.getElementById('loginError').classList.add('d-none');
+  document.getElementById('loginScreen').classList.remove('d-none');
+}
+
+// ── Data ──
+var SHIFT_COLORS = { 'M':'#ea580c','A':'#ea580c','N':'#ea580c','O':'#9ca3af','OFF':'#9ca3af','X':'#9ca3af','H':'#f43f5e','S11':'#ea580c','S12':'#ea580c','S13':'#ea580c','S14':'#ea580c','S15':'#ea580c','S16':'#ea580c','S17':'#ea580c','S18':'#ea580c','S19':'#ea580c' };
+function buildShiftColors(props) { if(!props||!props.length)return; props.forEach(function(p){ if(p.id&&p.color) SHIFT_COLORS[p.id]=p.color; }); }
+function shiftBg(code) { if(!code||code==='?')return'#9ca3af'; return SHIFT_COLORS[code]||'#ea580c'; }
+
+var THAI_MONTHS = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+var THAI_DAYS   = ['อา','จ','อ','พ','พฤ','ศ','ส'];
+function formatMonthThai(ym) { var p=ym.split('-'); return THAI_MONTHS[parseInt(p[1])-1]+' '+(parseInt(p[0])+543); }
+function getDaysInMonth(ym) { var p=ym.split('-'),y=parseInt(p[0]),m=parseInt(p[1]),days=[],d=new Date(y,m-1,1); while(d.getMonth()===m-1){var dd=d.getDate();days.push(ym+'-'+(dd<10?'0':'')+dd);d.setDate(dd+1);} return days; }
+function today() { var d=new Date(),m=d.getMonth()+1,dd=d.getDate(); return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(dd<10?'0':'')+dd; }
+function get12Months() {
+  var months=[],d=new Date();
+  for(var i=0;i<12;i++){var y=d.getFullYear(),m=d.getMonth()+1+i;if(m>12){m-=12;y++;}months.push(y+'-'+(m<10?'0':'')+m);}
+  return months;
+}
+function calcShift(member,dateStr) { var p=member.shiftPattern; if(!p)return'?'; if(typeof p==='string')p=p.split(',').map(function(s){return s.trim();}).filter(function(s){return s.length>0;}); if(!Array.isArray(p)||!p.length)return'?'; if(!member.cycleStartDate)return'?'; var diff=Math.round((new Date(dateStr+'T00:00:00')-new Date(member.cycleStartDate+'T00:00:00'))/86400000); return diff<0?'?':p[diff%p.length]||'?'; }
+function getShiftForDay(id,dateStr) { for(var i=0;i<_shifts.length;i++){if(_shifts[i].memberId===id&&_shifts[i].date===dateStr)return _shifts[i].shiftCode;} var m=getMember(id); return m?calcShift(m,dateStr):'?'; }
+function getMember(id) { for(var i=0;i<_members.length;i++){if(_members[i].id===id)return _members[i];} return null; }
+function isAdmin() { var m=getMember(_currentMemberId); return (m&&m.role==='admin') || (_currentSession&&_currentSession.role==='admin'); }
+
+function loadData() {
+  document.getElementById('shiftLoading').classList.remove('d-none');
+  document.getElementById('shiftContent').classList.add('d-none');
+  document.getElementById('shiftError').classList.add('d-none');
+  google.script.run
+    .withSuccessHandler(function(result) {
+      try {
+        var res = JSON.parse(result);
+        if (res.status !== 'success') throw new Error(res.message || 'error');
+        _members  = res.data.members  || [];
+        _shifts   = res.data.shifts   || [];
+        _requests = res.data.requests || [];
+        buildShiftColors(res.data.shiftProperties);
+        document.getElementById('shiftLoading').classList.add('d-none');
+        document.getElementById('shiftContent').classList.remove('d-none');
+        renderAll();
+      } catch(e) { showError('โหลดข้อมูลไม่สำเร็จ: ' + e.message); }
+    })
+    .withFailureHandler(function(err) { showError('เกิดข้อผิดพลาด: ' + (err.message || err)); })
+    .gasGetAllDataByPosition(null, _SHIFT_POS);
+}
+function showError(msg) {
+  document.getElementById('shiftLoading').classList.add('d-none');
+  var el = document.getElementById('shiftError');
+  el.textContent = msg; el.classList.remove('d-none');
+}
+function switchTab(tab,btn) {
+  ['tabMe','tabTeam','tabRequests'].forEach(function(id){document.getElementById(id).classList.add('d-none');});
+  document.querySelectorAll('#shiftTabs .nav-link').forEach(function(el){el.classList.remove('active');});
+  document.getElementById('tab'+tab.charAt(0).toUpperCase()+tab.slice(1)).classList.remove('d-none');
+  btn.classList.add('active');
+}
+function renderAll() { renderMySchedule(); renderTeamSchedule(); renderRequests(); updatePendingBadge(); }
+function updatePendingBadge() { var n=_requests.filter(function(r){return r.status==='pending';}).length,badge=document.getElementById('pendingBadge'); if(n>0){badge.textContent=n;badge.classList.remove('d-none');}else{badge.classList.add('d-none');} }
+function getApprovedSwap(memberId,dateStr) { for(var i=0;i<_requests.length;i++){var r=_requests[i];if(r.status!=='approved')continue;if(r.requesterId===memberId&&r.requesterDate===dateStr)return{name:r.targetName,shift:r.targetShift};if(r.targetId===memberId&&r.targetDate===dateStr)return{name:r.requesterName,shift:r.requesterShift};}return null; }
+
+// ── Render My Schedule (12 months stacked) ──
+function renderMySchedule() {
+  var el = document.getElementById('myScheduleContent');
+  var member = getMember(_currentMemberId);
+  if (!member) {
+    el.innerHTML = '<div class="alert alert-info"><i class="bi bi-person-exclamation me-2"></i>ไม่พบข้อมูลสมาชิก กรุณาติดต่อผู้ดูแล</div>';
+    return;
+  }
+  var todayStr = today();
+  var months   = get12Months();
+  var html = '<p class="text-muted small mb-4"><i class="bi bi-calendar-check me-1"></i>คลิกที่วันเพื่อบันทึกวันหยุด (H) หรือลา (A) — คลิกซ้ำเพื่อย้อนกลับกะเดิม</p>';
+  months.forEach(function(ym) {
+    html += '<div class="mb-5" style="padding:0 min(144px,8vw);">';
+    html += '<h6 class="fw-bold mb-3" style="color:var(--pos-color);font-size:1rem;">'+formatMonthThai(ym)+'</h6>';
+    html += renderOneMonthCalendar(ym, member, todayStr);
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function renderOneMonthCalendar(ym, member, todayStr) {
+  var days = getDaysInMonth(ym), counts = {};
+  days.forEach(function(d){ var s=getShiftForDay(member.id,d); counts[s]=(counts[s]||0)+1; });
+  var sum = '<div class="d-flex flex-wrap gap-2 mb-3">';
+  Object.keys(counts).sort().forEach(function(code){ var bg=shiftBg(code); sum+='<div class="shift-chip" style="border-color:'+bg+'"><span class="shift-chip-dot" style="background:'+bg+'"></span><span class="shift-chip-code" style="color:'+bg+'">'+code+'</span><span class="shift-chip-count">'+counts[code]+' วัน</span></div>'; });
+  sum += '</div>';
+  var startDow = new Date(days[0]+'T00:00:00').getDay(), cal = '<div class="cal-grid">';
+  THAI_DAYS.forEach(function(d,i){ cal+='<div class="cal-hdr'+(i===0||i===6?' cal-hdr-wk':'')+'">' +d+'</div>'; });
+  for(var e=0;e<startDow;e++) cal+='<div></div>';
+  days.forEach(function(dateStr) {
+    var d=new Date(dateStr+'T00:00:00'),dow=d.getDay(),shift=getShiftForDay(member.id,dateStr),bg=shiftBg(shift),swap=getApprovedSwap(member.id,dateStr),cover=getApprovedCover(member.id,dateStr),isLeave=shift==='H'||shift==='A';
+    cal+='<div class="cal-cell'+(dateStr===todayStr?' cal-today':'')+(dow===0||dow===6?' cal-wk':'')+(isLeave?' cal-leave':'')+(cover&&cover.role==='covering'?' cal-double':'')+'" onclick="openLeaveModal(\''+dateStr+'\',\''+shift+'\')">';
+    cal+='<div class="cal-num'+(dow===0||dow===6?' cal-num-wk':'')+'">'+d.getDate()+'</div>';
+    cal+='<div class="cal-badge" style="background:'+bg+';">'+shift+'</div>';
+    if(cover&&cover.role==='covering') cal+='<div class="cal-badge cal-badge-cover" style="background:'+shiftBg(cover.shift)+';">ควง:'+cover.shift+'</div>';
+    if(swap) cal+='<div class="cal-partner">'+swap.name+'</div><div class="cal-badge cal-badge-swap" style="background:'+shiftBg(swap.shift)+';">'+swap.shift+'</div>';
+    cal+='</div>';
+  });
+  cal += '</div>';
+  return sum + cal;
+}
+
+// ── Render Team Schedule (12 months stacked) ──
+function renderTeamSchedule() {
+  var el = document.getElementById('teamScheduleContent');
+  if (!_members.length) { el.innerHTML = '<div class="alert alert-info">ไม่พบข้อมูลสมาชิก</div>'; return; }
+  var todayStr = today(), admin = isAdmin(), months = get12Months();
+  var html = '<p class="text-muted small mb-3"><i class="bi bi-arrow-left-right me-1"></i>คลิกช่องของสมาชิกอื่นเพื่อขอสลับ/ควงกะ'+(admin?' &nbsp;|&nbsp; <i class="bi bi-pencil me-1"></i>ปุ่มดินสอ = แก้ไขกะ (Admin)':'')+'</p>';
+  months.forEach(function(ym) {
+    html += '<div class="mb-5">';
+    html += '<h6 class="fw-bold mb-2" style="color:var(--pos-color);font-size:1rem;">'+formatMonthThai(ym)+'</h6>';
+    html += renderTeamTable(ym, todayStr, admin);
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function renderTeamTable(ym, todayStr, admin) {
+  var days = getDaysInMonth(ym);
+  var html = '<div class="team-wrap"><table class="team-tbl"><thead><tr><th class="team-name-th">สมาชิก</th>';
+  days.forEach(function(dateStr){ var d=new Date(dateStr+'T00:00:00'),dow=d.getDay(); html+='<th class="team-day-th'+(dateStr===todayStr?' team-th-today':dow===0||dow===6?' team-th-wk':'')+'">'+'<div class="team-dow">'+THAI_DAYS[dow]+'</div><div class="team-dn">'+d.getDate()+'</div></th>'; });
+  html += '</tr></thead><tbody>';
+  _members.forEach(function(member,idx) {
+    var isMe = member.id === _currentMemberId;
+    html += '<tr class="'+(isMe?'team-me':idx%2===1?'team-alt':'')+'">';
+    html += '<td class="team-name-td"><div class="team-name-inner">'+(isMe?'<span class="team-me-dot"></span>':'')+member.name+'</div></td>';
+    days.forEach(function(dateStr) {
+      var shift=getShiftForDay(member.id,dateStr),bg=shiftBg(shift),isToday=dateStr===todayStr,swap=getApprovedSwap(member.id,dateStr),cover=getApprovedCover(member.id,dateStr);
+      var isCovering=cover&&cover.role==='covering';
+      if(isMe) html+='<td class="team-shift-td'+(isToday?' team-td-today':'')+(isCovering?' team-td-double':'')+'">';
+      else html+='<td class="team-shift-td'+(isToday?' team-td-today':'')+(isCovering?' team-td-double':'')+' team-clickable" onclick="openTeamSwap(\''+member.id+'\',\''+member.name+'\',\''+dateStr+'\',\''+shift+'\')">';
+      html+='<div class="team-cell-inner">';
+      html+='<div class="d-flex flex-column align-items-center gap-1">';
+      html+='<span class="team-badge" style="background:'+bg+';">'+shift+'</span>';
+      if(isCovering) html+='<span class="team-badge team-badge-cover" style="background:'+shiftBg(cover.shift)+';">ควง</span>';
+      html+='</div>';
+      if(swap)html+='<div class="team-swap-dot"></div>';
+      html+='</div>';
+      if(admin) html+='<div class="team-edit-icon" onclick="event.stopPropagation();openEditShift(\''+member.id+'\',\''+member.name+'\',\''+dateStr+'\',\''+shift+'\')"><i class="bi bi-pencil-fill"></i></div>';
+      html += '</td>';
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  return html;
+}
+
+// ── Requests ──
+function renderRequests() {
+  var el = document.getElementById('requestsContent'), admin = isAdmin();
+  var visible = admin ? _requests : _requests.filter(function(r){ return r.requesterId===_currentMemberId||r.targetId===_currentMemberId; });
+  if (!visible.length) { el.innerHTML = '<div class="alert alert-info"><i class="bi bi-inbox me-2"></i>'+(admin?'ยังไม่มีคำขอสลับกะ':'ไม่มีคำขอสลับกะที่เกี่ยวข้องกับคุณ')+'</div>'; return; }
+  var pending=visible.filter(function(r){return r.status==='pending';}),history=visible.filter(function(r){return r.status!=='pending';}),html='';
+  if(pending.length){ html+='<h6 class="fw-bold mb-2"><i class="bi bi-hourglass-split me-1 text-warning"></i>รอดำเนินการ ('+pending.length+')</h6>'; pending.forEach(function(r){html+=requestCard(r,admin);}); }
+  if(history.length){ html+='<h6 class="fw-bold mt-3 mb-2 text-secondary"><i class="bi bi-clock-history me-1"></i>ประวัติ</h6>'; history.slice(0,20).forEach(function(r){html+=requestCard(r,false);}); }
+  el.innerHTML = html;
+}
+function requestCard(r,showActions) {
+  var sColor=r.status==='pending'?'warning':r.status==='approved'?'success':'secondary';
+  var sText=r.status==='pending'?'รอดำเนินการ':r.status==='approved'?'อนุมัติแล้ว':'ปฏิเสธแล้ว';
+  var isCover=r.type==='cover';
+  var typeLabel=isCover?'<span class="badge me-1" style="background:#0891b2;">ควงกะ</span>':'<span class="badge bg-primary me-1">สลับกะ</span>';
+  var html='<div class="card mb-2 border-'+sColor+'"><div class="card-body py-2 px-3">';
+  html+='<div class="d-flex justify-content-between align-items-start gap-2"><div class="flex-grow-1">';
+  html+='<div class="mb-1"><span class="badge bg-'+sColor+' me-1">'+sText+'</span>'+typeLabel;
+  html+='<strong>'+r.requesterName+'</strong>'+(isCover?' ควง ':' ↔ ')+'<strong>'+r.targetName+'</strong></div>';
+  if(isCover){
+    html+='<div class="small text-muted">'+r.requesterName+' ควงกะแทน '+r.targetName+' วันที่ '+r.targetDate+' <span class="badge" style="background:'+shiftBg(r.targetShift)+';color:white;">'+r.targetShift+'</span>'+(r.status==='approved'?' → <span class="badge bg-secondary">X</span> อัตโนมัติ':'')+'</div>';
+    if(r.returnDate) html+='<div class="small mt-1" style="color:#0891b2;"><i class="bi bi-arrow-return-left me-1"></i>คืนควง: <strong>'+r.targetName+'</strong> ควงให้ <strong>'+r.requesterName+'</strong> วันที่ '+formatDateThai(r.returnDate)+(r.status==='approved'?' ✓':' (รอดำเนินการ)')+'</div>';
+  } else {
+    html+='<div class="small text-muted">'+r.requesterName+' '+r.requesterDate+' <span class="badge" style="background:'+shiftBg(r.requesterShift)+';color:white;">'+r.requesterShift+'</span>';
+    html+=' &nbsp;↔&nbsp; '+r.targetName+' '+r.targetDate+' <span class="badge" style="background:'+shiftBg(r.targetShift)+';color:white;">'+r.targetShift+'</span></div>';
+    if(r.isHolidaySwap&&r.returnDate){
+      html+='<div class="small mt-1" style="color:#d97706;"><i class="bi bi-calendar-event me-1"></i>คืนวันหยุดให้ <strong>'+r.targetName+'</strong> วันที่ '+formatDateThai(r.returnDate)+(r.status==='approved'?' ✓ (บันทึกแล้ว)':'')+'</div>';
+    }
+  }
+  if(r.reason)html+='<div class="small fst-italic text-secondary mt-1">เหตุผล: '+r.reason+'</div>';
+  html+='</div>';
+  if(showActions&&r.status==='pending'){
+    var appCall;
+    if(isCover){
+      // ควงกะ: auto-save X for target on targetDate
+      appCall='approveRequest(\''+r.id+'\',\''+r.targetId+'\',\''+r.targetDate+'\',\'X\')';
+    } else if(r.isHolidaySwap&&r.returnDate){
+      // สลับ+วันหยุด: auto-save H for target on returnDate
+      appCall='approveRequest(\''+r.id+'\',\''+r.targetId+'\',\''+r.returnDate+'\',\'H\')';
+    } else {
+      appCall='approveRequest(\''+r.id+'\',\'\',\'\',\'\')';
+    }
+    html+='<div class="d-flex flex-column gap-1">';
+    html+='<button class="btn btn-sm btn-success py-0" onclick="'+appCall+'"><i class="bi bi-check-lg"></i></button>';
+    html+='<button class="btn btn-sm btn-danger py-0" onclick="rejectRequest(\''+r.id+'\')"><i class="bi bi-x-lg"></i></button>';
+    html+='</div>';
+  }
+  html+='</div></div></div>'; return html;
+}
+
+// ── Swap Helpers ──
+function getMaxReturnDate(fromDate) {
+  var d=fromDate?new Date(fromDate+'T00:00:00'):new Date();
+  var m=d.getMonth()+2,y=d.getFullYear();
+  if(m>12){m-=12;y++;}
+  var last=new Date(y,m,0);
+  return last.getFullYear()+'-'+(last.getMonth()<9?'0':'')+(last.getMonth()+1)+'-'+(last.getDate()<10?'0':'')+last.getDate();
+}
+function formatDateThai(dateStr){var d=new Date(dateStr+'T00:00:00');return d.getDate()+' '+THAI_MONTHS[d.getMonth()]+' '+(d.getFullYear()+543);}
+function isHolidayShift(s){return s==='H'||s==='A';}
+function onSwapTypeChange(){
+  var isSwap=document.getElementById('typeSwap').checked;
+  document.getElementById('swapSection').classList.toggle('d-none',!isSwap);
+  document.getElementById('coverSection').classList.toggle('d-none',isSwap);
+}
+function validateReturnDate(maxDate){
+  var inp=document.getElementById('returnDate'),warn=document.getElementById('returnDateWarn');
+  if(!inp||!warn)return;
+  var over=inp.value&&inp.value>maxDate;
+  warn.classList.toggle('d-none',!over);
+  inp.classList.toggle('is-invalid',over);
+}
+function validateCoverReturn(maxDate){
+  var inp=document.getElementById('coverReturnDate'),warn=document.getElementById('coverReturnWarn');
+  if(!inp||!warn)return;
+  var over=inp.value&&inp.value>maxDate;
+  warn.classList.toggle('d-none',!over);
+  inp.classList.toggle('is-invalid',over);
+}
+function updateCoverPreview(targetShift){
+  var dateEl=document.getElementById('tsCoverDate'),prev=document.getElementById('coverPreview');
+  if(!dateEl||!dateEl.value){prev.classList.add('d-none');return;}
+  var myShift=getShiftForDay(_currentMemberId,dateEl.value),me=getMember(_currentMemberId);
+  prev.classList.remove('d-none');
+  prev.innerHTML='คุณ ('+(me?me.name:_currentSession.memberName)+') กะ <span class="badge" style="background:'+shiftBg(myShift)+';color:white;">'+myShift+'</span> + ควง <span class="badge" style="background:'+shiftBg(targetShift)+';color:white;">'+targetShift+'</span>';
+}
+function getApprovedCover(memberId,dateStr){
+  for(var i=0;i<_requests.length;i++){
+    var r=_requests[i];
+    if(r.status!=='approved'||r.type!=='cover')continue;
+    if(r.requesterId===memberId&&r.requesterDate===dateStr)return{role:'covering',otherName:r.targetName,shift:r.targetShift};
+    if(r.targetId===memberId&&r.targetDate===dateStr)return{role:'covered',otherName:r.requesterName};
+  }
+  return null;
+}
+
+// ── Swap Actions ──
+function openTeamSwap(targetId,targetName,targetDate,targetShift) {
+  if(!_currentMemberId){alert('ไม่พบข้อมูลสมาชิก');return;}
+  var d=new Date(targetDate+'T00:00:00'),disp=d.getDate()+' '+THAI_MONTHS[d.getMonth()]+' '+(d.getFullYear()+543);
+  var isHol=isHolidayShift(targetShift),maxRet=getMaxReturnDate(targetDate);
+  var body='';
+  // ── header
+  body+='<div class="mb-3 p-2 rounded" style="background:#f0f9ff;">';
+  body+='<div class="small text-muted mb-1">ขอสลับ/ควงกะกับ</div>';
+  body+='<strong>'+targetName+'</strong> วันที่ '+disp+' &nbsp;<span class="badge" style="background:'+shiftBg(targetShift)+';color:white;">'+targetShift+'</span>';
+  if(isHol)body+=' <span class="badge bg-warning text-dark ms-1"><i class="bi bi-sun me-1"></i>วันหยุด</span>';
+  body+='</div>';
+  // ── type radio
+  body+='<div class="mb-3"><label class="form-label fw-bold small">ประเภทคำขอ</label>';
+  body+='<div class="d-flex gap-4">';
+  body+='<div class="form-check"><input class="form-check-input" type="radio" name="swapType" id="typeSwap" value="swap" checked onchange="onSwapTypeChange()"><label class="form-check-label fw-semibold" for="typeSwap"><i class="bi bi-arrow-left-right me-1"></i>สลับกะ</label></div>';
+  body+='<div class="form-check"><input class="form-check-input" type="radio" name="swapType" id="typeCover" value="cover" onchange="onSwapTypeChange()"><label class="form-check-label fw-semibold" for="typeCover"><i class="bi bi-layers me-1"></i>ควงกะ</label></div>';
+  body+='</div></div>';
+  // ── swap section
+  body+='<div id="swapSection">';
+  body+='<div class="mb-3"><label class="form-label fw-bold small">วันที่ของคุณ (ที่จะสลับ)</label>';
+  body+='<input type="date" id="tsMyDate" class="form-control" value="'+targetDate+'" onchange="updateTsPreview(\''+targetShift+'\')"></div>';
+  body+='<div id="tsPreview" class="d-none alert alert-light py-2 small mb-3"></div>';
+  if(isHol){
+    body+='<div class="alert alert-warning py-2 small mb-3"><i class="bi bi-exclamation-triangle-fill me-1"></i>กะของ <strong>'+targetName+'</strong> เป็นวันหยุด คุณต้องกำหนดวันคืนวันหยุดให้ภายใน 2 เดือน</div>';
+    body+='<div class="mb-3"><label class="form-label fw-bold small">วันคืนวันหยุดให้ <span style="color:var(--pos-color)">'+targetName+'</span> <span class="text-muted fw-normal small">(ไม่เกิน '+formatDateThai(maxRet)+')</span></label>';
+    body+='<input type="date" id="returnDate" class="form-control" min="'+today()+'" max="'+maxRet+'" onchange="validateReturnDate(\''+maxRet+'\')">';
+    body+='<div id="returnDateWarn" class="text-danger small mt-1 d-none"><i class="bi bi-exclamation-circle me-1"></i>วันคืนต้องไม่เกิน '+formatDateThai(maxRet)+'</div></div>';
+  }
+  body+='</div>';
+  // ── cover section
+  body+='<div id="coverSection" class="d-none">';
+  body+='<div class="alert alert-info py-2 small mb-3"><i class="bi bi-info-circle-fill me-1"></i>เมื่ออนุมัติ — <strong>'+targetName+'</strong> จะได้รับวัน <span class="badge bg-secondary">X</span> อัตโนมัติ และต้องควงคืนให้คุณภายใน 2 เดือน</div>';
+  body+='<div class="mb-3"><label class="form-label fw-bold small">วันที่ควงกะ</label>';
+  body+='<input type="date" id="tsCoverDate" class="form-control" value="'+targetDate+'" onchange="updateCoverPreview(\''+targetShift+'\')"></div>';
+  body+='<div id="coverPreview" class="d-none alert alert-light py-2 small mb-3"></div>';
+  body+='<div class="mb-3"><label class="form-label fw-bold small">วันคืนควงให้คุณ โดย <span style="color:var(--pos-color)">'+targetName+'</span> <span class="text-muted fw-normal small">(ไม่เกิน '+formatDateThai(maxRet)+')</span></label>';
+  body+='<input type="date" id="coverReturnDate" class="form-control" min="'+today()+'" max="'+maxRet+'" onchange="validateCoverReturn(\''+maxRet+'\')">';
+  body+='<div id="coverReturnWarn" class="text-danger small mt-1 d-none"><i class="bi bi-exclamation-circle me-1"></i>วันคืนควงต้องไม่เกิน '+formatDateThai(maxRet)+'</div></div>';
+  body+='</div>';
+  // ── reason
+  body+='<div class="mb-2"><label class="form-label fw-bold small">เหตุผล (ไม่บังคับ)</label>';
+  body+='<input type="text" id="tsReason" class="form-control" placeholder="เหตุผล..."></div>';
+  document.getElementById('swapModalBody').innerHTML=body;
+  var modal=document.getElementById('swapModal');
+  modal._tsTarget={id:targetId,name:targetName,date:targetDate,shift:targetShift,isHoliday:isHol};
+  var btn=document.getElementById('btnSubmitSwap'); btn.disabled=false; btn.innerHTML='<i class="bi bi-send me-1"></i>ส่งคำขอ';
+  new bootstrap.Modal(modal).show(); updateTsPreview(targetShift);
+}
+function updateTsPreview(targetShift) {
+  var myDate=document.getElementById('tsMyDate'),prev=document.getElementById('tsPreview');
+  if(!myDate||!myDate.value||!_currentMemberId){if(prev)prev.classList.add('d-none');return;}
+  var myShift=getShiftForDay(_currentMemberId,myDate.value),me=getMember(_currentMemberId);
+  prev.classList.remove('d-none');
+  prev.innerHTML='คุณ ('+(me?me.name:_currentSession.memberName)+') วัน '+myDate.value+' <span class="badge" style="background:'+shiftBg(myShift)+';color:white;">'+myShift+'</span> ↔ <span class="badge" style="background:'+shiftBg(targetShift)+';color:white;">'+targetShift+'</span>';
+}
+function submitSwapRequest() {
+  var modal=document.getElementById('swapModal'),target=modal._tsTarget;
+  var myMember=getMember(_currentMemberId);
+  var myName=myMember?myMember.name:_currentSession.memberName;
+  var reason=document.getElementById('tsReason')?document.getElementById('tsReason').value:'';
+  var isCover=document.getElementById('typeCover')&&document.getElementById('typeCover').checked;
+  var reqData;
+  if(!isCover){
+    // สลับกะ
+    var myDate=document.getElementById('tsMyDate').value;
+    if(!myDate){alert('กรุณาเลือกวันที่ของคุณ');return;}
+    var returnDate='';
+    if(target.isHoliday){
+      var rdEl=document.getElementById('returnDate');
+      returnDate=rdEl?rdEl.value:'';
+      if(!returnDate){alert('กรุณาระบุวันคืนวันหยุดให้ '+target.name);return;}
+      var maxRet=getMaxReturnDate();
+      if(returnDate>maxRet){alert('วันคืนต้องไม่เกิน '+formatDateThai(maxRet));return;}
+    }
+    reqData={type:'swap',requesterId:_currentMemberId,requesterName:myName,targetId:target.id,targetName:target.name,requesterDate:myDate,targetDate:target.date,requesterShift:getShiftForDay(_currentMemberId,myDate),targetShift:target.shift,reason:reason,isHolidaySwap:target.isHoliday,returnDate:returnDate};
+  } else {
+    // ควงกะ
+    var coverDate=document.getElementById('tsCoverDate').value;
+    if(!coverDate){alert('กรุณาเลือกวันที่ควงกะ');return;}
+    var coverReturnEl=document.getElementById('coverReturnDate');
+    var coverReturn=coverReturnEl?coverReturnEl.value:'';
+    if(!coverReturn){alert('กรุณาระบุวันคืนควงให้ '+target.name);return;}
+    var maxRet2=getMaxReturnDate();
+    if(coverReturn>maxRet2){alert('วันคืนควงต้องไม่เกิน '+formatDateThai(maxRet2));return;}
+    reqData={type:'cover',requesterId:_currentMemberId,requesterName:myName,targetId:target.id,targetName:target.name,requesterDate:coverDate,targetDate:target.date,requesterShift:getShiftForDay(_currentMemberId,coverDate),targetShift:target.shift,reason:reason,returnDate:coverReturn};
+  }
+  var btn=document.getElementById('btnSubmitSwap'); btn.disabled=true; btn.innerHTML='<span class="spinner-border spinner-border-sm me-1"></span>กำลังส่ง...';
+  google.script.run
+    .withSuccessHandler(function(res){var r=JSON.parse(res);if(r.status==='success'){bootstrap.Modal.getInstance(modal).hide();loadData();}else{alert('เกิดข้อผิดพลาด: '+r.message);btn.disabled=false;btn.innerHTML='<i class="bi bi-send me-1"></i>ส่งคำขอ';}})
+    .withFailureHandler(function(err){alert('เกิดข้อผิดพลาด: '+(err.message||err));btn.disabled=false;btn.innerHTML='<i class="bi bi-send me-1"></i>ส่งคำขอ';})
+    .gasCreateSwapRequest(JSON.stringify(reqData));
+}
+function approveRequest(reqId,autoMemberId,autoDate,autoCode){
+  if(!confirm('อนุมัติคำขอนี้?'))return;
+  google.script.run.withSuccessHandler(function(){loadData();}).withFailureHandler(function(e){alert('เกิดข้อผิดพลาด: '+e.message);}).gasApproveSwapRequest(reqId,autoMemberId||'',autoDate||'',autoCode||'');
+}
+function rejectRequest(reqId){if(!confirm('ปฏิเสธคำขอนี้?'))return;google.script.run.withSuccessHandler(function(){loadData();}).withFailureHandler(function(e){alert('เกิดข้อผิดพลาด: '+e.message);}).gasRejectSwapRequest(reqId);}
+
+// ── Edit Shift (Admin) ──
+function openEditShift(memberId,memberName,dateStr,currentShift) {
+  _editShiftData = { memberId: memberId, dateStr: dateStr };
+  document.getElementById('editShiftTitle').textContent  = memberName + ' — ' + dateStr;
+  document.getElementById('editShiftCurrent').textContent = 'กะปัจจุบัน: ' + currentShift;
+  document.getElementById('editShiftBtns').innerHTML = ['M','A','N','O','X'].map(function(code){
+    return '<button class="btn btn-sm fw-bold px-3" style="background:'+shiftBg(code)+';color:white;" onclick="saveEditShift(\''+code+'\')">'+code+'</button>';
+  }).join('');
+  new bootstrap.Modal(document.getElementById('editShiftModal')).show();
+}
+function saveEditShift(code) {
+  if(!_editShiftData) return;
+  bootstrap.Modal.getInstance(document.getElementById('editShiftModal')).hide();
+  google.script.run.withSuccessHandler(function(res){var r=JSON.parse(res);if(r.status==='success')loadData();else alert('เกิดข้อผิดพลาด: '+r.message);}).withFailureHandler(function(e){alert('เกิดข้อผิดพลาด: '+e.message);}).gasSaveShift(_editShiftData.memberId,_editShiftData.dateStr,code);
+}
+
+// ── Leave / Undo ──
+function openLeaveModal(dateStr,currentShift) {
+  if(!_currentMemberId){alert('ไม่พบข้อมูลสมาชิก');return;}
+  var d=new Date(dateStr+'T00:00:00'),disp=d.getDate()+' '+THAI_MONTHS[d.getMonth()]+' '+(d.getFullYear()+543),isLeave=currentShift==='H'||currentShift==='A',bg=shiftBg(currentShift);
+  var html='<div class="text-center mb-3 pt-1"><div class="fw-bold fs-6 text-dark">'+disp+'</div><div class="mt-1">กะ: <span class="badge px-2 py-1" style="background:'+bg+';color:white;">'+currentShift+'</span></div></div>';
+  if(isLeave) {
+    var member = getMember(_currentMemberId);
+    var origShift = member ? calcShift(member, dateStr) : '?';
+    html += '<p class="text-center text-muted small mb-3">วันนี้ถูกบันทึกเป็น <strong>' + (currentShift==='H'?'วันหยุดพิเศษ (H)':'ลาหยุด (A)') + '</strong> แล้ว</p>';
+    html += '<div class="d-flex justify-content-center">';
+    html += '<button class="btn btn-outline-secondary fw-bold" onclick="clearLeave(\''+dateStr+'\')">';
+    html += '<i class="bi bi-arrow-counterclockwise me-1"></i>ย้อนกลับกะเดิม';
+    html += ' <span class="badge ms-1" style="background:'+shiftBg(origShift)+';color:white;">'+origShift+'</span>';
+    html += '</button></div>';
+  } else {
+    html += '<p class="text-center text-muted small mb-3">เลือกประเภทวันหยุด</p>';
+    html += '<div class="d-flex gap-3 justify-content-center mb-2">';
+    html += '<button class="btn leave-btn-h fw-bold" onclick="saveLeave(\''+dateStr+'\',\'H\')"><div class="leave-code">H</div><div class="leave-label">วันหยุดพิเศษ</div></button>';
+    html += '<button class="btn leave-btn-a fw-bold" onclick="saveLeave(\''+dateStr+'\',\'A\')"><div class="leave-code">A</div><div class="leave-label">ลาหยุด</div></button>';
+    html += '</div>';
+  }
+  document.getElementById('leaveModalBody').innerHTML = html;
+  new bootstrap.Modal(document.getElementById('leaveModal')).show();
+}
+function saveLeave(dateStr,code){bootstrap.Modal.getInstance(document.getElementById('leaveModal')).hide();google.script.run.withSuccessHandler(function(){loadData();}).withFailureHandler(function(e){alert('เกิดข้อผิดพลาด: '+e.message);}).gasSaveShift(_currentMemberId,dateStr,code);}
+function clearLeave(dateStr){bootstrap.Modal.getInstance(document.getElementById('leaveModal')).hide();google.script.run.withSuccessHandler(function(){loadData();}).withFailureHandler(function(e){alert('เกิดข้อผิดพลาด: '+e.message);}).gasDeleteShift(_currentMemberId,dateStr);}
+
+// ── Change Own PIN ──
+function openChangePinModal() {
+  document.getElementById('cpCurrent').value = '';
+  document.getElementById('cpNew').value     = '';
+  document.getElementById('cpConfirm').value = '';
+  document.getElementById('cpError').classList.add('d-none');
+  var btn = document.getElementById('cpBtn');
+  btn.disabled = false;
+  btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>บันทึก PIN ใหม่';
+  new bootstrap.Modal(document.getElementById('changePinModal')).show();
+}
+function submitChangePin() {
+  var current = document.getElementById('cpCurrent').value.trim();
+  var newPin   = document.getElementById('cpNew').value.trim();
+  var confirm  = document.getElementById('cpConfirm').value.trim();
+  var errEl    = document.getElementById('cpError');
+  var btn      = document.getElementById('cpBtn');
+  errEl.classList.add('d-none');
+  if (!current || !newPin || !confirm) { errEl.textContent = 'กรุณากรอกให้ครบทุกช่อง'; errEl.classList.remove('d-none'); return; }
+  if (newPin !== confirm) { errEl.textContent = 'PIN ใหม่และยืนยัน PIN ไม่ตรงกัน'; errEl.classList.remove('d-none'); return; }
+  if (newPin.length < 4) { errEl.textContent = 'PIN ต้องมีอย่างน้อย 4 หลัก'; errEl.classList.remove('d-none'); return; }
+  btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>กำลังตรวจสอบ...';
+  // ตรวจสอบ PIN ปัจจุบันก่อนแล้วค่อยเปลี่ยน
+  google.script.run
+    .withSuccessHandler(function(result) {
+      try {
+        var res = JSON.parse(result);
+        if (res.status !== 'success') {
+          btn.disabled = false; btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>บันทึก PIN ใหม่';
+          errEl.textContent = 'PIN ปัจจุบันไม่ถูกต้อง'; errEl.classList.remove('d-none'); return;
+        }
+        // PIN ถูก — บันทึก PIN ใหม่
+        google.script.run
+          .withSuccessHandler(function(r2) {
+            btn.disabled = false; btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>บันทึก PIN ใหม่';
+            try {
+              var res2 = JSON.parse(r2);
+              if (res2.status === 'success') {
+                bootstrap.Modal.getInstance(document.getElementById('changePinModal')).hide();
+                alert('เปลี่ยน PIN สำเร็จแล้ว');
+              } else { errEl.textContent = 'เกิดข้อผิดพลาด: ' + res2.message; errEl.classList.remove('d-none'); }
+            } catch(e) { errEl.textContent = 'เกิดข้อผิดพลาด: ' + e.message; errEl.classList.remove('d-none'); }
+          })
+          .withFailureHandler(function(err) {
+            btn.disabled = false; btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>บันทึก PIN ใหม่';
+            errEl.textContent = 'เกิดข้อผิดพลาด: ' + (err.message || err); errEl.classList.remove('d-none');
+          })
+          .gasSetMemberPin(_currentSession.empId, newPin, _SHIFT_POS);
+      } catch(e) {
+        btn.disabled = false; btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>บันทึก PIN ใหม่';
+        errEl.textContent = 'เกิดข้อผิดพลาด: ' + e.message; errEl.classList.remove('d-none');
+      }
+    })
+    .withFailureHandler(function(err) {
+      btn.disabled = false; btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>บันทึก PIN ใหม่';
+      errEl.textContent = 'เกิดข้อผิดพลาด: ' + (err.message || err); errEl.classList.remove('d-none');
+    })
+    .gasPinLogin(_currentSession.empId, current, _SHIFT_POS);
+}
+
+// ── Admin PIN Management ──
+function openPinModal() {
+  var modal = new bootstrap.Modal(document.getElementById('pinManageModal'));
+  modal.show();
+  document.getElementById('pinManageBody').innerHTML = '<div class="text-center py-3"><div class="spinner-border spinner-border-sm"></div><span class="ms-2">กำลังโหลด...</span></div>';
+  google.script.run
+    .withSuccessHandler(function(result) {
+      try {
+        var res = JSON.parse(result);
+        if (res.status !== 'success') throw new Error(res.message);
+        renderPinTable(res.data);
+      } catch(e) {
+        document.getElementById('pinManageBody').innerHTML = '<div class="alert alert-danger">เกิดข้อผิดพลาด: '+e.message+'</div>';
+      }
+    })
+    .withFailureHandler(function(err) {
+      document.getElementById('pinManageBody').innerHTML = '<div class="alert alert-danger">เกิดข้อผิดพลาด: '+(err.message||err)+'</div>';
+    })
+    .gasGetMemberPins(_SHIFT_POS);
+}
+function renderPinTable(data) {
+  if (!data.length) { document.getElementById('pinManageBody').innerHTML = '<div class="alert alert-info">ไม่พบพนักงาน</div>'; return; }
+  var html = '<p class="text-muted small mb-3">PIN เริ่มต้น = 4 หลักสุดท้ายของรหัสพนักงาน (ถ้ายังไม่เคยตั้ง)</p>';
+  html += '<table class="table table-sm table-bordered align-middle"><thead class="table-light"><tr><th>รหัส</th><th>ชื่อ</th><th class="text-center">สถานะ PIN</th><th>ตั้ง PIN ใหม่</th><th></th></tr></thead><tbody>';
+  data.forEach(function(emp) {
+    html += '<tr>';
+    html += '<td class="small text-muted">'+emp.empId+'</td>';
+    html += '<td class="fw-semibold small">'+emp.name+'</td>';
+    html += '<td class="text-center">'+(emp.hasPin?'<span class="badge bg-success">ตั้งแล้ว</span>':'<span class="badge bg-secondary">ค่าเริ่มต้น</span>')+'</td>';
+    html += '<td><input type="password" class="form-control form-control-sm pin-input" data-empid="'+emp.empId+'" maxlength="8" placeholder="PIN ใหม่" style="max-width:120px;"></td>';
+    html += '<td><button class="btn btn-sm btn-primary" onclick="savePin(\''+emp.empId+'\',this)">บันทึก</button></td>';
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  document.getElementById('pinManageBody').innerHTML = html;
+}
+function savePin(empId, btn) {
+  var row = btn.closest('tr');
+  var input = row.querySelector('.pin-input');
+  var newPin = input.value.trim();
+  if (!newPin) { alert('กรุณากรอก PIN ใหม่'); return; }
+  btn.disabled = true; btn.textContent = '...';
+  google.script.run
+    .withSuccessHandler(function(result) {
+      btn.disabled = false; btn.textContent = 'บันทึก';
+      try {
+        var res = JSON.parse(result);
+        if (res.status === 'success') { input.value = ''; alert('บันทึก PIN สำเร็จ'); openPinModal(); }
+        else alert('เกิดข้อผิดพลาด: ' + res.message);
+      } catch(e) { alert('เกิดข้อผิดพลาด: ' + e.message); }
+    })
+    .withFailureHandler(function(err) { btn.disabled=false; btn.textContent='บันทึก'; alert('เกิดข้อผิดพลาด: '+(err.message||err)); })
+    .gasSetMemberPin(empId, newPin, _SHIFT_POS);
+}
+</script>
+
+<style>
+#shiftTabs .nav-link.active { color:var(--pos-color)!important; border-color:#dee2e6 #dee2e6 #fff!important; font-weight:700; }
+#shiftTabs .nav-link:not(.active):hover { color:var(--pos-color); }
+.shift-chip { display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;border:1.5px solid;background:white;box-shadow:0 1px 3px rgba(0,0,0,.07); }
+.shift-chip-dot { width:8px;height:8px;border-radius:50%;flex-shrink:0; }
+.shift-chip-code { font-size:.78rem;font-weight:700; }
+.shift-chip-count { font-size:.75rem;color:#6b7280; }
+.cal-grid { display:grid;grid-template-columns:repeat(7,1fr);gap:clamp(3px,1vw,6px);padding:4px 0 10px; }
+.cal-hdr { text-align:center;font-size:.78rem;font-weight:700;color:#6b7280;padding:4px 0 8px; }
+.cal-hdr-wk { color:#dc2626; }
+.cal-cell { display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:clamp(5px,1.2vw,10px) clamp(2px,.5vw,6px);gap:clamp(3px,.6vw,6px);min-height:clamp(80px,16vw,150px);background:white;border:1.5px solid #e5e7eb;border-radius:10px;cursor:pointer;transition:box-shadow .15s,transform .12s,border-color .15s;position:relative;overflow:hidden; }
+.cal-cell:hover { border-color:var(--pos-color);box-shadow:0 4px 12px var(--pos-shadow);transform:translateY(-2px); }
+.cal-today { border-color:var(--pos-color)!important;border-width:2.5px!important;background:var(--pos-light); }
+.cal-wk { background:#fafafa; }
+.cal-leave { background:#fef2f2!important; }
+.cal-num { font-size:clamp(.7rem,1.8vw,1rem);font-weight:700;color:#374151;line-height:1; }
+.cal-num-wk { color:#dc2626; }
+.cal-badge { color:white;font-size:clamp(.6rem,1.4vw,.78rem);font-weight:700;padding:clamp(3px,.5vw,5px) clamp(5px,1vw,10px);border-radius:20px;white-space:nowrap;max-width:calc(100% - 4px);text-align:center;overflow:hidden;text-overflow:ellipsis; }
+.cal-badge-swap { font-size:clamp(.55rem,1.2vw,.72rem)!important;padding:clamp(2px,.4vw,4px) clamp(4px,.8vw,8px)!important;opacity:.9; }
+.cal-partner { font-size:clamp(.5rem,1.1vw,.65rem);color:#6b7280;line-height:1.2;max-width:calc(100% - 4px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center; }
+.team-wrap { overflow-x:auto; }
+.team-tbl { border-collapse:separate;border-spacing:0;width:max-content; }
+.team-name-th { position:sticky;left:0;z-index:4;background:#f8fafc;min-width:130px;padding:8px 14px;font-size:.78rem;font-weight:700;color:#374151;border-bottom:2px solid #e2e8f0;border-right:2px solid #e2e8f0;white-space:nowrap; }
+.team-day-th { width:57px;min-width:57px;padding:5px 2px;text-align:center;background:#f8fafc;border-bottom:2px solid #e2e8f0;border-right:1px solid #f1f5f9; }
+.team-th-today { background:var(--pos-light)!important; }
+.team-th-wk { background:#fef2f2!important; }
+.team-dow { font-size:.6rem;color:#94a3b8;line-height:1.2; }
+.team-dn { font-size:.78rem;font-weight:700;color:#374151; }
+.team-name-td { position:sticky;left:0;z-index:2;background:white;padding:0 14px;height:48px;font-size:.78rem;font-weight:600;color:#1e293b;border-bottom:1px solid #f1f5f9;border-right:2px solid #e2e8f0;white-space:nowrap;vertical-align:middle; }
+.team-name-inner { display:flex;align-items:center;gap:6px; }
+.team-me-dot { width:8px;height:8px;border-radius:50%;background:var(--pos-color);flex-shrink:0; }
+.team-shift-td { width:57px;height:48px;padding:5px 4px;text-align:center;vertical-align:middle;border-bottom:1px solid #f1f5f9;border-right:1px solid #f1f5f9;transition:background .1s; }
+.team-shift-td:hover { background:#f0f9ff!important; }
+.team-td-today { background:var(--pos-light)!important; }
+.team-badge { display:inline-block;color:white;font-size:.65rem;font-weight:700;padding:3px 5px;border-radius:6px;min-width:36px;text-align:center;white-space:nowrap; }
+.team-me .team-name-td { background:var(--pos-light)!important; }
+.team-me .team-shift-td { background:var(--pos-light); }
+.team-alt .team-name-td { background:#f8fafc!important; }
+.team-alt .team-shift-td { background:#f8fafc; }
+.team-tbl tr { height:48px; }
+.team-clickable { cursor:pointer;position:relative; }
+.team-clickable:hover { background:#eff6ff!important; }
+.team-cell-inner { display:flex;align-items:center;justify-content:center;gap:2px; }
+.team-swap-dot { width:5px;height:5px;border-radius:50%;background:var(--pos-color);flex-shrink:0; }
+.team-edit-icon { position:absolute;top:1px;right:2px;font-size:.5rem;color:#94a3b8;line-height:1;cursor:pointer; }
+.team-edit-icon:hover { color:var(--pos-color); }
+.leave-btn-h,.leave-btn-a { display:flex;flex-direction:column;align-items:center;padding:12px 20px;border-radius:12px;border:2px solid;min-width:90px; }
+.leave-btn-h { border-color:#f59e0b;color:#f59e0b; }
+.leave-btn-h:hover { background:#f59e0b;color:white; }
+.leave-btn-a { border-color:#ef4444;color:#ef4444; }
+.leave-btn-a:hover { background:#ef4444;color:white; }
+.leave-code { font-size:1.8rem;font-weight:900;line-height:1; }
+.leave-label { font-size:.7rem;font-weight:500;margin-top:4px; }
+.cal-badge-cover { font-size:clamp(.52rem,1.1vw,.7rem)!important;padding:2px 6px!important;opacity:.92;border:1.5px solid white; }
+.cal-double { background:linear-gradient(135deg,white 60%,#fef3c7)!important; }
+.team-td-double { background:linear-gradient(135deg,var(--pos-light) 50%,#fef3c7)!important; }
+.team-badge-cover { font-size:.55rem!important;padding:2px 4px!important;opacity:.9;min-width:28px; }
+</style>

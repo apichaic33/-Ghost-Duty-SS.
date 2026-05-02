@@ -1,0 +1,210 @@
+<!-- Home.html — หน้าแรก แสดงโมดูลทั้งหมด -->
+
+<div class="text-center mb-4">
+  <h4 class="fw-bold text-dark"><i class="bi bi-grid-3x3-gap me-2 text-primary"></i>เลือกแอพ</h4>
+  <p class="text-muted small">คลิกที่แอพเพื่อเข้าใช้งาน</p>
+</div>
+
+<div class="row g-4 justify-content-center">
+
+  <!-- โมดูล: คูปองพิเศษ -->
+  <div class="col-xl-3 col-lg-4 col-md-6">
+    <a href="<?= baseUrl ?>?p=coupon" class="module-card card p-4 text-center text-decoration-none"
+       onclick="moduleGo(this,'#0d6efd')">
+      <div class="mb-3">
+        <span style="font-size:2.8rem; line-height:1;">
+          <i class="bi bi-journal-check text-primary"></i>
+        </span>
+      </div>
+      <h5 class="fw-bold text-dark mb-1">คูปองพิเศษ</h5>
+      <p class="text-muted small mb-0">บันทึกการใช้คูปองผู้พิการ<br>รายวัน / รายสัปดาห์</p>
+      <div class="mt-3">
+        <span class="badge bg-primary px-3 py-2">เข้าใช้งาน <i class="bi bi-arrow-right ms-1"></i></span>
+      </div>
+      <!-- วงกลมโหลด (ซ่อนไว้ก่อน) -->
+      <div class="actionLoader" style="display:none; margin-top:10px; text-align:center;">
+        <div class="spinner-border spinner-border-sm" style="color:#0d6efd;" role="status"></div>
+        <span class="small fw-bold ms-1" style="color:#0d6efd;">กำลังโหลดแอพ...</span>
+      </div>
+    </a>
+  </div>
+
+  <!-- โมดูล: ยอดผู้โดยสาร -->
+  <div class="col-xl-3 col-lg-4 col-md-6">
+    <a href="<?= baseUrl ?>?p=passenger" class="module-card card p-4 text-center text-decoration-none"
+       onclick="moduleGo(this,'#198754')">
+      <div class="mb-3">
+        <span style="font-size:2.8rem; line-height:1;">
+          <i class="bi bi-people-fill text-success"></i>
+        </span>
+      </div>
+      <h5 class="fw-bold text-dark mb-1">ยอดผู้โดยสาร</h5>
+      <p class="text-muted small mb-0">บันทึกยอดเข้า-ออก<br>Rabbit / Thin Card</p>
+      <div class="mt-3">
+        <span class="badge bg-success px-3 py-2">เข้าใช้งาน <i class="bi bi-arrow-right ms-1"></i></span>
+      </div>
+      <div class="actionLoader" style="display:none; margin-top:10px; text-align:center;">
+        <div class="spinner-border spinner-border-sm" style="color:#198754;" role="status"></div>
+        <span class="small fw-bold ms-1" style="color:#198754;">กำลังโหลดแอพ..</span>
+      </div>
+    </a>
+  </div>
+
+  <!-- โมดูล: บันทึกและติดตามงาน -->
+  <div class="col-xl-3 col-lg-4 col-md-6">
+    <a href="<?= baseUrl ?>?p=tasks" class="module-card card p-4 text-center text-decoration-none"
+       onclick="moduleGo(this,'#fd7e14')">
+      <div class="mb-3">
+        <span style="font-size:2.8rem; line-height:1;">
+          <i class="bi bi-clipboard2-check" style="color:#fd7e14;"></i>
+        </span>
+      </div>
+      <h5 class="fw-bold text-dark mb-1">บันทึกงาน</h5>
+      <p class="text-muted small mb-0">บันทึก / ติดตามงาน<br>แจ้งเตือนครบกำหนด</p>
+      <div class="mt-3">
+        <span class="badge px-3 py-2" style="background:#fd7e14;">เข้าใช้งาน <i class="bi bi-arrow-right ms-1"></i></span>
+      </div>
+      <div class="actionLoader" style="display:none; margin-top:10px; text-align:center;">
+        <div class="spinner-border spinner-border-sm" style="color:#fd7e14;" role="status"></div>
+        <span class="small fw-bold ms-1" style="color:#fd7e14;">กำลังโหลดแอพ...</span>
+      </div>
+    </a>
+  </div>
+
+  <!-- โมดูล: OGSApp -->
+  <div class="col-xl-3 col-lg-4 col-md-6">
+    <a href="<?= baseUrl ?>?p=ogs" class="module-card card p-4 text-center text-decoration-none"
+       onclick="moduleGo(this,'#dc3545')">
+      <div class="mb-3">
+        <span style="font-size:2.8rem; line-height:1;">
+          <i class="bi bi-calendar2-x text-danger"></i>
+        </span>
+      </div>
+      <h5 class="fw-bold text-dark mb-1">OGSApp</h5>
+      <p class="text-muted small mb-0">บันทึกการลาและมาสาย<br>คำนวณโควต้าอัตโนมัติ</p>
+      <div class="mt-3">
+        <span class="badge bg-danger px-3 py-2">เข้าใช้งาน <i class="bi bi-arrow-right ms-1"></i></span>
+      </div>
+      <div class="actionLoader" style="display:none; margin-top:10px; text-align:center;">
+        <div class="spinner-border spinner-border-sm" style="color:#dc3545;" role="status"></div>
+        <span class="small fw-bold ms-1" style="color:#dc3545;">กำลังโหลดแอพ...</span>
+      </div>
+    </a>
+  </div>
+
+  <!-- โมดูล: ยำกะ SS -->
+  <div class="col-xl-3 col-lg-4 col-md-6">
+    <a href="<?= baseUrl ?>?p=shift&pos=SS" class="module-card card p-4 text-center text-decoration-none"
+       onclick="moduleGo(this,'#ea580c')">
+      <div class="mb-3">
+        <span style="font-size:2.8rem; line-height:1;">
+          <i class="bi bi-calendar3-week" style="color:#ea580c;"></i>
+        </span>
+      </div>
+      <h5 class="fw-bold text-dark mb-1">ยำกะ SS</h5>
+      <p class="text-muted small mb-0">ตารางกะนายสถานี<br>สลับกะ / ควงกะ</p>
+      <div class="mt-3">
+        <span class="badge px-3 py-2" style="background:#ea580c;">เข้าใช้งาน <i class="bi bi-arrow-right ms-1"></i></span>
+      </div>
+      <div class="actionLoader" style="display:none; margin-top:10px; text-align:center;">
+        <div class="spinner-border spinner-border-sm" style="color:#ea580c;" role="status"></div>
+        <span class="small fw-bold ms-1" style="color:#ea580c;">กำลังโหลดแอพ...</span>
+      </div>
+    </a>
+  </div>
+
+  <!-- โมดูล: ยำกะ AStS -->
+  <div class="col-xl-3 col-lg-4 col-md-6">
+    <a href="<?= baseUrl ?>?p=shift&pos=AStS" class="module-card card p-4 text-center text-decoration-none"
+       onclick="moduleGo(this,'#0891b2')">
+      <div class="mb-3">
+        <span style="font-size:2.8rem; line-height:1;">
+          <i class="bi bi-calendar3-week" style="color:#0891b2;"></i>
+        </span>
+      </div>
+      <h5 class="fw-bold text-dark mb-1">ยำกะ AStS</h5>
+      <p class="text-muted small mb-0">ตารางกะผู้ช่วยนายสถานี<br>สลับกะ / ควงกะ</p>
+      <div class="mt-3">
+        <span class="badge px-3 py-2" style="background:#0891b2;">เข้าใช้งาน <i class="bi bi-arrow-right ms-1"></i></span>
+      </div>
+      <div class="actionLoader" style="display:none; margin-top:10px; text-align:center;">
+        <div class="spinner-border spinner-border-sm" style="color:#0891b2;" role="status"></div>
+        <span class="small fw-bold ms-1" style="color:#0891b2;">กำลังโหลดแอพ...</span>
+      </div>
+    </a>
+  </div>
+
+  <!-- โมดูล: ยำกะ SP -->
+  <div class="col-xl-3 col-lg-4 col-md-6">
+    <a href="<?= baseUrl ?>?p=shift&pos=SP" class="module-card card p-4 text-center text-decoration-none"
+       onclick="moduleGo(this,'#7c3aed')">
+      <div class="mb-3">
+        <span style="font-size:2.8rem; line-height:1;">
+          <i class="bi bi-calendar3-week" style="color:#7c3aed;"></i>
+        </span>
+      </div>
+      <h5 class="fw-bold text-dark mb-1">ยำกะ SP</h5>
+      <p class="text-muted small mb-0">ตารางกะเจ้าหน้าที่สถานี<br>สลับกะ / ควงกะ</p>
+      <div class="mt-3">
+        <span class="badge px-3 py-2" style="background:#7c3aed;">เข้าใช้งาน <i class="bi bi-arrow-right ms-1"></i></span>
+      </div>
+      <div class="actionLoader" style="display:none; margin-top:10px; text-align:center;">
+        <div class="spinner-border spinner-border-sm" style="color:#7c3aed;" role="status"></div>
+        <span class="small fw-bold ms-1" style="color:#7c3aed;">กำลังโหลดแอพ...</span>
+      </div>
+    </a>
+  </div>
+
+  <!-- โมดูล: ข้อมูลพนักงาน -->
+  <div class="col-xl-3 col-lg-4 col-md-6">
+    <a href="<?= baseUrl ?>?p=employee" class="module-card card p-4 text-center text-decoration-none"
+       onclick="moduleGo(this,'#0d6efd')">
+      <div class="mb-3">
+        <span style="font-size:2.8rem; line-height:1;">
+          <i class="bi bi-person-badge text-primary"></i>
+        </span>
+      </div>
+      <h5 class="fw-bold text-dark mb-1">ข้อมูลพนักงาน</h5>
+      <p class="text-muted small mb-0">จัดการข้อมูลพนักงาน<br>Onduty / Spar</p>
+      <div class="mt-3">
+        <span class="badge bg-primary px-3 py-2">เข้าใช้งาน <i class="bi bi-arrow-right ms-1"></i></span>
+      </div>
+      <div class="actionLoader" style="display:none; margin-top:10px; text-align:center;">
+        <div class="spinner-border spinner-border-sm" style="color:#0d6efd;" role="status"></div>
+        <span class="small fw-bold ms-1" style="color:#0d6efd;">กำลังโหลดแอพ...</span>
+      </div>
+    </a>
+  </div>
+
+</div>
+
+<script>
+function moduleGo(cardEl, color) {
+  if (cardEl.classList.contains('is-loading')) return;
+  cardEl.classList.add('is-loading');
+
+  // ไฮไลต์ขอบการ์ด
+  cardEl.style.borderColor = color;
+  cardEl.style.boxShadow   = '0 0 0 3px ' + color + '33';
+
+  // แสดง actionLoader ที่อยู่ใน card นั้นโดยตรง
+  var loader = cardEl.querySelector('.actionLoader');
+  if (loader) loader.style.display = 'block';
+}
+</script>
+
+<style>
+  .module-card.is-loading {
+    pointer-events: none;
+    opacity: 0.9;
+    transform: scale(0.98) !important;
+    transition: all 0.15s ease;
+  }
+  .actionLoader {
+    animation: fadeInLoader 0.2s ease;
+  }
+  @keyframes fadeInLoader {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>

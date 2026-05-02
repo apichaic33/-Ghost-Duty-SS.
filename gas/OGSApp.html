@@ -1,0 +1,962 @@
+<!-- OGSApp.html — โมดูลบันทึกการลา/มาสาย -->
+
+<!-- Modal แจ้งเตือน -->
+<div class="modal fade" id="lvMsgModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content shadow-lg border-0">
+      <div class="modal-body text-center p-4">
+        <div id="lvMsgIcon" class="mb-3"></div>
+        <h6 id="lvMsgText" class="fw-bold"></h6>
+        <button type="button" class="btn btn-dark btn-sm mt-3 px-4" data-bs-dismiss="modal">ตกลง</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal ยืนยันลบ -->
+<div class="modal fade" id="lvDeleteModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content shadow border-0">
+      <div class="modal-body text-center p-4">
+        <i class="bi bi-trash-fill text-danger fs-1 mb-3 d-block"></i>
+        <h6 class="fw-bold">ยืนยันลบรายการนี้?</h6>
+        <div class="d-flex gap-2 mt-3 justify-content-center">
+          <button type="button" class="btn btn-secondary btn-sm px-4" data-bs-dismiss="modal">ยกเลิก</button>
+          <button type="button" class="btn btn-danger btn-sm px-4" id="lvConfirmDeleteBtn">ลบ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Admin Login -->
+<div class="modal fade" id="lvAdminModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content shadow-lg border-0">
+      <div class="modal-header bg-warning">
+        <h6 class="modal-title fw-bold"><i class="bi bi-shield-lock me-2"></i>Admin Login</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <label class="small fw-bold text-dark mb-1">รหัสผ่าน</label>
+        <input type="password" id="lvAdminPwd" class="form-control mb-3" placeholder="••••••••"
+               onkeydown="if(event.key==='Enter') lvConfirmLogin()">
+        <div id="lvLoginError" class="text-danger small mb-2" style="display:none">
+          <i class="bi bi-x-circle me-1"></i>รหัสผ่านไม่ถูกต้อง
+        </div>
+        <button type="button" class="btn btn-warning w-100 fw-bold" onclick="lvConfirmLogin()">
+          <i class="bi bi-unlock me-1"></i>เข้าสู่ระบบ
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Banner -->
+<div class="header-banner text-center shadow-sm mb-2 px-3 py-2" style="background:#fff;border-bottom:2px solid #dc3545;">
+  <h5 class="fw-bold mb-0 text-danger"><i class="bi bi-calendar2-x me-1"></i>OGSApp — บันทึกการลา / มาสาย</h5>
+</div>
+
+<div style="display:flex; gap:10px; align-items:flex-start; width:100%; min-width:960px;">
+
+  <!-- ===== ฝั่งซ้าย: ฟอร์ม ===== -->
+  <div style="flex: 0 0 36%; width:36%; max-width:36%;">
+
+    <!-- โควต้า (อัตโนมัติจาก EmployeeApp) -->
+    <div class="card p-2 mb-2 border-start border-4 border-danger text-start">
+      <h6 class="fw-bold text-danger mb-2 pb-1 border-bottom">
+        <i class="bi bi-speedometer2 me-1"></i>โควต้าประจำเดือน
+        <span class="badge bg-secondary ms-1" style="font-size:0.65rem;">อัตโนมัติ</span>
+      </h6>
+      <div class="row g-2 mb-1">
+        <div class="col-4 text-center">
+          <div class="rounded p-1" style="background:#e8f4ff;border:1px solid #90caf9;">
+            <div class="small text-primary fw-bold" style="font-size:0.7rem;">Onduty</div>
+            <div class="fw-bold text-primary" id="lvOndutyDisplay">-</div>
+          </div>
+        </div>
+        <div class="col-4 text-center">
+          <div class="rounded p-1" style="background:#f5f5f5;border:1px solid #bdbdbd;">
+            <div class="small text-secondary fw-bold" style="font-size:0.7rem;">Spar</div>
+            <div class="fw-bold text-secondary" id="lvSparDisplay">-</div>
+          </div>
+        </div>
+        <div class="col-4 text-center">
+          <div class="rounded p-1" style="background:#fff5f5;border:1px solid #f5c6cb;">
+            <div class="small text-danger fw-bold" style="font-size:0.7rem;">โควต้า</div>
+            <div class="fw-bold text-danger" id="lvQuotaDisplay">-</div>
+          </div>
+        </div>
+      </div>
+      <div class="small text-muted text-center" style="font-size:0.7rem;">สูตร: Onduty × 2 ÷ 8 | ดึงจาก EmployeeApp</div>
+    </div>
+
+    <!-- ฟอร์มบันทึก -->
+    <div class="card p-2 mb-2 border-start border-4 border-danger text-start">
+      <h6 class="fw-bold text-danger mb-2 pb-1 border-bottom">
+        <i class="bi bi-pencil-square me-1"></i>บันทึกรายการ
+      </h6>
+
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <label class="small fw-bold text-dark text-nowrap" style="width:75px;">วันที่เริ่ม</label>
+        <input type="date" id="lvDate" class="form-control form-control-sm" onchange="lvCalcDays()">
+      </div>
+      <div class="d-flex align-items-center gap-2 mb-2" id="lvDateEndField">
+        <label class="small fw-bold text-dark text-nowrap" style="width:75px;">วันที่สิ้นสุด</label>
+        <input type="date" id="lvDateEnd" class="form-control form-control-sm" onchange="lvCalcDays()">
+      </div>
+
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <label class="small fw-bold text-dark text-nowrap" style="width:75px;">รหัส</label>
+        <input type="text" id="lvEmpId" class="form-control form-control-sm" 
+       placeholder="รหัสพนักงาน" style="width:95px;" 
+       onchange="lvAutoFillName()" 
+       onkeydown="if(event.key==='Enter') lvAutoFillName()">
+        <input type="text" id="lvEmpName" class="form-control form-control-sm" placeholder="ชื่อ-นามสกุล">
+      </div>
+
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <label class="small fw-bold text-dark text-nowrap" style="width:75px;">ตำแหน่ง</label>
+        <input type="text" id="lvPosition" class="form-control form-control-sm" placeholder="ตำแหน่ง">
+        <select id="lvEmpStatus" class="form-select form-select-sm" style="width:95px;">
+          <option value="onduty">Onduty</option>
+          <option value="spar">Spar</option>
+        </select>
+      </div>
+
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <label class="small fw-bold text-dark text-nowrap" style="width:75px;">ประเภท</label>
+        <div class="d-flex gap-2 flex-wrap">
+          <div class="form-check mb-0">
+            <input class="form-check-input" type="radio" name="lvType" id="lvTypeSick" value="sick" checked onchange="lvToggleType()">
+            <label class="form-check-label small text-danger fw-bold" for="lvTypeSick">ลาป่วย</label>
+          </div>
+          <div class="form-check mb-0">
+            <input class="form-check-input" type="radio" name="lvType" id="lvTypePersonal" value="personal" onchange="lvToggleType()">
+            <label class="form-check-label small fw-bold" style="color:#6f42c1;" for="lvTypePersonal">ลากิจ</label>
+          </div>
+          <div class="form-check mb-0">
+            <input class="form-check-input" type="radio" name="lvType" id="lvTypeLate" value="late" onchange="lvToggleType()">
+            <label class="form-check-label small fw-bold" style="color:#e65100;" for="lvTypeLate">มาสาย</label>
+          </div>
+          <div class="form-check mb-0">
+            <input class="form-check-input" type="radio" name="lvType" id="lvTypeSickHour" value="sick_hour" onchange="lvToggleType()">
+            <label class="form-check-label small fw-bold" style="color:#0d6efd;" for="lvTypeSickHour">ลาป่วย(ชม.)</label>
+          </div>
+        </div>
+      </div>
+
+      <div id="lvDayField" class="d-flex align-items-center gap-2 mb-2">
+        <label class="small fw-bold text-dark text-nowrap" style="width:75px;">จำนวน</label>
+        <div class="d-flex align-items-center gap-2">
+          <div class="input-group input-group-sm" style="width:110px;">
+            <input type="text" id="lvDays" class="form-control text-center fw-bold" readonly
+                   style="background:#f8f9fa; color:#dc3545;">
+            <span class="input-group-text">วัน</span>
+          </div>
+          <div class="form-check mb-0">
+            <input class="form-check-input" type="checkbox" id="lvHalfDay" onchange="lvCalcDays()">
+            <label class="form-check-label small fw-bold text-muted" for="lvHalfDay">ครึ่งวัน</label>
+          </div>
+        </div>
+      </div>
+
+      <div id="lvMinuteField" class="d-flex align-items-center gap-2 mb-2" style="display:none!important;">
+        <label class="small fw-bold text-dark text-nowrap" style="width:75px;">สายกี่นาที</label>
+        <div class="input-group input-group-sm">
+          <input type="number" id="lvMinutes" class="form-control" value="0" min="1">
+          <span class="input-group-text">นาที</span>
+        </div>
+      </div>
+
+      <div id="lvHourField" class="d-flex align-items-center gap-2 mb-2" style="display:none!important;">
+        <label class="small fw-bold text-dark text-nowrap" style="width:75px;">ลากี่ชั่วโมง</label>
+        <div class="input-group input-group-sm">
+          <input type="number" id="lvHours" class="form-control" value="1" min="1" max="8">
+          <span class="input-group-text">ชม.</span>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <label class="small fw-bold text-dark text-nowrap" style="width:75px;">หมายเหตุ</label>
+        <input type="text" id="lvNote" class="form-control form-control-sm" placeholder="(ถ้ามี)">
+      </div>
+
+      <input type="hidden" id="lvEditId" value="">
+      <button type="button" class="btn w-100 fw-bold py-1 text-white shadow-sm" id="lvSaveBtn"
+              style="background:#dc3545;" onclick="lvSave()">
+        <i class="bi bi-save me-1"></i>บันทึกรายการ
+      </button>
+
+      <hr class="my-2">
+      <div class="text-center">
+        <button type="button" class="btn btn-sm btn-outline-warning" id="lvAdminBtn" onclick="lvLoginAdmin()">
+          <i class="bi bi-gear-fill me-1"></i>Admin
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-danger ms-2" id="lvLogoutBtn"
+                style="display:none;" onclick="lvLogout()">ออกจาก Admin</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== ฝั่งขวา: แดชบอร์ด + รายงาน ===== -->
+  <div style="flex: 0 0 calc(64% - 10px); width:calc(64% - 10px); max-width:calc(64% - 10px); min-width:0;">
+
+    <!-- Dashboard — แสดงเสมอ -->
+    <div class="card p-2 mb-2 text-start">
+      <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom">
+        <span class="fw-bold text-danger small"><i class="bi bi-speedometer2 me-1"></i>แดชบอร์ดโควต้า</span>
+        <button id="lvBtnRefresh" onclick="lvLoadData()"
+          style="border:1px solid #adb5bd;background:white;padding:2px 8px;border-radius:4px;cursor:pointer;font-size:0.8rem;display:flex;align-items:center;gap:4px;">
+          <i id="lvRefreshIcon" class="bi bi-arrow-clockwise"></i>
+          <span id="lvRefreshText">รีเฟรช</span>
+        </button>
+      </div>
+      <div id="lvDashboardBody">
+        <p class="text-center text-muted small py-2">กรุณาเลือกเดือน</p>
+      </div>
+    </div>
+
+    <!-- Tab Reports -->
+    <div class="card p-2 text-start">
+      <div style="display:flex;justify-content:flex-start;align-items:center;gap:8px;border-bottom:2px solid #dee2e6;margin-bottom:8px;">
+        <div style="display:flex;gap:2px;">
+          <button id="lvTab-daily" onclick="lvSwitchTab('daily')"
+            style="border:none;background:none;padding:5px 12px;font-size:0.88rem;cursor:pointer;border-bottom:2px solid #dc3545;margin-bottom:-2px;color:#dc3545;font-weight:bold;">รายวัน</button>
+          <button id="lvTab-monthly" onclick="lvSwitchTab('monthly')"
+            style="border:none;background:none;padding:5px 12px;font-size:0.88rem;cursor:pointer;color:#6c757d;">รายเดือน</button>
+          <button id="lvTab-quota" onclick="lvSwitchTab('quota')"
+            style="border:none;background:none;padding:5px 12px;font-size:0.88rem;cursor:pointer;color:#6c757d;">สรุปโควต้า</button>
+          <button id="lvTab-person" onclick="lvSwitchTab('person')"
+            style="border:none;background:none;padding:5px 12px;font-size:0.88rem;cursor:pointer;color:#6c757d;">รายบุคคล</button>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <label class="small fw-bold text-nowrap mb-0">เดือน:</label>
+        <select id="lvMonthFilter" class="form-select form-select-sm" style="width:200px;" onchange="lvRenderAll()">
+          <option value="">--- เลือกเดือน ---</option>
+        </select>
+        <div class="ms-auto d-flex gap-2">
+          <span class="badge bg-danger px-2 py-1">ลา: <span id="lvSumLeave">0</span></span>
+          <span class="badge px-2 py-1" style="background:#e65100;">สาย: <span id="lvSumLate">0</span></span>
+        </div>
+      </div>
+
+      <div style="height:460px; overflow-y:auto; overflow-x:hidden;">
+        <div id="lvPanelDaily"></div>
+        <div id="lvPanelMonthly" style="display:none;"></div>
+        <div id="lvPanelQuota"   style="display:none;"></div>
+        <div id="lvPanelPerson"  style="display:none;"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+  .lv-day-header { background:#f8d7da; color:#842029; padding:5px 10px; font-weight:bold; border-radius:4px; font-size:0.88rem; margin-bottom:6px; }
+  .lv-badge-sick      { background:#dc3545; color:#fff; padding:2px 8px; border-radius:10px; font-size:0.75rem; font-weight:bold; }
+  .lv-badge-personal  { background:#6f42c1; color:#fff; padding:2px 8px; border-radius:10px; font-size:0.75rem; font-weight:bold; }
+  .lv-badge-late      { background:#e65100; color:#fff; padding:2px 8px; border-radius:10px; font-size:0.75rem; font-weight:bold; }
+  .lv-badge-sick_hour { background:#0d6efd; color:#fff; padding:2px 8px; border-radius:10px; font-size:0.75rem; font-weight:bold; }
+  .lv-badge-onduty   { background:#0d6efd; color:#fff; padding:2px 6px; border-radius:10px; font-size:0.7rem; }
+  .lv-badge-spar     { background:#6c757d; color:#fff; padding:2px 6px; border-radius:10px; font-size:0.7rem; }
+</style>
+
+<script>
+var lvData      = [];
+var lvEmpData   = [];   // ข้อมูลพนักงานจาก EmployeeApp
+var lvIsAdmin   = false;
+var lvAdminPass = '';
+var lvDeleteId  = '';
+var lvQuota     = 0;    // โควต้าคำนวณจาก Onduty
+
+// =====================================================
+// Init
+// =====================================================
+setTimeout(function() {
+  var _today = new Date().toISOString().split('T')[0];
+  document.getElementById('lvDate').value    = _today;
+  document.getElementById('lvDateEnd').value = _today;
+  lvCalcDays();
+  lvSwitchTab('daily');
+  lvLoadEmployees();  // โหลดพนักงานก่อน แล้วค่อยโหลดข้อมูลลา
+
+  document.getElementById('lvConfirmDeleteBtn').addEventListener('click', function() {
+    bootstrap.Modal.getInstance(document.getElementById('lvDeleteModal')).hide();
+    google.script.run
+      .withSuccessHandler(function(res) {
+        if (res.status === 'success') { lvNotify('🗑️ ลบสำเร็จ'); lvLoadData(); }
+        else lvNotify(res.message || 'ผิดพลาด', 'error');
+      }).deleteLeaveEntry(lvDeleteId, lvAdminPass);
+  });
+}, 0);
+
+// =====================================================
+// โหลดข้อมูลพนักงานจาก EmployeeApp แล้วคำนวณโควต้า
+// =====================================================
+function lvLoadEmployees() {
+  google.script.run
+    .withSuccessHandler(function(resStr) {
+      try {
+        var res = JSON.parse(resStr);
+        lvEmpData = res.data || [];
+        lvCalcQuotaFromEmp();
+      } catch(e) { console.error(e); }
+      lvLoadData();
+    })
+    .withFailureHandler(function() { lvLoadData(); })
+    .getEmployeeData();
+}
+
+function lvCalcQuotaFromEmp() {
+  var onduty = lvEmpData.filter(function(r){ return r[5] === 'onduty'; }).length;
+  var spar   = lvEmpData.filter(function(r){ return r[5] === 'spar'; }).length;
+  lvQuota    = Math.floor(onduty * 2 / 8);
+
+  document.getElementById('lvOndutyDisplay').innerText = onduty;
+  document.getElementById('lvSparDisplay').innerText   = spar;
+  document.getElementById('lvQuotaDisplay').innerText  = lvQuota || '-';
+}
+
+// =====================================================
+// AutoFill จาก EmployeeApp
+// =====================================================
+function lvAutoFillName() {
+  var id = document.getElementById('lvEmpId').value.trim();
+  if (!id) return;
+
+  // ค้นจาก lvEmpData ก่อน (เร็ว)
+  var found = lvEmpData.find(function(r){ return r[1].toString().trim() === id; });
+  if (found) {
+    document.getElementById('lvEmpName').value   = found[2] || '';
+    document.getElementById('lvPosition').value  = found[3] || '';
+    document.getElementById('lvEmpStatus').value = found[5] || 'onduty';
+    return;
+  }
+
+  // fallback: ดึงจาก GAS โดยตรง
+  document.getElementById('lvEmpName').value    = 'กำลังค้นหา...';
+  document.getElementById('lvEmpName').disabled = true;
+  google.script.run
+    .withSuccessHandler(function(resStr) {
+      var res = JSON.parse(resStr);
+      document.getElementById('lvEmpName').disabled = false;
+      if (res.status === 'success') {
+        document.getElementById('lvEmpName').value   = res.name     || '';
+        document.getElementById('lvPosition').value  = res.position || '';
+        document.getElementById('lvEmpStatus').value = res.empStatus|| 'onduty';
+      } else {
+        document.getElementById('lvEmpName').value       = '';
+        document.getElementById('lvEmpName').placeholder = '⚠️ ไม่พบรหัส "' + id + '"';
+      }
+    })
+    .withFailureHandler(function() {
+      document.getElementById('lvEmpName').disabled = false;
+      document.getElementById('lvEmpName').value    = '';
+    })
+    .getEmployeeById(id);
+}
+
+// =====================================================
+// Toggle ประเภท
+// =====================================================
+function lvCalcDays() {
+  var start = document.getElementById('lvDate').value;
+  var end   = document.getElementById('lvDateEnd').value;
+  var half  = document.getElementById('lvHalfDay').checked;
+
+  if (!start) return;
+
+  // ถ้าวันสิ้นสุดยังไม่ได้เลือก หรือน้อยกว่าวันเริ่ม ให้ตั้งค่าเท่ากัน
+  if (!end || end < start) {
+    document.getElementById('lvDateEnd').value = start;
+    end = start;
+  }
+
+  if (half) {
+    document.getElementById('lvDays').value = '0.5';
+    return;
+  }
+
+  var d1   = new Date(start);
+  var d2   = new Date(end);
+  var diff = Math.round((d2 - d1) / 86400000) + 1;
+  document.getElementById('lvDays').value = diff > 0 ? diff : 1;
+}
+
+function lvToggleType() {
+  var v          = document.querySelector('input[name="lvType"]:checked').value;
+  var isLate     = (v === 'late');
+  var isSickHour = (v === 'sick_hour');
+  var showDays   = !isLate && !isSickHour;
+  document.getElementById('lvDayField').style.display = showDays ? 'flex' : 'none';
+  document.getElementById('lvDateEndField').style.setProperty('display', showDays ? 'flex' : 'none', 'important');
+  document.getElementById('lvMinuteField').style.setProperty('display', isLate     ? 'flex' : 'none', 'important');
+  document.getElementById('lvHourField').style.setProperty('display',   isSickHour ? 'flex' : 'none', 'important');
+  if (showDays) lvCalcDays();
+}
+
+// =====================================================
+// Notify
+// =====================================================
+function lvNotify(msg, type) {
+  document.getElementById('lvMsgIcon').innerHTML = (type === 'error')
+    ? '<i class="bi bi-x-circle-fill text-danger fs-1"></i>'
+    : '<i class="bi bi-check-circle-fill text-success fs-1"></i>';
+  document.getElementById('lvMsgText').innerText = msg;
+  new bootstrap.Modal(document.getElementById('lvMsgModal')).show();
+}
+
+// =====================================================
+// บันทึก
+// =====================================================
+function lvSave() {
+  var name = document.getElementById('lvEmpName').value.trim();
+  var date = document.getElementById('lvDate').value;
+  if (!name) { lvNotify('กรุณากรอกชื่อพนักงาน', 'error'); return; }
+  if (!date) { lvNotify('กรุณาเลือกวันที่', 'error'); return; }
+
+  var btn = document.getElementById('lvSaveBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>กำลังบันทึก...';
+
+  var typeVal = document.querySelector('input[name="lvType"]:checked').value;
+  var payload = {
+    date:     date,
+    empId:    document.getElementById('lvEmpId').value.trim(),
+    empName:  name,
+    position: document.getElementById('lvPosition').value.trim(),
+    status:   document.getElementById('lvEmpStatus').value,
+    type:     typeVal,
+    days:     (typeVal === 'sick_hour' || typeVal === 'late') ? 0 : (parseFloat(document.getElementById('lvDays').value) || 1),
+    minutes:  (typeVal === 'late')      ? (parseInt(document.getElementById('lvMinutes').value) || 0)
+            : (typeVal === 'sick_hour') ? (parseInt(document.getElementById('lvHours').value)   || 0)
+            : 0,
+    note:     document.getElementById('lvNote').value.trim(),
+    editId:   document.getElementById('lvEditId').value || ''
+  };
+
+  google.script.run
+    .withSuccessHandler(function(resStr) {
+      var res = JSON.parse(resStr);
+      if (res.status === 'success') { lvNotify('✅ บันทึกสำเร็จ'); lvResetForm(); lvLoadData(); }
+      else lvNotify(res.message || 'ผิดพลาด', 'error');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-save me-1"></i>บันทึกรายการ';
+    })
+    .withFailureHandler(function(err) {
+      lvNotify('Server Error: ' + err.message, 'error');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-save me-1"></i>บันทึกรายการ';
+    })
+    .saveLeaveData(payload);
+}
+
+function lvResetForm() {
+  ['lvEmpId','lvEmpName','lvPosition','lvNote'].forEach(function(id){ document.getElementById(id).value = ''; });
+  document.getElementById('lvDateEnd').value   = document.getElementById('lvDate').value || '';
+  document.getElementById('lvHalfDay').checked = false;
+  document.getElementById('lvDays').value      = '1';
+  document.getElementById('lvMinutes').value   = '0';
+  document.getElementById('lvHours').value     = '1';
+  document.getElementById('lvEditId').value  = '';
+  document.getElementById('lvEmpStatus').value = 'onduty';
+  document.getElementById('lvTypeSick').checked = true;
+  lvToggleType();
+  document.getElementById('lvSaveBtn').innerHTML = '<i class="bi bi-save me-1"></i>บันทึกรายการ';
+}
+
+// =====================================================
+// โหลดข้อมูลลา
+// =====================================================
+function lvLoadData() {
+  var btn  = document.getElementById('lvBtnRefresh');
+  var icon = document.getElementById('lvRefreshIcon');
+  var text = document.getElementById('lvRefreshText');
+  if (btn) {
+    btn.disabled = true;
+    icon.className = 'spinner-border spinner-border-sm text-danger';
+    text.innerText = 'กำลังอัปเดต...';
+    text.className = 'text-danger fw-bold';
+  }
+  google.script.run
+    .withSuccessHandler(function(resStr) {
+      try {
+        var res = JSON.parse(resStr);
+        lvData = res.data || [];
+        lvPopulateMonths();
+        lvRenderAll();
+      } catch(e) { console.error(e); }
+      if (btn) {
+        btn.disabled = false;
+        icon.className = 'bi bi-arrow-clockwise';
+        text.innerText = 'รีเฟรช';
+        text.className = '';
+      }
+    })
+    .withFailureHandler(function(err) {
+      console.error(err);
+      if (btn) {
+        btn.disabled = false;
+        icon.className = 'bi bi-x-circle text-danger';
+        text.innerText = 'ล้มเหลว';
+        text.className = 'text-danger fw-bold';
+        setTimeout(function() {
+          icon.className = 'bi bi-arrow-clockwise';
+          text.innerText = 'รีเฟรช';
+          text.className = '';
+        }, 2000);
+      }
+    })
+    .getLeaveData();
+}
+
+function lvPopulateMonths() {
+  var sel = document.getElementById('lvMonthFilter');
+  var cur = sel.value;
+  var months = new Set();
+  lvData.forEach(function(r) { if (r[1] && r[1].length >= 7) months.add(r[1].substring(0,7)); });
+  var sorted = Array.from(months).sort().reverse();
+  sel.innerHTML = '<option value="">--- เลือกเดือน ---</option><option value="ALL">ทั้งหมด</option>';
+  sorted.forEach(function(m) {
+    var p = m.split('-');
+    sel.innerHTML += '<option value="' + m + '">' +
+      new Date(parseInt(p[0]), parseInt(p[1])-1).toLocaleDateString('th-TH',{month:'long',year:'numeric'}) +
+      '</option>';
+  });
+  if (cur && months.has(cur)) sel.value = cur;
+  else if (sorted.length > 0) sel.value = sorted[0];
+}
+
+function lvRenderAll() {
+  lvRenderDashboard();
+  lvRenderDaily();
+  lvRenderMonthly();
+  lvRenderQuota();
+  lvRenderPerson();
+  lvUpdateProgress();
+}
+
+function lvUpdateProgress() {
+  var fVal = document.getElementById('lvMonthFilter').value;
+  var usedLeave = 0, usedLate = 0;
+  if (fVal) {
+    lvData.forEach(function(r) {
+      if (!r[1] || (fVal !== 'ALL' && r[1].substring(0,7) !== fVal)) return;
+      if ((r[5]||'onduty') === 'spar') return;
+      if (r[6] === 'late') usedLate++;
+      else usedLeave++;
+    });
+  }
+  document.getElementById('lvSumLeave').innerText = usedLeave;
+  document.getElementById('lvSumLate').innerText  = usedLate;
+}
+
+// =====================================================
+// Tab switch
+// =====================================================
+function lvSwitchTab(name) {
+  ['daily','monthly','quota','person'].forEach(function(t) {
+    var panel = document.getElementById('lvPanel' + t.charAt(0).toUpperCase() + t.slice(1));
+    if (panel) panel.style.display = (t === name) ? 'block' : 'none';
+    var btn = document.getElementById('lvTab-' + t);
+    if (btn) {
+      btn.style.borderBottom = (t === name) ? '2px solid #dc3545' : 'none';
+      btn.style.color        = (t === name) ? '#dc3545' : '#6c757d';
+      btn.style.fontWeight   = (t === name) ? 'bold' : 'normal';
+    }
+  });
+}
+
+function lvFilter(fVal) {
+  return lvData.filter(function(r) {
+    if (!fVal || fVal === 'ALL') return true;
+    return r[1] && r[1].substring(0,7) === fVal;
+  });
+}
+
+function lvTypeBadge(type) {
+  if (type === 'late')      return '<span class="lv-badge-late">มาสาย</span>';
+  if (type === 'personal')  return '<span class="lv-badge-personal">ลากิจ</span>';
+  if (type === 'sick_hour') return '<span class="lv-badge-sick_hour">ลาป่วย(ชม.)</span>';
+  return '<span class="lv-badge-sick">ลาป่วย</span>';
+}
+
+function lvStatusBadge(s) {
+  return s === 'spar'
+    ? '<span class="lv-badge-spar">Spar</span>'
+    : '<span class="lv-badge-onduty">Onduty</span>';
+}
+
+function lvDateLabel(ds) {
+  if (!ds) return '';
+  var p = ds.split('-');
+  return new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]))
+    .toLocaleDateString('th-TH', {weekday:'short', day:'2-digit', month:'long', year:'numeric'});
+}
+
+// =====================================================
+// Dashboard
+// =====================================================
+function lvRenderDashboard() {
+  var body  = document.getElementById('lvDashboardBody');
+  var fVal  = document.getElementById('lvMonthFilter').value;
+  var quota = lvQuota;
+
+  if (!fVal) {
+    body.innerHTML = '<p class="text-center text-muted small py-1">กรุณาเลือกเดือน</p>';
+    return;
+  }
+
+  var filtered      = lvFilter(fVal).filter(function(r){ return (r[5]||'onduty') === 'onduty'; });
+  var totalLeave    = filtered.filter(function(r){ return r[6] !== 'late'; }).length;
+  var totalLate     = filtered.filter(function(r){ return r[6] === 'late'; }).length;
+  var totalCombined = totalLeave + totalLate;
+  var remaining     = Math.max(0, quota - totalCombined);
+  var usedPct       = quota > 0 ? Math.min(100, Math.round(totalCombined / quota * 100)) : 0;
+  var isOver        = quota > 0 && totalCombined > quota;
+  var isWarn        = !isOver && usedPct >= 80;
+
+  var mainColor  = isOver ? '#dc3545' : isWarn ? '#fd7e14' : '#198754';
+  var mainBg     = isOver ? '#fff5f5' : isWarn ? '#fff8f0' : '#f0fff4';
+  var mainBorder = isOver ? '#f5c6cb' : isWarn ? '#ffc999' : '#b7f5c8';
+  var statusIcon = isOver ? '🔴' : isWarn ? '🟠' : '🟢';
+  var statusText = isOver ? 'เกินโควต้า!' : isWarn ? 'ใกล้เต็ม' : 'ปกติ';
+
+  var html = '<div class="row g-2 mb-2">';
+
+  html += '<div class="col-3"><div class="rounded p-2 text-center" style="background:#f8f9fa;border:1px solid #dee2e6;">';
+  html += '<div class="small text-muted" style="font-size:0.75rem;">โควต้า/เดือน</div>';
+  html += '<div class="fw-bold text-dark" style="font-size:1.5rem;">' + (quota||'-') + '</div>';
+  html += '<div style="font-size:0.7rem;color:#6c757d;">ครั้ง (ลา+สาย)</div></div></div>';
+
+  html += '<div class="col-3"><div class="rounded p-2 text-center" style="background:' + mainBg + ';border:1px solid ' + mainBorder + ';">';
+  html += '<div class="small fw-bold" style="font-size:0.75rem;color:' + mainColor + ';">ใช้ไปแล้ว</div>';
+  html += '<div class="fw-bold" style="font-size:1.5rem;color:' + mainColor + ';">' + totalCombined + '</div>';
+  html += '<div style="font-size:0.7rem;color:#6c757d;">ลา ' + totalLeave + ' + สาย ' + totalLate + '</div></div></div>';
+
+  html += '<div class="col-3"><div class="rounded p-2 text-center" style="background:' + mainBg + ';border:1px solid ' + mainBorder + ';">';
+  html += '<div class="small fw-bold" style="font-size:0.75rem;color:' + mainColor + ';">คงเหลือ</div>';
+  html += '<div class="fw-bold" style="font-size:1.5rem;color:' + mainColor + ';">';
+  html += isOver ? ('<span class="text-danger">-' + (totalCombined-quota) + '</span>') : remaining;
+  html += '</div><div style="font-size:0.7rem;color:#6c757d;">' + statusIcon + ' ' + statusText + '</div></div></div>';
+
+  html += '<div class="col-3"><div class="rounded p-2 text-center" style="background:' + mainBg + ';border:1px solid ' + mainBorder + ';">';
+  html += '<div class="small fw-bold" style="font-size:0.75rem;color:' + mainColor + ';">% ที่ใช้</div>';
+  html += '<div class="fw-bold" style="font-size:1.5rem;color:' + mainColor + ';">' + usedPct + '%</div>';
+  html += '<div class="progress mt-1" style="height:5px;"><div class="progress-bar" style="width:' + usedPct + '%;background:' + mainColor + ';"></div></div>';
+  html += '</div></div></div>';
+
+  html += '<div class="mb-2"><div class="d-flex justify-content-between small mb-1">';
+  html += '<span style="color:' + mainColor + ';font-weight:bold;">รวมลา+สาย: ' + totalCombined + ' ครั้ง</span>';
+  html += '<span class="text-muted">โควต้า: ' + (quota||'-') + ' ครั้ง</span></div>';
+  html += '<div class="progress" style="height:10px;border-radius:5px;">';
+  html += '<div class="progress-bar" style="width:' + usedPct + '%;background:' + mainColor + ';border-radius:5px;transition:width 0.5s ease;"></div>';
+  html += '</div></div>';
+
+  if (isOver) {
+    html += '<div class="alert alert-danger py-1 mb-1 small fw-bold"><i class="bi bi-exclamation-triangle-fill me-1"></i>';
+    html += 'เกินโควต้า ' + (totalCombined-quota) + ' ครั้ง! (ลา ' + totalLeave + ' + สาย ' + totalLate + ' = ' + totalCombined + ' / ' + quota + ')</div>';
+  } else if (isWarn) {
+    html += '<div class="alert alert-warning py-1 mb-1 small"><i class="bi bi-exclamation-circle-fill me-1"></i>ใกล้เต็มโควต้า — เหลืออีก ' + remaining + ' ครั้ง</div>';
+  }
+  if (quota === 0) {
+    html += '<div class="alert alert-secondary py-1 mb-1 small">ยังไม่มีข้อมูลพนักงาน Onduty ใน EmployeeApp</div>';
+  }
+
+  // ตารางเฉพาะคนที่เกิน/ใกล้เต็ม
+  var people = {};
+  filtered.forEach(function(r) {
+    var key = (r[2]||'') + '||' + (r[3]||'?');
+    if (!people[key]) people[key] = { name:r[3]||'?', position:r[4]||'-', leave:0, late:0 };
+    if (r[6] === 'late') people[key].late++;
+    else people[key].leave++;
+  });
+
+  var warnRows = Object.values(people)
+    .map(function(d){ d.total = d.leave + d.late; return d; })
+    .filter(function(d){ return quota === 0 || d.total >= Math.ceil(quota * 0.8); })
+    .sort(function(a,b){ return b.total - a.total; });
+
+  if (warnRows.length) {
+    html += '<div class="small fw-bold text-dark mb-1"><i class="bi bi-person-exclamation text-danger me-1"></i>รายชื่อที่เกิน/ใกล้เต็ม (≥80%)</div>';
+    html += '<div class="table-responsive"><table class="table table-sm align-middle mb-0" style="font-size:0.8rem;">';
+    html += '<thead style="background:#f8f9fa;"><tr><th>ชื่อ</th><th>ตำแหน่ง</th><th class="text-center text-danger">ลา</th><th class="text-center" style="color:#e65100;">สาย</th><th class="text-center">รวม</th><th class="text-center">เหลือ</th><th class="text-center">สถานะ</th></tr></thead><tbody>';
+    warnRows.forEach(function(d) {
+      var rem  = Math.max(0, quota - d.total);
+      var over = quota > 0 && d.total > quota;
+      var badge = over
+        ? '<span class="badge bg-danger" style="font-size:0.7rem;">เกิน</span>'
+        : '<span class="badge" style="background:#fd7e14;font-size:0.7rem;">ใกล้เต็ม</span>';
+      html += '<tr style="background:' + (over?'#fff5f5':'#fff8f0') + ';">';
+      html += '<td class="fw-bold">' + d.name + '</td><td class="text-muted">' + d.position + '</td>';
+      html += '<td class="text-center text-danger fw-bold">' + d.leave + '</td>';
+      html += '<td class="text-center fw-bold" style="color:#e65100;">' + d.late + '</td>';
+      html += '<td class="text-center fw-bold">' + d.total + '</td>';
+      html += '<td class="text-center">' + (over ? '<span class="text-danger fw-bold">-'+(d.total-quota)+'</span>' : '<span class="text-warning fw-bold">'+rem+'</span>') + '</td>';
+      html += '<td class="text-center">' + badge + '</td></tr>';
+    });
+    html += '</tbody></table></div>';
+  } else if (filtered.length > 0) {
+    html += '<div class="text-success small"><i class="bi bi-check-circle-fill me-1"></i>ทุกคนยังอยู่ในโควต้า</div>';
+  }
+
+  body.innerHTML = html;
+}
+
+// =====================================================
+// Render รายวัน
+// =====================================================
+function lvRenderDaily() {
+  var body = document.getElementById('lvPanelDaily');
+  var fVal = document.getElementById('lvMonthFilter').value;
+  if (!fVal) { body.innerHTML = '<p class="text-center text-muted py-4 small">กรุณาเลือกเดือน</p>'; return; }
+  var filtered = lvFilter(fVal);
+  if (!filtered.length) { body.innerHTML = '<p class="text-center text-muted py-4 small">ไม่มีข้อมูล</p>'; return; }
+  filtered.sort(function(a,b){ return b[1] > a[1] ? 1 : -1; });
+  var dg = {};
+  filtered.forEach(function(r) { if (!dg[r[1]]) dg[r[1]] = []; dg[r[1]].push(r); });
+  var html = '';
+  Object.keys(dg).sort().reverse().forEach(function(day) {
+    var items = dg[day];
+    var lCnt = items.filter(function(r){ return r[6] !== 'late'; }).length;
+    var sCnt = items.filter(function(r){ return r[6] === 'late'; }).length;
+    html += '<div class="lv-day-header mb-1"><i class="bi bi-calendar-day me-1"></i>' + lvDateLabel(day);
+    if (lCnt) html += ' <span class="badge bg-danger ms-1">' + lCnt + ' ลา</span>';
+    if (sCnt) html += ' <span class="badge ms-1" style="background:#e65100;">' + sCnt + ' สาย</span>';
+    html += '</div><div class="bg-white border rounded p-2 mb-3 shadow-sm">';
+    html += '<div class="table-responsive"><table class="table table-sm align-middle mb-0 small">';
+    html += '<thead class="table-light"><tr><th>รหัส</th><th>ชื่อ</th><th>ตำแหน่ง</th><th class="text-center">สถานะ</th><th class="text-center">ประเภท</th><th class="text-center">รายละเอียด</th><th>หมายเหตุ</th>';
+    if (lvIsAdmin) html += '<th></th>';
+    html += '</tr></thead><tbody>';
+    items.forEach(function(r) {
+      var detail = r[6] === 'late'
+        ? '<span style="color:#e65100;font-weight:bold;">' + (r[8]||0) + ' นาที</span>'
+        : r[6] === 'sick_hour'
+        ? '<span style="color:#0d6efd;font-weight:bold;">' + (r[8]||0) + ' ชม.</span>'
+        : '<span class="text-danger fw-bold">' + (r[7]||1) + ' วัน</span>';
+      html += '<tr><td class="text-muted small">' + (r[2]||'-') + '</td><td class="fw-bold">' + (r[3]||'') + '</td>';
+      html += '<td class="text-muted">' + (r[4]||'-') + '</td><td class="text-center">' + lvStatusBadge(r[5]) + '</td>';
+      html += '<td class="text-center">' + lvTypeBadge(r[6]) + '</td><td class="text-center">' + detail + '</td>';
+      html += '<td class="text-muted">' + (r[9]||'-') + '</td>';
+      if (lvIsAdmin) {
+        html += '<td class="text-center text-nowrap">';
+        html += '<i class="bi bi-pencil-square text-primary me-2" style="cursor:pointer;" onclick="lvEditRow(\'' + r[0] + '\')"></i>';
+        html += '<i class="bi bi-trash text-danger" style="cursor:pointer;" onclick="lvDeleteRow(\'' + r[0] + '\')"></i></td>';
+      }
+      html += '</tr>';
+    });
+    html += '</tbody></table></div></div>';
+  });
+  body.innerHTML = html;
+}
+
+// =====================================================
+// Render รายเดือน
+// =====================================================
+function lvRenderMonthly() {
+  var body = document.getElementById('lvPanelMonthly');
+  if (!lvData.length) { body.innerHTML = '<p class="text-center text-muted py-4 small">ไม่มีข้อมูล</p>'; return; }
+  var months = {};
+  lvData.forEach(function(r) {
+    if (!r[1] || r[1].length < 7) return;
+    var m = r[1].substring(0,7);
+    if (!months[m]) months[m] = { sick:0, sick_hour:0, hours:0, personal:0, late:0, days:0, minutes:0 };
+    if (r[6]==='late')      { months[m].late++;      months[m].minutes   += parseInt(r[8])||0; }
+    else if (r[6]==='personal')  { months[m].personal++;  months[m].days      += parseFloat(r[7])||1; }
+    else if (r[6]==='sick_hour') { months[m].sick_hour++; months[m].hours     += parseInt(r[8])||0; }
+    else                         { months[m].sick++;      months[m].days      += parseFloat(r[7])||1; }
+  });
+  var quota = lvQuota;
+  var keys  = Object.keys(months).sort().reverse();
+  var html = '<div class="table-responsive"><table class="table table-sm table-hover align-middle small">';
+  html += '<thead class="table-dark"><tr><th>เดือน</th><th class="text-center text-danger">ลาป่วย</th><th class="text-center" style="color:#6ea8fe;">ลาป่วย(ชม.)</th><th class="text-center" style="color:#ce9ffc;">ลากิจ</th><th class="text-center text-danger">รวม(วัน)</th><th class="text-center" style="color:#ffb74d;">มาสาย</th><th class="text-center" style="color:#ffb74d;">รวม(นาที)</th><th class="text-center">โควต้า</th><th class="text-center">สถานะ</th></tr></thead><tbody>';
+  keys.forEach(function(m) {
+    var d = months[m]; var p = m.split('-');
+    var label = new Date(parseInt(p[0]), parseInt(p[1])-1).toLocaleDateString('th-TH',{month:'long',year:'numeric'});
+    var total = d.sick + d.personal;
+    var over  = quota > 0 && (total > quota || d.late > quota);
+    var badge = over ? '<span class="badge bg-danger">เกินโควต้า</span>' : quota > 0 ? '<span class="badge bg-success">ปกติ</span>' : '<span class="badge bg-secondary">-</span>';
+    var shTxt = d.sick_hour ? d.sick_hour + ' ครั้ง<br><small>(' + d.hours + ' ชม.)</small>' : '-';
+    html += '<tr' + (over?' class="table-danger"':'') + '>';
+    html += '<td class="fw-bold">' + label + '</td><td class="text-center text-danger fw-bold">' + d.sick + '</td>';
+    html += '<td class="text-center fw-bold" style="color:#0d6efd;">' + shTxt + '</td>';
+    html += '<td class="text-center fw-bold" style="color:#6f42c1;">' + d.personal + '</td>';
+    html += '<td class="text-center text-danger fw-bold">' + d.days + '</td>';
+    html += '<td class="text-center fw-bold" style="color:#e65100;">' + d.late + '</td>';
+    html += '<td class="text-center">' + d.minutes + '</td><td class="text-center text-muted">' + (quota||'-') + '</td>';
+    html += '<td class="text-center">' + badge + '</td></tr>';
+  });
+  html += '</tbody></table></div>';
+  body.innerHTML = html;
+}
+
+// =====================================================
+// Render สรุปโควต้า
+// =====================================================
+function lvRenderQuota() {
+  var body = document.getElementById('lvPanelQuota');
+  var fVal = document.getElementById('lvMonthFilter').value;
+  if (!fVal) { body.innerHTML = '<p class="text-center text-muted py-4 small">กรุณาเลือกเดือน</p>'; return; }
+  var quota    = lvQuota;
+  var filtered = lvFilter(fVal).filter(function(r){ return (r[5]||'onduty') === 'onduty'; });
+  var usedLeave = filtered.filter(function(r){ return r[6] !== 'late'; }).length;
+  var usedLate  = filtered.filter(function(r){ return r[6] === 'late'; }).length;
+  var leavePct  = quota > 0 ? Math.min(100, Math.round(usedLeave/quota*100)) : 0;
+  var latePct   = quota > 0 ? Math.min(100, Math.round(usedLate/quota*100))  : 0;
+  var html = '<div class="row g-3 mb-3">';
+  html += '<div class="col-6"><div class="rounded p-3 border text-center" style="background:#fff5f5;">';
+  html += '<div class="small text-danger fw-bold mb-1"><i class="bi bi-calendar2-x me-1"></i>การลา (Onduty)</div>';
+  html += '<div class="row g-2 mb-2"><div class="col-4"><div class="small text-muted">โควต้า</div><div class="fs-5 fw-bold">' + (quota||'-') + '</div></div>';
+  html += '<div class="col-4"><div class="small text-muted">ใช้ไป</div><div class="fs-5 fw-bold text-danger">' + usedLeave + '</div></div>';
+  html += '<div class="col-4"><div class="small text-muted">เหลือ</div><div class="fs-5 fw-bold text-success">' + Math.max(0,quota-usedLeave) + '</div></div></div>';
+  html += '<div class="progress" style="height:10px;"><div class="progress-bar ' + (leavePct>=100?'bg-danger':leavePct>=80?'bg-warning':'bg-success') + '" style="width:' + leavePct + '%"></div></div>';
+  html += '<div class="small text-muted mt-1">' + leavePct + '% ของโควต้า</div></div></div>';
+  html += '<div class="col-6"><div class="rounded p-3 border text-center" style="background:#fff8e1;">';
+  html += '<div class="small fw-bold mb-1" style="color:#e65100;"><i class="bi bi-clock me-1"></i>มาสาย (Onduty)</div>';
+  html += '<div class="row g-2 mb-2"><div class="col-4"><div class="small text-muted">โควต้า</div><div class="fs-5 fw-bold">' + (quota||'-') + '</div></div>';
+  html += '<div class="col-4"><div class="small text-muted">ใช้ไป</div><div class="fs-5 fw-bold" style="color:#e65100;">' + usedLate + '</div></div>';
+  html += '<div class="col-4"><div class="small text-muted">เหลือ</div><div class="fs-5 fw-bold text-success">' + Math.max(0,quota-usedLate) + '</div></div></div>';
+  html += '<div class="progress" style="height:10px;"><div class="progress-bar ' + (latePct>=100?'bg-danger':latePct>=80?'bg-warning':'') + '" style="width:' + latePct + '%;' + (latePct<80?'background:#e65100;':'') + '"></div></div>';
+  html += '<div class="small text-muted mt-1">' + latePct + '% ของโควต้า</div></div></div></div>';
+  if (quota === 0) html += '<div class="alert alert-secondary py-2 small">ยังไม่มีข้อมูลพนักงาน Onduty ใน EmployeeApp</div>';
+  body.innerHTML = html;
+}
+
+// =====================================================
+// Render รายบุคคล
+// =====================================================
+function lvRenderPerson() {
+  var body = document.getElementById('lvPanelPerson');
+  var fVal = document.getElementById('lvMonthFilter').value;
+  if (!fVal) { body.innerHTML = '<p class="text-center text-muted py-4 small">กรุณาเลือกเดือน</p>'; return; }
+  var filtered = lvFilter(fVal);
+  if (!filtered.length) { body.innerHTML = '<p class="text-center text-muted py-4 small">ไม่มีข้อมูล</p>'; return; }
+  var quota  = lvQuota;
+  var people = {};
+  filtered.forEach(function(r) {
+    var key = (r[2]||'') + '_' + (r[3]||'?');
+    if (!people[key]) people[key] = { empId:r[2]||'-', name:r[3]||'?', position:r[4]||'-', status:r[5]||'onduty', sick:0, sick_hour:0, hours:0, personal:0, late:0, days:0, minutes:0 };
+    if (r[6]==='late')      { people[key].late++;      people[key].minutes += parseInt(r[8])||0; }
+    else if (r[6]==='personal')  { people[key].personal++;  people[key].days    += parseFloat(r[7])||1; }
+    else if (r[6]==='sick_hour') { people[key].sick_hour++; people[key].hours   += parseInt(r[8])||0; }
+    else                         { people[key].sick++;      people[key].days    += parseFloat(r[7])||1; }
+  });
+  var keys = Object.keys(people).sort(function(a,b){
+    return (people[b].sick+people[b].sick_hour+people[b].personal+people[b].late) - (people[a].sick+people[a].sick_hour+people[a].personal+people[a].late);
+  });
+  var html = '<div class="table-responsive"><table class="table table-sm table-hover align-middle small">';
+  html += '<thead class="table-dark"><tr><th>รหัส</th><th>ชื่อ</th><th>ตำแหน่ง</th><th class="text-center">สถานะ</th><th class="text-center text-danger">ลาป่วย</th><th class="text-center" style="color:#6ea8fe;">ลาป่วย(ชม.)</th><th class="text-center" style="color:#ce9ffc;">ลากิจ</th><th class="text-center text-danger">รวม(วัน)</th><th class="text-center" style="color:#ffb74d;">มาสาย</th><th class="text-center" style="color:#ffb74d;">รวม(นาที)</th><th class="text-center">โควต้า</th></tr></thead><tbody>';
+  keys.forEach(function(k) {
+    var d = people[k];
+    var total = d.sick + d.personal;
+    var isOnduty = d.status === 'onduty';
+    var overL = isOnduty && quota > 0 && total > quota;
+    var overS = isOnduty && quota > 0 && d.late > quota;
+    var badge = !isOnduty ? '<span class="lv-badge-spar">Spar</span>'
+      : (overL && overS) ? '<span class="badge bg-danger">ลา+สายเกิน</span>'
+      : overL ? '<span class="badge bg-danger">ลาเกิน</span>'
+      : overS ? '<span class="badge bg-warning text-dark">สายเกิน</span>'
+      : quota > 0 ? '<span class="badge bg-success">ปกติ</span>'
+      : '<span class="badge bg-secondary">-</span>';
+    var shTxt = d.sick_hour ? d.sick_hour + '<br><small>(' + d.hours + ' ชม.)</small>' : '-';
+    html += '<tr' + (overL||overS?' class="table-warning"':'') + '>';
+    html += '<td class="text-muted">' + d.empId + '</td><td class="fw-bold">' + d.name + '</td>';
+    html += '<td class="text-muted">' + d.position + '</td><td class="text-center">' + lvStatusBadge(d.status) + '</td>';
+    html += '<td class="text-center fw-bold text-danger">' + d.sick + '</td>';
+    html += '<td class="text-center fw-bold" style="color:#0d6efd;">' + shTxt + '</td>';
+    html += '<td class="text-center fw-bold" style="color:#6f42c1;">' + d.personal + '</td>';
+    html += '<td class="text-center fw-bold text-danger">' + d.days + '</td>';
+    html += '<td class="text-center fw-bold" style="color:#e65100;">' + d.late + '</td>';
+    html += '<td class="text-center">' + d.minutes + '</td><td class="text-center">' + badge + '</td></tr>';
+  });
+  html += '</tbody></table></div>';
+  body.innerHTML = html;
+}
+
+// =====================================================
+// Edit / Delete
+// =====================================================
+function lvEditRow(id) {
+  var row = lvData.find(function(r){ return r[0] === id; });
+  if (!row) return;
+  document.getElementById('lvDate').value      = row[1] || '';
+  document.getElementById('lvEmpId').value     = row[2] || '';
+  document.getElementById('lvEmpName').value   = row[3] || '';
+  document.getElementById('lvPosition').value  = row[4] || '';
+  document.getElementById('lvEmpStatus').value = row[5] || 'onduty';
+  document.getElementById('lvNote').value      = row[9] || '';
+  document.getElementById('lvEditId').value    = id;
+  var t = row[6] || 'sick';
+  document.getElementById(
+    t==='late'      ? 'lvTypeLate' :
+    t==='personal'  ? 'lvTypePersonal' :
+    t==='sick_hour' ? 'lvTypeSickHour' : 'lvTypeSick'
+  ).checked = true;
+  lvToggleType();
+  if (t === 'late') {
+    document.getElementById('lvMinutes').value = row[8] || 0;
+  } else if (t === 'sick_hour') {
+    document.getElementById('lvHours').value = row[8] || 1;
+  } else {
+    var d = parseFloat(row[7]) || 1;
+    document.getElementById('lvHalfDay').checked = (d === 0.5);
+    if (d === 0.5) {
+      document.getElementById('lvDateEnd').value = row[1] || '';
+    } else {
+      var startD = new Date(row[1]);
+      startD.setDate(startD.getDate() + Math.round(d) - 1);
+      document.getElementById('lvDateEnd').value = startD.toISOString().split('T')[0];
+    }
+    lvCalcDays();
+  }
+  document.getElementById('lvSaveBtn').innerHTML = '<i class="bi bi-save me-1"></i>อัปเดตรายการ';
+  window.scrollTo(0, 0);
+}
+
+function lvDeleteRow(id) {
+  lvDeleteId = id;
+  new bootstrap.Modal(document.getElementById('lvDeleteModal')).show();
+}
+
+// =====================================================
+// Admin
+// =====================================================
+function lvLoginAdmin() {
+  document.getElementById('lvAdminPwd').value = '';
+  document.getElementById('lvLoginError').style.display = 'none';
+  new bootstrap.Modal(document.getElementById('lvAdminModal')).show();
+  document.getElementById('lvAdminModal').addEventListener('shown.bs.modal', function() {
+    document.getElementById('lvAdminPwd').focus();
+  }, { once: true });
+}
+
+function lvConfirmLogin() {
+  var p = document.getElementById('lvAdminPwd').value;
+  if (!p) return;
+  google.script.run
+    .withSuccessHandler(function(ok) {
+      if (ok) {
+        lvIsAdmin = true; lvAdminPass = p;
+        bootstrap.Modal.getInstance(document.getElementById('lvAdminModal')).hide();
+        document.getElementById('lvAdminBtn').style.display  = 'none';
+        document.getElementById('lvLogoutBtn').style.display = 'inline-block';
+        lvRenderAll();
+      } else {
+        document.getElementById('lvLoginError').style.display = 'block';
+        document.getElementById('lvAdminPwd').value = '';
+        document.getElementById('lvAdminPwd').focus();
+      }
+    }).verifyAdmin(p);
+}
+
+function lvLogout() {
+  lvIsAdmin = false; lvAdminPass = '';
+  document.getElementById('lvAdminBtn').style.display  = 'inline-block';
+  document.getElementById('lvLogoutBtn').style.display = 'none';
+  lvRenderAll();
+}
+</script>

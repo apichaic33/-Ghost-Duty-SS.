@@ -1,0 +1,576 @@
+<!-- PassengerApp.html — โมดูลยอดผู้โดยสาร -->
+
+<!-- Modal แจ้งเตือน -->
+<div class="modal fade" id="psgMsgModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content shadow-lg border-0">
+      <div class="modal-body text-center p-4">
+        <div id="psgMsgIcon" class="mb-3"></div>
+        <h6 id="psgMsgText" class="fw-bold"></h6>
+        <button type="button" class="btn btn-dark btn-sm mt-3 px-4" data-bs-dismiss="modal">ตกลง</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal ยืนยันลบ -->
+<div class="modal fade" id="psgDeleteModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content shadow border-0">
+      <div class="modal-body text-center p-4">
+        <i class="bi bi-trash-fill text-danger fs-1 mb-3 d-block"></i>
+        <h6 class="fw-bold">ยืนยันลบรายการนี้?</h6>
+        <div class="d-flex gap-2 mt-3 justify-content-center">
+          <button type="button" class="btn btn-secondary btn-sm px-4" data-bs-dismiss="modal">ยกเลิก</button>
+          <button type="button" class="btn btn-danger btn-sm px-4" id="psgConfirmDeleteBtn">ลบ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Admin Login -->
+<div class="modal fade" id="psgAdminModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content shadow-lg border-0">
+      <div class="modal-header bg-warning">
+        <h6 class="modal-title fw-bold"><i class="bi bi-shield-lock me-2"></i>Admin Login</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <label class="small fw-bold text-dark mb-1">รหัสผ่าน</label>
+        <input type="password" id="psgAdminPwd" class="form-control mb-3" placeholder="••••••••"
+               onkeydown="if(event.key==='Enter') psgConfirmLogin()">
+        <div id="psgLoginError" class="text-danger small mb-2" style="display:none">
+          <i class="bi bi-x-circle me-1"></i>รหัสผ่านไม่ถูกต้อง
+        </div>
+        <button type="button" class="btn btn-warning w-100 fw-bold" onclick="psgConfirmLogin()">
+          <i class="bi bi-unlock me-1"></i>เข้าสู่ระบบ
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="header-banner text-center shadow-sm mb-2 px-3 py-2" style="background:#fff;border-bottom:2px solid #198754;">
+  <h5 class="fw-bold mb-0" style="color:#198754;"><i class="bi bi-people-fill me-1"></i>บันทึกยอดผู้โดยสาร</h5>
+</div>
+
+<div class="row g-3">
+  <!-- ฝั่งซ้าย: ฟอร์มบันทึก -->
+  <div class="col-xl-4 col-lg-12">
+    <div class="card p-3 mb-3 border-start border-4" style="border-color:#198754 !important;">
+      <h6 class="fw-bold mb-3" style="color:#198754;"><i class="bi bi-pencil-square me-1"></i>บันทึกข้อมูลประจำวัน</h6>
+
+      <div class="mb-3">
+        <label class="small fw-bold text-dark">วันที่บันทึก</label>
+        <input type="date" id="psgDate" class="form-control form-control-sm">
+      </div>
+
+      <!-- ขาเข้า -->
+      <div class="p-2 rounded mb-3" style="background:#e8f5e9; border:1px solid #a5d6a7;">
+        <div class="small fw-bold mb-2" style="color:#2e7d32;"><i class="bi bi-box-arrow-in-right me-1"></i>ขาเข้า</div>
+        <div class="row g-2">
+          <div class="col-6">
+            <label class="small text-muted">Thin Card</label>
+            <input type="number" id="psgInTrin" class="form-control form-control-sm" 
+       value="" placeholder="0" min="0" oninput="psgCalc()">
+          </div>
+          <div class="col-6">
+            <label class="small text-muted">Rabbit Card</label>
+            <input type="number" id="psgInRabbit" class="form-control form-control-sm" 
+       value="" placeholder="0" min="0" oninput="psgCalc()">
+          </div>
+        </div>
+        <div class="mt-2 text-center small fw-bold" style="color:#2e7d32;">
+          รวมขาเข้า: <span id="psgInTotal" class="fs-5">0</span> คน
+        </div>
+      </div>
+
+      <!-- ขาออก -->
+      <div class="p-2 rounded mb-3" style="background:#fff3e0; border:1px solid #ffcc80;">
+        <div class="small fw-bold mb-2" style="color:#e65100;"><i class="bi bi-box-arrow-right me-1"></i>ขาออก</div>
+        <div class="row g-2">
+          <div class="col-6">
+            <label class="small text-muted">Thin Card</label>
+            <input type="number" id="psgOutTrin" class="form-control form-control-sm" 
+       value="" placeholder="0" min="0" oninput="psgCalc()">
+          </div>
+          <div class="col-6">
+            <label class="small text-muted">Rabbit Card</label>
+            <input type="number" id="psgOutRabbit" class="form-control form-control-sm" 
+       value="" placeholder="0" min="0" oninput="psgCalc()">
+          </div>
+        </div>
+        <div class="mt-2 text-center small fw-bold" style="color:#e65100;">
+          รวมขาออก: <span id="psgOutTotal" class="fs-5">0</span> คน
+        </div>
+      </div>
+
+      <!-- รวมทั้งหมด -->
+      <div class="bg-light p-2 rounded mb-3 text-center">
+        <div class="small text-muted">รวมผู้โดยสารทั้งหมด</div>
+        <div class="fw-bold text-primary fs-4" id="psgGrandTotal">0</div>
+        <div class="small text-muted">คน</div>
+      </div>
+
+      <input type="hidden" id="psgEditId" value="">
+      <button type="button" class="btn w-100 fw-bold py-2" id="psgSaveBtn"
+              style="background:#198754; color:white;" onclick="psgSave()">
+        <i class="bi bi-save me-1"></i>บันทึกข้อมูล
+      </button>
+
+      <hr>
+      <div class="text-center">
+        <button type="button" class="btn btn-sm btn-outline-warning" id="psgAdminBtn" onclick="psgLoginAdmin()">
+          <i class="bi bi-shield-lock me-1"></i>Admin
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-danger ms-2" id="psgLogoutBtn"
+                style="display:none;" onclick="psgLogout()">
+          ออกจาก Admin
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ฝั่งขวา: รายงาน -->
+  <div class="col-xl-8 col-lg-12">
+    <div class="card p-3">
+      <ul class="nav nav-tabs border-0 mb-3" role="tablist">
+        <li class="nav-item">
+          <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#psgDaily" type="button">
+            <i class="bi bi-calendar-day me-1"></i>รายวัน
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#psgMonthly" type="button">
+            <i class="bi bi-calendar-month me-1"></i>รายเดือน
+          </button>
+        </li>
+      </ul>
+
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <select id="psgMonthFilter" class="form-select form-select-sm" style="width:200px;" onchange="psgRenderAll()">
+          <option value="">--- เลือกเดือน ---</option>
+        </select>
+        <!-- ปุ่มรีเฟรชแบบมี loading state -->
+        <button id="psgBtnRefresh" onclick="psgLoadData()" style="border:1px solid #adb5bd;background:white;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:0.82rem;display:flex;align-items:center;gap:4px;">
+          <i id="psgRefreshIcon" class="bi bi-arrow-clockwise"></i>
+          <span id="psgRefreshText">รีเฟรช</span>
+        </button>
+      </div>
+
+      <div class="tab-content" style="max-height:780px; overflow-y:auto;">
+        <!-- รายวัน -->
+        <div class="tab-pane fade show active" id="psgDaily">
+          <div id="psgDailyBody">
+            <p class="text-center text-muted py-4 small">กรุณาเลือกเดือน</p>
+          </div>
+        </div>
+        <!-- รายเดือน -->
+        <div class="tab-pane fade" id="psgMonthly">
+          <div id="psgMonthlyBody">
+            <p class="text-center text-muted py-4 small">กรุณาเลือกเดือน</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var psgData = [];
+var psgIsAdmin = false;
+var psgAdminPass = '';
+var psgDeleteTargetId = '';
+
+// =====================================================
+// Init
+// =====================================================
+setTimeout(function() {
+  document.getElementById('psgDate').value = new Date().toISOString().split('T')[0];
+  psgLoadData();
+
+  document.getElementById('psgConfirmDeleteBtn').addEventListener('click', function() {
+    bootstrap.Modal.getInstance(document.getElementById('psgDeleteModal')).hide();
+    google.script.run
+      .withSuccessHandler(function(res) {
+        if (res.status === 'success') { psgNotify('🗑️ ลบรายการสำเร็จ'); psgLoadData(); }
+        else psgNotify(res.message || 'เกิดข้อผิดพลาด', 'error');
+      })
+      .deletePassengerEntry(psgDeleteTargetId, psgAdminPass);
+  });
+}, 0);
+
+// =====================================================
+// Notify
+// =====================================================
+function psgNotify(msg, type) {
+  var icon = (type === 'error')
+    ? '<i class="bi bi-x-circle-fill text-danger fs-1"></i>'
+    : '<i class="bi bi-check-circle-fill text-success fs-1"></i>';
+  document.getElementById('psgMsgIcon').innerHTML = icon;
+  document.getElementById('psgMsgText').innerText = msg;
+  new bootstrap.Modal(document.getElementById('psgMsgModal')).show();
+}
+
+// =====================================================
+// คำนวณยอด real-time
+// =====================================================
+function psgCalc() {
+  var inR  = parseInt(document.getElementById('psgInRabbit').value)  || 0;
+  var inT  = parseInt(document.getElementById('psgInTrin').value)    || 0;
+  var outR = parseInt(document.getElementById('psgOutRabbit').value) || 0;
+  var outT = parseInt(document.getElementById('psgOutTrin').value)   || 0;
+  document.getElementById('psgInTotal').innerText    = (inR + inT).toLocaleString();
+  document.getElementById('psgOutTotal').innerText   = (outR + outT).toLocaleString();
+  document.getElementById('psgGrandTotal').innerText = (inR + inT + outR + outT).toLocaleString();
+}
+
+// =====================================================
+// บันทึก
+// =====================================================
+function psgSave() {
+  var btn = document.getElementById('psgSaveBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>กำลังบันทึก...';
+
+  var payload = {
+    date:      document.getElementById('psgDate').value,
+    inRabbit:  parseInt(document.getElementById('psgInRabbit').value)  || 0,
+    inTrin:    parseInt(document.getElementById('psgInTrin').value)    || 0,
+    outRabbit: parseInt(document.getElementById('psgOutRabbit').value) || 0,
+    outTrin:   parseInt(document.getElementById('psgOutTrin').value)   || 0,
+    editId:    document.getElementById('psgEditId').value || ''
+  };
+
+  google.script.run
+    .withSuccessHandler(function(resStr) {
+      var res = JSON.parse(resStr);
+      if (res.status === 'success') {
+        psgNotify('✅ บันทึกข้อมูลสำเร็จ');
+        psgResetForm();
+        psgLoadData();
+      } else {
+        psgNotify(res.message || 'เกิดข้อผิดพลาด', 'error');
+      }
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-save me-1"></i>บันทึกข้อมูล';
+    })
+    .withFailureHandler(function(err) {
+      psgNotify('เกิดข้อผิดพลาด: ' + err.message, 'error');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-save me-1"></i>บันทึกข้อมูล';
+    })
+    .savePassengerData(payload);
+}
+
+function psgResetForm() {
+  document.getElementById('psgInRabbit').value  = '';
+  document.getElementById('psgInTrin').value    = '';
+  document.getElementById('psgOutRabbit').value = '';
+  document.getElementById('psgOutTrin').value   = '';
+  document.getElementById('psgEditId').value    = '';
+  document.getElementById('psgSaveBtn').innerHTML = '<i class="bi bi-save me-1"></i>บันทึกข้อมูล';
+  psgCalc();
+}
+
+// =====================================================
+// โหลดข้อมูล — มี loading state บนปุ่มรีเฟรช
+// =====================================================
+function psgLoadData() {
+  var btn  = document.getElementById('psgBtnRefresh');
+  var icon = document.getElementById('psgRefreshIcon');
+  var text = document.getElementById('psgRefreshText');
+
+  if (btn) {
+    btn.disabled = true;
+    icon.className = 'spinner-border spinner-border-sm text-success';
+    text.innerText = 'กำลังอัปเดต...';
+    text.className = 'text-success fw-bold';
+  }
+
+  google.script.run
+    .withSuccessHandler(function(resStr) {
+      try {
+        var res = JSON.parse(resStr);
+        psgData = res.data || [];
+        psgPopulateMonths();
+        psgRenderAll();
+      } catch(e) { console.error(e); }
+
+      if (btn) {
+        btn.disabled = false;
+        icon.className = 'bi bi-arrow-clockwise';
+        text.innerText = 'รีเฟรช';
+        text.className = '';
+      }
+    })
+    .withFailureHandler(function(err) {
+      console.error(err);
+      if (btn) {
+        btn.disabled = false;
+        icon.className = 'bi bi-x-circle text-danger';
+        text.innerText = 'ล้มเหลว';
+        text.className = 'text-danger fw-bold';
+        setTimeout(function() {
+          icon.className = 'bi bi-arrow-clockwise';
+          text.innerText = 'รีเฟรช';
+          text.className = '';
+        }, 2000);
+      }
+    })
+    .getPassengerData();
+}
+
+function psgPopulateMonths() {
+  var sel = document.getElementById('psgMonthFilter');
+  var cur = sel.value;
+  var months = new Set();
+  psgData.forEach(function(r) {
+    if (r[1] && typeof r[1] === 'string' && r[1].length >= 7) months.add(r[1].substring(0,7));
+  });
+  var sortedMonths = Array.from(months).sort().reverse();
+  sel.innerHTML = '<option value="">--- เลือกเดือน ---</option><option value="ALL">ทั้งหมด</option>';
+  sortedMonths.forEach(function(m) {
+    var p = m.split('-');
+    var label = new Date(parseInt(p[0]), parseInt(p[1])-1).toLocaleDateString('th-TH', {month:'long', year:'numeric'});
+    sel.innerHTML += '<option value="' + m + '">' + label + '</option>';
+  });
+  if (cur && months.has(cur)) {
+    sel.value = cur;
+  } else if (sortedMonths.length > 0) {
+    sel.value = sortedMonths[0];
+  }
+}
+
+function psgRenderAll() {
+  psgRenderDaily();
+  psgRenderMonthly();
+}
+
+// =====================================================
+// Render รายวัน
+// =====================================================
+function psgRenderDaily() {
+  var body = document.getElementById('psgDailyBody');
+  var fVal = document.getElementById('psgMonthFilter').value;
+  if (!fVal) { body.innerHTML = '<p class="text-center text-muted py-4 small">กรุณาเลือกเดือน</p>'; return; }
+
+  var filtered = psgData.filter(function(r) {
+    if (fVal === 'ALL') return true;
+    return r[1] && r[1].substring(0,7) === fVal;
+  });
+
+  if (!filtered.length) { body.innerHTML = '<p class="text-center text-muted py-4 small">ไม่มีข้อมูล</p>'; return; }
+
+  filtered.sort(function(a,b) { return b[1] > a[1] ? 1 : -1; });
+
+  var html = '<div class="table-responsive"><table class="table table-sm table-hover align-middle small">';
+  html += '<thead class="table-dark"><tr>';
+  html += '<th>วันที่</th>';
+  html += '<th class="text-center" style="color:#81c784;">ขาเข้า<br><span class="fw-normal">Thin</span></th>';
+  html += '<th class="text-center" style="color:#81c784;">ขาเข้า<br><span class="fw-normal">Rabbit</span></th>';
+  html += '<th class="text-center text-success">รวมเข้า</th>';
+  html += '<th class="text-center" style="color:#ffb74d;">ขาออก<br><span class="fw-normal">Thin</span></th>';
+  html += '<th class="text-center" style="color:#ffb74d;">ขาออก<br><span class="fw-normal">Rabbit</span></th>';
+  html += '<th class="text-center text-warning">รวมออก</th>';
+  html += '<th class="text-center text-info">รวมทั้งหมด</th>';
+  if (psgIsAdmin) html += '<th></th>';
+  html += '</tr></thead><tbody>';
+
+  filtered.forEach(function(r) {
+    var ds = r[1] ? r[1].split('-') : [];
+    var dateLabel = ds.length === 3
+      ? new Date(parseInt(ds[0]), parseInt(ds[1])-1, parseInt(ds[2])).toLocaleDateString('th-TH', {day:'2-digit', month:'short', year:'numeric'})
+      : r[1];
+    html += '<tr>';
+    html += '<td class="fw-bold">' + dateLabel + '</td>';
+    html += '<td class="text-center">' + (r[3]||0).toLocaleString() + '</td>';
+    html += '<td class="text-center">' + (r[2]||0).toLocaleString() + '</td>';
+    html += '<td class="text-center fw-bold text-success">' + (r[4]||0).toLocaleString() + '</td>';
+    html += '<td class="text-center">' + (r[6]||0).toLocaleString() + '</td>';
+    html += '<td class="text-center">' + (r[5]||0).toLocaleString() + '</td>';
+    html += '<td class="text-center fw-bold text-warning">' + (r[7]||0).toLocaleString() + '</td>';
+    html += '<td class="text-center fw-bold text-primary">' + (r[8]||0).toLocaleString() + '</td>';
+    if (psgIsAdmin) {
+      html += '<td class="text-center">';
+      html += '<i class="bi bi-pencil-square text-primary me-2" style="cursor:pointer;" onclick="psgEditRow(\'' + r[0] + '\')"></i>';
+      html += '<i class="bi bi-trash text-danger" style="cursor:pointer;" onclick="psgDeleteRow(\'' + r[0] + '\')"></i>';
+      html += '</td>';
+    }
+    html += '</tr>';
+  });
+
+  var sumInR  = filtered.reduce(function(a,r){ return a+(parseInt(r[2])||0); }, 0);
+  var sumInT  = filtered.reduce(function(a,r){ return a+(parseInt(r[3])||0); }, 0);
+  var sumInTot= filtered.reduce(function(a,r){ return a+(parseInt(r[4])||0); }, 0);
+  var sumOutR = filtered.reduce(function(a,r){ return a+(parseInt(r[5])||0); }, 0);
+  var sumOutT = filtered.reduce(function(a,r){ return a+(parseInt(r[6])||0); }, 0);
+  var sumOutTot=filtered.reduce(function(a,r){ return a+(parseInt(r[7])||0); }, 0);
+  var sumAll  = filtered.reduce(function(a,r){ return a+(parseInt(r[8])||0); }, 0);
+
+  var n = filtered.length || 1;
+  html += '<tr class="table-secondary fw-bold">';
+  html += '<td>รวม ' + filtered.length + ' วัน</td>';
+  html += '<td class="text-center">' + sumInT.toLocaleString()   + '</td>';
+  html += '<td class="text-center">' + sumInR.toLocaleString()   + '</td>';
+  html += '<td class="text-center text-success">' + sumInTot.toLocaleString() + '</td>';
+  html += '<td class="text-center">' + sumOutT.toLocaleString()  + '</td>';
+  html += '<td class="text-center">' + sumOutR.toLocaleString()  + '</td>';
+  html += '<td class="text-center text-warning">' + sumOutTot.toLocaleString() + '</td>';
+  html += '<td class="text-center text-primary">' + sumAll.toLocaleString()   + '</td>';
+  if (psgIsAdmin) html += '<td></td>';
+  html += '</tr>';
+
+  html += '<tr class="table-info">';
+  html += '<td class="fw-bold text-primary">เฉลี่ย/วัน</td>';
+  html += '<td class="text-center">' + Math.round(sumInT/n).toLocaleString()   + '</td>';
+  html += '<td class="text-center">' + Math.round(sumInR/n).toLocaleString()   + '</td>';
+  html += '<td class="text-center fw-bold text-success">' + Math.round(sumInTot/n).toLocaleString() + '</td>';
+  html += '<td class="text-center">' + Math.round(sumOutT/n).toLocaleString()  + '</td>';
+  html += '<td class="text-center">' + Math.round(sumOutR/n).toLocaleString()  + '</td>';
+  html += '<td class="text-center fw-bold text-warning">' + Math.round(sumOutTot/n).toLocaleString() + '</td>';
+  html += '<td class="text-center fw-bold text-primary">' + Math.round(sumAll/n).toLocaleString()   + '</td>';
+  if (psgIsAdmin) html += '<td></td>';
+  html += '</tr>';
+
+  html += '</tbody></table></div>';
+  body.innerHTML = html;
+}
+
+// =====================================================
+// Render รายเดือน
+// =====================================================
+function psgRenderMonthly() {
+  var body = document.getElementById('psgMonthlyBody');
+  if (!psgData.length) { body.innerHTML = '<p class="text-center text-muted py-4 small">ไม่มีข้อมูล</p>'; return; }
+
+  var months = {};
+  psgData.forEach(function(r) {
+    if (!r[1] || r[1].length < 7) return;
+    var m = r[1].substring(0,7);
+    if (!months[m]) months[m] = { inR:0, inT:0, inTot:0, outR:0, outT:0, outTot:0, all:0, days:0 };
+    months[m].inR   += parseInt(r[2]) || 0;
+    months[m].inT   += parseInt(r[3]) || 0;
+    months[m].inTot += parseInt(r[4]) || 0;
+    months[m].outR  += parseInt(r[5]) || 0;
+    months[m].outT  += parseInt(r[6]) || 0;
+    months[m].outTot+= parseInt(r[7]) || 0;
+    months[m].all   += parseInt(r[8]) || 0;
+    months[m].days  += 1;
+  });
+
+  var keys = Object.keys(months).sort().reverse();
+  var html = '<div class="table-responsive"><table class="table table-sm table-hover align-middle small">';
+  html += '<thead class="table-dark"><tr>';
+  html += '<th>เดือน</th>';
+  html += '<th class="text-center">เข้า-Thin</th><th class="text-center">เข้า-Rabbit</th>';
+  html += '<th class="text-center text-success">รวมเข้า</th>';
+  html += '<th class="text-center">ออก-Thin</th><th class="text-center">ออก-Rabbit</th>';
+  html += '<th class="text-center text-warning">รวมออก</th>';
+  html += '<th class="text-center text-info">รวมทั้งหมด</th>';
+  html += '<th class="text-center text-secondary">เฉลี่ย/วัน</th>';
+  html += '</tr></thead><tbody>';
+
+  var totInR=0,totInT=0,totInTot=0,totOutR=0,totOutT=0,totOutTot=0,totAll=0,totDays=0;
+  keys.forEach(function(m) {
+    var d = months[m];
+    var p = m.split('-');
+    var label = new Date(parseInt(p[0]), parseInt(p[1])-1).toLocaleDateString('th-TH', {month:'long', year:'numeric'});
+    var avg = d.days > 0 ? Math.round(d.all / d.days) : 0;
+    html += '<tr>';
+    html += '<td class="fw-bold">' + label + '</td>';
+    html += '<td class="text-center">' + d.inT.toLocaleString()    + '</td>';
+    html += '<td class="text-center">' + d.inR.toLocaleString()    + '</td>';
+    html += '<td class="text-center fw-bold text-success">' + d.inTot.toLocaleString() + '</td>';
+    html += '<td class="text-center">' + d.outT.toLocaleString()   + '</td>';
+    html += '<td class="text-center">' + d.outR.toLocaleString()   + '</td>';
+    html += '<td class="text-center fw-bold text-warning">' + d.outTot.toLocaleString() + '</td>';
+    html += '<td class="text-center fw-bold text-primary">' + d.all.toLocaleString()   + '</td>';
+    html += '<td class="text-center text-muted">' + avg.toLocaleString() + '</td>';
+    html += '</tr>';
+    totInR+=d.inR; totInT+=d.inT; totInTot+=d.inTot;
+    totOutR+=d.outR; totOutT+=d.outT; totOutTot+=d.outTot;
+    totAll+=d.all; totDays+=d.days;
+  });
+
+  var nd = totDays || 1;
+  html += '<tr class="table-info fw-bold">';
+  html += '<td class="text-primary">เฉลี่ย/วัน</td>';
+  html += '<td class="text-center">' + Math.round(totInT/nd).toLocaleString()    + '</td>';
+  html += '<td class="text-center">' + Math.round(totInR/nd).toLocaleString()    + '</td>';
+  html += '<td class="text-center text-success">' + Math.round(totInTot/nd).toLocaleString() + '</td>';
+  html += '<td class="text-center">' + Math.round(totOutT/nd).toLocaleString()   + '</td>';
+  html += '<td class="text-center">' + Math.round(totOutR/nd).toLocaleString()   + '</td>';
+  html += '<td class="text-center text-warning">' + Math.round(totOutTot/nd).toLocaleString() + '</td>';
+  html += '<td class="text-center text-primary">' + Math.round(totAll/nd).toLocaleString()   + '</td>';
+  html += '<td class="text-center text-muted">-</td>';
+  html += '</tr>';
+
+  html += '</tbody></table></div>';
+  body.innerHTML = html;
+}
+
+// =====================================================
+// Edit / Delete
+// =====================================================
+function psgEditRow(id) {
+  var row = psgData.find(function(r) { return r[0] === id; });
+  if (!row) return;
+  document.getElementById('psgDate').value      = row[1] || '';
+  document.getElementById('psgInRabbit').value  = row[2] || 0;
+  document.getElementById('psgInTrin').value    = row[3] || 0;
+  document.getElementById('psgOutRabbit').value = row[5] || 0;
+  document.getElementById('psgOutTrin').value   = row[6] || 0;
+  document.getElementById('psgEditId').value    = id;
+  document.getElementById('psgSaveBtn').innerHTML = '<i class="bi bi-save me-1"></i>อัปเดตข้อมูล';
+  psgCalc();
+  window.scrollTo(0, 0);
+}
+
+function psgDeleteRow(id) {
+  psgDeleteTargetId = id;
+  new bootstrap.Modal(document.getElementById('psgDeleteModal')).show();
+}
+
+// =====================================================
+// Admin
+// =====================================================
+function psgLoginAdmin() {
+  document.getElementById('psgAdminPwd').value = '';
+  document.getElementById('psgLoginError').style.display = 'none';
+  new bootstrap.Modal(document.getElementById('psgAdminModal')).show();
+  document.getElementById('psgAdminModal').addEventListener('shown.bs.modal', function() {
+    document.getElementById('psgAdminPwd').focus();
+  }, { once: true });
+}
+
+function psgConfirmLogin() {
+  var p = document.getElementById('psgAdminPwd').value;
+  if (!p) return;
+  google.script.run
+    .withSuccessHandler(function(ok) {
+      if (ok) {
+        psgIsAdmin = true;
+        psgAdminPass = p;
+        bootstrap.Modal.getInstance(document.getElementById('psgAdminModal')).hide();
+        document.getElementById('psgAdminBtn').style.display = 'none';
+        document.getElementById('psgLogoutBtn').style.display = 'inline-block';
+        psgRenderAll();
+      } else {
+        document.getElementById('psgLoginError').style.display = 'block';
+        document.getElementById('psgAdminPwd').value = '';
+        document.getElementById('psgAdminPwd').focus();
+      }
+    }).verifyAdmin(p);
+}
+
+function psgLogout() {
+  psgIsAdmin = false;
+  psgAdminPass = '';
+  document.getElementById('psgAdminBtn').style.display = 'inline-block';
+  document.getElementById('psgLogoutBtn').style.display = 'none';
+  psgRenderAll();
+}
+</script>

@@ -1,0 +1,500 @@
+<!-- EmployeeApp.html — โมดูลจัดการข้อมูลพนักงาน -->
+
+<!-- Modal แจ้งเตือน -->
+<div class="modal fade" id="empMsgModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content shadow-lg border-0">
+      <div class="modal-body text-center p-4">
+        <div id="empMsgIcon" class="mb-3"></div>
+        <h6 id="empMsgText" class="fw-bold"></h6>
+        <button type="button" class="btn btn-dark btn-sm mt-3 px-4" data-bs-dismiss="modal">ตกลง</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal ยืนยันลบ -->
+<div class="modal fade" id="empDeleteModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content shadow border-0">
+      <div class="modal-body text-center p-4">
+        <i class="bi bi-trash-fill text-danger fs-1 mb-3 d-block"></i>
+        <h6 class="fw-bold">ยืนยันลบพนักงานนี้?</h6>
+        <p class="small text-muted mb-0">ข้อมูลจะถูกลบออกจากระบบ</p>
+        <div class="d-flex gap-2 mt-3 justify-content-center">
+          <button type="button" class="btn btn-secondary btn-sm px-4" data-bs-dismiss="modal">ยกเลิก</button>
+          <button type="button" class="btn btn-danger btn-sm px-4" id="empConfirmDeleteBtn">ลบ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Admin Login -->
+<div class="modal fade" id="empAdminModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content shadow-lg border-0">
+      <div class="modal-header bg-warning">
+        <h6 class="modal-title fw-bold"><i class="bi bi-shield-lock me-2"></i>Admin Login</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <label class="small fw-bold text-dark mb-1">รหัสผ่าน</label>
+        <input type="password" id="empAdminPwd" class="form-control mb-3" placeholder="••••••••"
+               onkeydown="if(event.key==='Enter') empConfirmLogin()">
+        <div id="empLoginError" class="text-danger small mb-2" style="display:none">
+          <i class="bi bi-x-circle me-1"></i>รหัสผ่านไม่ถูกต้อง
+        </div>
+        <button type="button" class="btn btn-warning w-100 fw-bold" onclick="empConfirmLogin()">
+          <i class="bi bi-unlock me-1"></i>เข้าสู่ระบบ
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Banner -->
+<div class="header-banner text-center shadow-sm mb-2 px-3 py-2" style="background:#fff;border-bottom:2px solid #0d6efd;">
+  <h5 class="fw-bold mb-0 text-primary"><i class="bi bi-person-badge me-1"></i>ข้อมูลพนักงาน</h5>
+</div>
+
+<div style="display:flex; gap:10px; align-items:flex-start; width:100%; min-width:900px;">
+
+  <!-- ===== ฝั่งซ้าย: ฟอร์ม ===== -->
+  <div style="flex: 0 0 38%; width:38%; max-width:38%;">
+    <div class="card p-2 mb-2 border-start border-4 border-primary text-start">
+      <h6 class="fw-bold text-primary mb-2 pb-1 border-bottom">
+        <i class="bi bi-person-plus me-1"></i><span id="empFormTitle">เพิ่มพนักงานใหม่</span>
+      </h6>
+
+      <!-- รหัสพนักงาน -->
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <label class="small fw-bold text-dark text-nowrap" style="width:90px;">รหัสพนักงาน</label>
+        <input type="text" id="empId" class="form-control form-control-sm" placeholder="เช่น EMP001">
+      </div>
+
+      <!-- ชื่อ-นามสกุล -->
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <label class="small fw-bold text-dark text-nowrap" style="width:90px;">ชื่อ-นามสกุล</label>
+        <input type="text" id="empName" class="form-control form-control-sm" placeholder="ชื่อ นามสกุล">
+      </div>
+
+      <!-- ตำแหน่ง -->
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <label class="small fw-bold text-dark text-nowrap" style="width:90px;">ตำแหน่ง</label>
+        <input type="text" id="empPosition" class="form-control form-control-sm" placeholder="เช่น พนักงานบริการ">
+      </div>
+
+      <!-- แผนก/สถานี -->
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <label class="small fw-bold text-dark text-nowrap" style="width:90px;">แผนก/สถานี</label>
+        <input type="text" id="empDepartment" class="form-control form-control-sm" placeholder="เช่น สถานี A">
+      </div>
+
+      <!-- สถานะ Onduty/Spar -->
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <label class="small fw-bold text-dark text-nowrap" style="width:90px;">สถานะ</label>
+        <select id="empStatus" class="form-select form-select-sm">
+          <option value="onduty">Onduty</option>
+          <option value="spar">Spare</option>
+        </select>
+      </div>
+
+      <!-- วันที่เริ่มงาน -->
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <label class="small fw-bold text-dark text-nowrap" style="width:90px;">เริ่มงาน</label>
+        <input type="date" id="empStartDate" class="form-control form-control-sm">
+      </div>
+
+      <!-- เบอร์โทร -->
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <label class="small fw-bold text-dark text-nowrap" style="width:90px;">เบอร์โทร</label>
+        <input type="text" id="empPhone" class="form-control form-control-sm" placeholder="08x-xxx-xxxx">
+      </div>
+
+      <!-- หมายเหตุ -->
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <label class="small fw-bold text-dark text-nowrap" style="width:90px;">หมายเหตุ</label>
+        <input type="text" id="empNote" class="form-control form-control-sm" placeholder="(ถ้ามี)">
+      </div>
+
+      <input type="hidden" id="empEditId" value="">
+
+      <div class="d-flex gap-2">
+        <button type="button" class="btn btn-primary w-100 fw-bold py-1 shadow-sm" id="empSaveBtn" onclick="empSave()">
+          <i class="bi bi-save me-1"></i>บันทึก
+        </button>
+        <button type="button" class="btn btn-outline-secondary py-1" id="empCancelBtn" onclick="empResetForm()" style="display:none;">
+          ยกเลิก
+        </button>
+      </div>
+
+      <hr class="my-2">
+      <div class="text-center">
+        <button type="button" class="btn btn-sm btn-outline-warning" id="empAdminBtn" onclick="empLoginAdmin()">
+          <i class="bi bi-gear-fill me-1"></i>Admin
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-danger ms-2" id="empLogoutBtn"
+                style="display:none;" onclick="empLogout()">ออกจาก Admin</button>
+      </div>
+    </div>
+
+    <!-- สรุปจำนวน -->
+    <div class="card p-2 text-start">
+      <h6 class="fw-bold text-primary mb-2 pb-1 border-bottom">
+        <i class="bi bi-bar-chart me-1"></i>สรุปจำนวนพนักงาน
+      </h6>
+      <div class="row g-2">
+        <div class="col-6">
+          <div class="rounded p-2 text-center" style="background:#e8f4ff;border:1px solid #90caf9;">
+            <div class="small text-primary fw-bold">ทั้งหมด</div>
+            <div class="fs-4 fw-bold text-primary" id="empCountTotal">0</div>
+            <div class="small text-muted">คน</div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="rounded p-2 text-center" style="background:#e8f5e9;border:1px solid #a5d6a7;">
+            <div class="small text-success fw-bold">Onduty</div>
+            <div class="fs-4 fw-bold text-success" id="empCountOnduty">0</div>
+            <div class="small text-muted">คน</div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="rounded p-2 text-center" style="background:#f5f5f5;border:1px solid #bdbdbd;">
+            <div class="small text-secondary fw-bold">Spare</div>
+            <div class="fs-4 fw-bold text-secondary" id="empCountSpar">0</div>
+            <div class="small text-muted">คน</div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="rounded p-2 text-center" style="background:#fff8e1;border:1px solid #ffe082;">
+            <div class="small fw-bold" style="color:#e65100;">โควต้าลา/สาย</div>
+            <div class="fs-4 fw-bold" style="color:#e65100;" id="empQuotaCalc">0</div>
+            <div class="small text-muted">ครั้ง/เดือน</div>
+          </div>
+        </div>
+      </div>
+      <div class="small text-muted mt-2 text-center">สูตร: Onduty × 2 ÷ 8</div>
+    </div>
+  </div>
+
+  <!-- ===== ฝั่งขวา: ตารางพนักงาน ===== -->
+  <div style="flex: 0 0 calc(62% - 10px); width:calc(62% - 10px); max-width:calc(62% - 10px); min-width:0;">
+    <div class="card p-2 text-start">
+
+      <!-- Search + Refresh -->
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <div class="input-group input-group-sm" style="max-width:260px;">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input type="text" id="empSearch" class="form-control" placeholder="ค้นหา รหัส / ชื่อ / ตำแหน่ง..."
+                 oninput="empRenderTable()">
+        </div>
+        <select id="empFilterStatus" class="form-select form-select-sm" style="width:130px;" onchange="empRenderTable()">
+          <option value="">ทั้งหมด</option>
+          <option value="onduty">Onduty</option>
+          <option value="spar">Spare</option>
+        </select>
+        <button id="empBtnRefresh" onclick="empLoadData()"
+          style="border:1px solid #adb5bd;background:white;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:0.82rem;margin-left:auto;display:flex;align-items:center;gap:4px;">
+          <i id="empRefreshIcon" class="bi bi-arrow-clockwise"></i>
+          <span id="empRefreshText">รีเฟรช</span>
+        </button>
+      </div>
+
+      <!-- ตาราง -->
+      <div style="height:680px; overflow-y:auto; overflow-x:hidden;">
+        <div id="empTableBody">
+          <p class="text-center text-muted py-5 small">กำลังโหลด...</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+var empData     = [];
+var empIsAdmin  = false;
+var empAdminPass= '';
+var empDeleteId = '';
+
+// =====================================================
+// Init
+// =====================================================
+setTimeout(function() {
+  empLoadData();
+  document.getElementById('empConfirmDeleteBtn').addEventListener('click', function() {
+    bootstrap.Modal.getInstance(document.getElementById('empDeleteModal')).hide();
+    google.script.run
+      .withSuccessHandler(function(res) {
+        if (res.status === 'success') { empNotify('🗑️ ลบพนักงานสำเร็จ'); empLoadData(); }
+        else empNotify(res.message || 'เกิดข้อผิดพลาด', 'error');
+      })
+      .deleteEmployee(empDeleteId, empAdminPass);
+  });
+}, 0);
+
+// =====================================================
+// Notify
+// =====================================================
+function empNotify(msg, type) {
+  document.getElementById('empMsgIcon').innerHTML = (type === 'error')
+    ? '<i class="bi bi-x-circle-fill text-danger fs-1"></i>'
+    : '<i class="bi bi-check-circle-fill text-success fs-1"></i>';
+  document.getElementById('empMsgText').innerText = msg;
+  new bootstrap.Modal(document.getElementById('empMsgModal')).show();
+}
+
+// =====================================================
+// Load Data
+// =====================================================
+function empLoadData() {
+  var btn  = document.getElementById('empBtnRefresh');
+  var icon = document.getElementById('empRefreshIcon');
+  var text = document.getElementById('empRefreshText');
+  if (btn) {
+    btn.disabled = true;
+    icon.className = 'spinner-border spinner-border-sm text-primary';
+    text.innerText = 'กำลังโหลด...';
+    text.className = 'text-primary fw-bold';
+  }
+  google.script.run
+    .withSuccessHandler(function(resStr) {
+      try {
+        var res = JSON.parse(resStr);
+        empData = res.data || [];
+        empRenderTable();
+        empUpdateSummary();
+      } catch(e) { console.error(e); }
+      if (btn) {
+        btn.disabled = false;
+        icon.className = 'bi bi-arrow-clockwise';
+        text.innerText = 'รีเฟรช';
+        text.className = '';
+      }
+    })
+    .withFailureHandler(function(err) {
+      console.error(err);
+      if (btn) {
+        btn.disabled = false;
+        icon.className = 'bi bi-x-circle text-danger';
+        text.innerText = 'ล้มเหลว';
+        text.className = 'text-danger fw-bold';
+        setTimeout(function() {
+          icon.className = 'bi bi-arrow-clockwise';
+          text.innerText = 'รีเฟรช';
+          text.className = '';
+        }, 2000);
+      }
+    })
+    .getEmployeeData();
+}
+
+// =====================================================
+// Summary cards
+// =====================================================
+function empUpdateSummary() {
+  var total  = empData.length;
+  var onduty = empData.filter(function(r){ return r[5] === 'onduty'; }).length;
+  var spar   = empData.filter(function(r){ return r[5] === 'spar'; }).length;
+  var quota  = Math.floor(onduty * 2 / 8);
+  document.getElementById('empCountTotal').innerText  = total;
+  document.getElementById('empCountOnduty').innerText = onduty;
+  document.getElementById('empCountSpar').innerText   = spar;
+  document.getElementById('empQuotaCalc').innerText   = quota;
+}
+
+// =====================================================
+// Render ตาราง
+// =====================================================
+function empRenderTable() {
+  var body       = document.getElementById('empTableBody');
+  var searchVal  = (document.getElementById('empSearch').value || '').toLowerCase();
+  var filterStat = document.getElementById('empFilterStatus').value;
+
+  var filtered = empData.filter(function(r) {
+    var matchStatus = !filterStat || r[5] === filterStat;
+    var matchSearch = !searchVal ||
+      (r[1]||'').toLowerCase().includes(searchVal) || // empId
+      (r[2]||'').toLowerCase().includes(searchVal) || // name
+      (r[3]||'').toLowerCase().includes(searchVal) || // position
+      (r[4]||'').toLowerCase().includes(searchVal);   // department
+    return matchStatus && matchSearch;
+  });
+
+  if (!filtered.length) {
+    body.innerHTML = '<p class="text-center text-muted py-5 small">ไม่พบข้อมูล</p>';
+    return;
+  }
+
+  var html = '<div class="table-responsive"><table class="table table-sm table-hover align-middle small">';
+  html += '<thead class="table-dark"><tr>';
+  html += '<th>รหัส</th><th>ชื่อ-นามสกุล</th><th>ตำแหน่ง</th><th>แผนก/สถานี</th>';
+  html += '<th class="text-center">สถานะ</th><th>เริ่มงาน</th><th>เบอร์โทร</th>';
+  if (empIsAdmin) html += '<th class="text-center">จัดการ</th>';
+  html += '</tr></thead><tbody>';
+
+  filtered.forEach(function(r) {
+    // r: [0]id [1]empId [2]name [3]position [4]department [5]status [6]startDate [7]phone [8]note
+    var statusBadge = r[5] === 'spar'
+      ? '<span class="badge bg-secondary">Spare</span>'
+      : '<span class="badge bg-primary">Onduty</span>';
+    var startDate = r[6]
+      ? new Date(r[6]).toLocaleDateString('th-TH', {day:'2-digit', month:'short', year:'numeric'})
+      : '-';
+
+    html += '<tr>';
+    html += '<td class="fw-bold text-primary">' + (r[1]||'-') + '</td>';
+    html += '<td class="fw-bold">' + (r[2]||'-') + '</td>';
+    html += '<td class="text-muted">' + (r[3]||'-') + '</td>';
+    html += '<td class="text-muted">' + (r[4]||'-') + '</td>';
+    html += '<td class="text-center">' + statusBadge + '</td>';
+    html += '<td class="text-muted">' + startDate + '</td>';
+    html += '<td class="text-muted">' + (r[7]||'-') + '</td>';
+    if (empIsAdmin) {
+      html += '<td class="text-center text-nowrap">';
+      html += '<i class="bi bi-pencil-square text-primary me-2" style="cursor:pointer;" onclick="empEditRow(\'' + r[0] + '\')"></i>';
+      html += '<i class="bi bi-trash text-danger" style="cursor:pointer;" onclick="empDeleteRow(\'' + r[0] + '\')"></i>';
+      html += '</td>';
+    }
+    html += '</tr>';
+    // แสดง note ถ้ามี
+    if (r[8] && empIsAdmin) {
+      html += '<tr style="background:#fffde7;"><td colspan="' + (empIsAdmin?8:7) + '" class="text-muted small ps-3">';
+      html += '<i class="bi bi-chat-left-text me-1"></i>' + r[8] + '</td></tr>';
+    }
+  });
+
+  html += '</tbody></table></div>';
+  body.innerHTML = html;
+}
+
+// =====================================================
+// Save
+// =====================================================
+function empSave() {
+  var empIdVal = document.getElementById('empId').value.trim();
+  var nameVal  = document.getElementById('empName').value.trim();
+  if (!empIdVal) { empNotify('กรุณากรอกรหัสพนักงาน', 'error'); return; }
+  if (!nameVal)  { empNotify('กรุณากรอกชื่อพนักงาน', 'error'); return; }
+
+  // ตรวจ duplicate รหัส (กรณีเพิ่มใหม่)
+  var editId = document.getElementById('empEditId').value;
+  if (!editId) {
+    var dup = empData.find(function(r){ return r[1] === empIdVal; });
+    if (dup) { empNotify('รหัสพนักงาน "' + empIdVal + '" มีอยู่แล้ว', 'error'); return; }
+  }
+
+  var btn = document.getElementById('empSaveBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>กำลังบันทึก...';
+
+  var payload = {
+    empId:      empIdVal,
+    name:       nameVal,
+    position:   document.getElementById('empPosition').value.trim(),
+    department: document.getElementById('empDepartment').value.trim(),
+    status:     document.getElementById('empStatus').value,
+    startDate:  document.getElementById('empStartDate').value,
+    phone:      document.getElementById('empPhone').value.trim(),
+    note:       document.getElementById('empNote').value.trim(),
+    editId:     editId
+  };
+
+  google.script.run
+    .withSuccessHandler(function(resStr) {
+      var res = JSON.parse(resStr);
+      if (res.status === 'success') {
+        empNotify(editId ? '✅ แก้ไขข้อมูลสำเร็จ' : '✅ เพิ่มพนักงานสำเร็จ');
+        empResetForm();
+        empLoadData();
+      } else {
+        empNotify(res.message || 'เกิดข้อผิดพลาด', 'error');
+      }
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-save me-1"></i>บันทึก';
+    })
+    .withFailureHandler(function(err) {
+      empNotify('Server Error: ' + err.message, 'error');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-save me-1"></i>บันทึก';
+    })
+    .saveEmployee(payload);
+}
+
+// =====================================================
+// Edit / Delete
+// =====================================================
+function empEditRow(id) {
+  var row = empData.find(function(r){ return r[0] === id; });
+  if (!row) return;
+  document.getElementById('empId').value         = row[1] || '';
+  document.getElementById('empName').value       = row[2] || '';
+  document.getElementById('empPosition').value   = row[3] || '';
+  document.getElementById('empDepartment').value = row[4] || '';
+  document.getElementById('empStatus').value     = row[5] || 'onduty';
+  document.getElementById('empStartDate').value  = row[6] ? row[6].substring(0,10) : '';
+  document.getElementById('empPhone').value      = row[7] || '';
+  document.getElementById('empNote').value       = row[8] || '';
+  document.getElementById('empEditId').value     = id;
+  document.getElementById('empFormTitle').innerText = 'แก้ไขข้อมูลพนักงาน';
+  document.getElementById('empSaveBtn').innerHTML = '<i class="bi bi-save me-1"></i>อัปเดต';
+  document.getElementById('empCancelBtn').style.display = 'inline-block';
+  window.scrollTo(0, 0);
+}
+
+function empDeleteRow(id) {
+  empDeleteId = id;
+  new bootstrap.Modal(document.getElementById('empDeleteModal')).show();
+}
+
+function empResetForm() {
+  ['empId','empName','empPosition','empDepartment','empStartDate','empPhone','empNote'].forEach(function(id){
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('empStatus').value  = 'onduty';
+  document.getElementById('empEditId').value  = '';
+  document.getElementById('empFormTitle').innerText = 'เพิ่มพนักงานใหม่';
+  document.getElementById('empSaveBtn').innerHTML = '<i class="bi bi-save me-1"></i>บันทึก';
+  document.getElementById('empCancelBtn').style.display = 'none';
+}
+
+// =====================================================
+// Admin
+// =====================================================
+function empLoginAdmin() {
+  document.getElementById('empAdminPwd').value = '';
+  document.getElementById('empLoginError').style.display = 'none';
+  new bootstrap.Modal(document.getElementById('empAdminModal')).show();
+  document.getElementById('empAdminModal').addEventListener('shown.bs.modal', function() {
+    document.getElementById('empAdminPwd').focus();
+  }, { once: true });
+}
+
+function empConfirmLogin() {
+  var p = document.getElementById('empAdminPwd').value;
+  if (!p) return;
+  google.script.run
+    .withSuccessHandler(function(ok) {
+      if (ok) {
+        empIsAdmin = true; empAdminPass = p;
+        bootstrap.Modal.getInstance(document.getElementById('empAdminModal')).hide();
+        document.getElementById('empAdminBtn').style.display  = 'none';
+        document.getElementById('empLogoutBtn').style.display = 'inline-block';
+        empRenderTable();
+      } else {
+        document.getElementById('empLoginError').style.display = 'block';
+        document.getElementById('empAdminPwd').value = '';
+        document.getElementById('empAdminPwd').focus();
+      }
+    }).verifyAdmin(p);
+}
+
+function empLogout() {
+  empIsAdmin = false; empAdminPass = '';
+  document.getElementById('empAdminBtn').style.display  = 'inline-block';
+  document.getElementById('empLogoutBtn').style.display = 'none';
+  empRenderTable();
+}
+</script>

@@ -1,0 +1,707 @@
+<!-- TaskApp.html — โมดูลบันทึกและติดตามงาน -->
+
+<!-- Modal แจ้งเตือน -->
+<div class="modal fade" id="taskMsgModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content shadow-lg border-0">
+      <div class="modal-body text-center p-4">
+        <div id="taskMsgIcon" class="mb-3"></div>
+        <h6 id="taskMsgText" class="fw-bold"></h6>
+        <button type="button" class="btn btn-dark btn-sm mt-3 px-4" data-bs-dismiss="modal">ตกลง</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Admin Login -->
+<div class="modal fade" id="taskAdminModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content shadow-lg border-0">
+      <div class="modal-header bg-warning">
+        <h6 class="modal-title fw-bold"><i class="bi bi-shield-lock me-2"></i>Admin Login</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <label class="small fw-bold text-dark mb-1">รหัสผ่าน</label>
+        <input type="password" id="taskAdminPwd" class="form-control mb-3" placeholder="••••••••"
+               onkeydown="if(event.key==='Enter') taskConfirmLogin()">
+        <div id="taskLoginError" class="text-danger small mb-2" style="display:none">
+          <i class="bi bi-x-circle me-1"></i>รหัสผ่านไม่ถูกต้อง
+        </div>
+        <button type="button" class="btn btn-warning w-100 fw-bold" onclick="taskConfirmLogin()">
+          <i class="bi bi-unlock me-1"></i>เข้าสู่ระบบ
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal ยืนยันลบ -->
+<div class="modal fade" id="taskDeleteModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content shadow border-0">
+      <div class="modal-body text-center p-4">
+        <i class="bi bi-trash-fill text-danger fs-1 mb-3 d-block"></i>
+        <h6 class="fw-bold">ยืนยันลบงานนี้?</h6>
+        <p class="small text-muted">ข้อมูลจะถูกลบออกจากระบบถาวร</p>
+        <div class="d-flex gap-2 mt-3 justify-content-center">
+          <button type="button" class="btn btn-secondary btn-sm px-4" data-bs-dismiss="modal">ยกเลิก</button>
+          <button type="button" class="btn btn-danger btn-sm px-4" id="taskConfirmDeleteBtn">ลบ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal ดูรายละเอียดงาน -->
+<div class="modal fade" id="taskDetailModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header" id="taskDetailHeader">
+        <h6 class="modal-title fw-bold" id="taskDetailTitle"></h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4" id="taskDetailBody"></div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">ปิด</button>
+        <button type="button" class="btn btn-sm fw-bold" id="taskDetailEditBtn"
+                style="background:#fd7e14;color:white;">
+          <i class="bi bi-pencil me-1"></i>แก้ไข
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="header-banner text-center shadow-sm mb-2 px-3 py-2"
+     style="background:#fff; border-bottom:2px solid #fd7e14;">
+  <h5 class="fw-bold mb-0" style="color:#fd7e14;">
+    <i class="bi bi-clipboard2-check me-1"></i>บันทึกและติดตามงาน
+  </h5>
+</div>
+
+<div class="row g-3">
+  <!-- ฝั่งซ้าย: ฟอร์มเพิ่ม/แก้ไขงาน -->
+  <div class="col-xl-4 col-lg-12">
+    <div class="card p-3 mb-3 border-start border-4" style="border-color:#fd7e14 !important;">
+      <h6 class="fw-bold mb-3" style="color:#fd7e14;" id="taskFormTitle">
+        <i class="bi bi-plus-circle me-1"></i>เพิ่มงานใหม่
+      </h6>
+
+      <input type="hidden" id="taskEditId">
+
+      <div class="mb-2">
+        <label class="small fw-bold text-dark">หัวข้องาน <span class="text-danger">*</span></label>
+        <input type="text" id="taskTitle" class="form-control form-control-sm"
+               placeholder="ระบุหัวข้องาน">
+      </div>
+
+      <div class="mb-2">
+        <label class="small fw-bold text-dark">รายละเอียด</label>
+        <textarea id="taskDesc" class="form-control form-control-sm" rows="3"
+                  placeholder="อธิบายรายละเอียดงาน (ถ้ามี)"></textarea>
+      </div>
+
+      <div class="row g-2 mb-2">
+        <div class="col-6">
+          <label class="small fw-bold text-dark">ผู้รับผิดชอบ</label>
+          <input type="text" id="taskAssignee" class="form-control form-control-sm"
+                 placeholder="ชื่อผู้รับผิดชอบ">
+        </div>
+        <div class="col-6">
+          <label class="small fw-bold text-dark">วันครบกำหนด</label>
+          <input type="date" id="taskDueDate" class="form-control form-control-sm">
+        </div>
+      </div>
+
+      <div class="row g-2 mb-2">
+        <div class="col-6">
+          <label class="small fw-bold text-dark">ลำดับความสำคัญ</label>
+          <select id="taskPriority" class="form-select form-select-sm">
+            <option value="ต่ำ">ต่ำ</option>
+            <option value="กลาง" selected>กลาง</option>
+            <option value="สูง">สูง</option>
+          </select>
+        </div>
+        <div class="col-6">
+          <label class="small fw-bold text-dark">สถานะ</label>
+          <select id="taskStatus" class="form-select form-select-sm">
+            <option value="รอดำเนินการ" selected>รอดำเนินการ</option>
+            <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
+            <option value="เสร็จสิ้น">เสร็จสิ้น</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="small fw-bold text-dark">หมายเหตุ</label>
+        <input type="text" id="taskNote" class="form-control form-control-sm"
+               placeholder="หมายเหตุเพิ่มเติม (ถ้ามี)">
+      </div>
+
+      <div class="d-flex gap-2">
+        <button type="button" class="btn w-100 fw-bold py-2" id="taskSaveBtn"
+                style="background:#fd7e14; color:white;" onclick="taskSave()">
+          <i class="bi bi-floppy me-1"></i>บันทึกงาน
+        </button>
+        <button type="button" class="btn btn-outline-secondary py-2 px-3" id="taskCancelEditBtn"
+                style="display:none;" onclick="taskCancelEdit()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <hr>
+      <div class="text-center">
+        <button type="button" class="btn btn-sm btn-outline-warning" id="taskAdminBtn"
+                onclick="taskLoginAdmin()">
+          <i class="bi bi-shield-lock me-1"></i>Admin
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-danger ms-2" id="taskLogoutBtn"
+                style="display:none;" onclick="taskLogout()">ออกจาก Admin</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ฝั่งขวา: รายการงาน -->
+  <div class="col-xl-8 col-lg-12">
+    <div class="card p-3">
+      <!-- แถบกรอง -->
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h6 class="fw-bold mb-0" style="color:#fd7e14;">
+          <i class="bi bi-list-check me-1"></i>รายการงาน
+        </h6>
+        <div class="d-flex gap-2 align-items-center flex-wrap">
+          <select id="taskFilterStatus" class="form-select form-select-sm" style="width:auto;"
+                  onchange="taskRender()">
+            <option value="">ทุกสถานะ</option>
+            <option value="รอดำเนินการ">รอดำเนินการ</option>
+            <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
+            <option value="เสร็จสิ้น">เสร็จสิ้น</option>
+          </select>
+          <select id="taskFilterPriority" class="form-select form-select-sm" style="width:auto;"
+                  onchange="taskRender()">
+            <option value="">ทุกความสำคัญ</option>
+            <option value="สูง">สูง</option>
+            <option value="กลาง">กลาง</option>
+            <option value="ต่ำ">ต่ำ</option>
+          </select>
+          <button id="taskBtnRefresh" onclick="taskLoadData()"
+                  style="border:1px solid #adb5bd;background:white;padding:3px 10px;
+                         border-radius:4px;cursor:pointer;font-size:0.82rem;
+                         display:flex;align-items:center;gap:4px;">
+            <i id="taskRefreshIcon" class="bi bi-arrow-clockwise"></i>
+            <span id="taskRefreshText">รีเฟรช</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- สรุปสถานะ -->
+      <div class="row g-2 mb-3" id="taskSummaryRow"></div>
+
+      <!-- รายการงาน -->
+      <div id="taskList" style="min-height:300px;">
+        <p class="text-center text-muted py-5 small">กำลังโหลด...</p>
+      </div>
+
+      <!-- pagination -->
+      <div class="d-flex justify-content-between align-items-center mt-2" id="taskPagRow"
+           style="display:none!important;">
+        <button class="btn btn-sm" id="taskPrevBtn" onclick="taskChangePage(-1)"
+                style="background:#fd7e14;color:white;" disabled>
+          <i class="bi bi-chevron-left"></i>
+        </button>
+        <span id="taskPageInfo" class="small fw-bold text-muted">-</span>
+        <button class="btn btn-sm" id="taskNextBtn" onclick="taskChangePage(1)"
+                style="background:#fd7e14;color:white;" disabled>
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .task-card {
+    border-left: 4px solid #dee2e6;
+    border-radius: 8px;
+    background: #fff;
+    transition: box-shadow 0.18s, transform 0.18s;
+    margin-bottom: 10px;
+    padding: 12px 14px;
+    cursor: pointer;
+  }
+  .task-card:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.10); transform: translateY(-1px); }
+  .task-card.priority-สูง  { border-left-color: #dc3545; }
+  .task-card.priority-กลาง { border-left-color: #fd7e14; }
+  .task-card.priority-ต่ำ  { border-left-color: #198754; }
+  .task-card.status-เสร็จสิ้น { opacity: 0.65; background: #f8f9fa; }
+
+  .badge-priority-สูง  { background:#dc3545; color:#fff; }
+  .badge-priority-กลาง { background:#fd7e14; color:#fff; }
+  .badge-priority-ต่ำ  { background:#198754; color:#fff; }
+
+  .badge-status-รอดำเนินการ    { background:#6c757d; color:#fff; }
+  .badge-status-กำลังดำเนินการ  { background:#0dcaf0; color:#000; }
+  .badge-status-เสร็จสิ้น       { background:#198754; color:#fff; }
+
+  .task-overdue { color:#dc3545; font-weight:600; }
+</style>
+
+<script>
+var taskData = [];
+var taskIsAdmin = false;
+var taskAdminPass = '';
+var taskDeleteTargetId = '';
+var taskCurrentPage = 0;
+var TASK_PER_PAGE = 15;
+
+// =====================================================
+// Init
+// =====================================================
+setTimeout(function() {
+  taskLoadData();
+
+  document.getElementById('taskConfirmDeleteBtn').addEventListener('click', function() {
+    bootstrap.Modal.getInstance(document.getElementById('taskDeleteModal')).hide();
+    google.script.run
+      .withSuccessHandler(function(res) {
+        if (res.status === 'success') {
+          taskNotify('ลบงานสำเร็จ');
+          taskLoadData();
+        } else {
+          taskNotify(res.message || 'เกิดข้อผิดพลาด', 'error');
+        }
+      })
+      .deleteTaskEntry(taskDeleteTargetId, taskAdminPass);
+  });
+}, 0);
+
+// =====================================================
+// Notify
+// =====================================================
+function taskNotify(msg, type) {
+  var icon = (type === 'error')
+    ? '<i class="bi bi-x-circle-fill text-danger fs-1"></i>'
+    : '<i class="bi bi-check-circle-fill text-success fs-1"></i>';
+  document.getElementById('taskMsgIcon').innerHTML = icon;
+  document.getElementById('taskMsgText').innerText = msg;
+  new bootstrap.Modal(document.getElementById('taskMsgModal')).show();
+}
+
+// =====================================================
+// Load data
+// =====================================================
+function taskLoadData() {
+  var btn  = document.getElementById('taskBtnRefresh');
+  var icon = document.getElementById('taskRefreshIcon');
+  var text = document.getElementById('taskRefreshText');
+  if (btn) {
+    btn.disabled = true;
+    icon.className = 'spinner-border spinner-border-sm';
+    icon.style.color = '#fd7e14';
+    text.innerText = 'กำลังอัปเดต...';
+    text.style.color = '#fd7e14';
+    text.style.fontWeight = 'bold';
+  }
+  document.getElementById('taskList').innerHTML =
+    '<p class="text-center text-muted py-5 small"><span class="spinner-border spinner-border-sm me-2"></span>กำลังโหลด...</p>';
+
+  google.script.run
+    .withSuccessHandler(function(resStr) {
+      try {
+        var res = JSON.parse(resStr);
+        taskData = res.data || [];
+        taskCurrentPage = 0;
+        taskRenderSummary();
+        taskRender();
+      } catch(e) { console.error(e); }
+      if (btn) {
+        btn.disabled = false;
+        icon.className = 'bi bi-arrow-clockwise';
+        icon.style.color = '';
+        text.innerText = 'รีเฟรช';
+        text.style.color = '';
+        text.style.fontWeight = '';
+      }
+    })
+    .withFailureHandler(function(err) {
+      console.error(err);
+      document.getElementById('taskList').innerHTML =
+        '<p class="text-center text-danger py-5 small"><i class="bi bi-x-circle me-1"></i>โหลดข้อมูลไม่สำเร็จ</p>';
+      if (btn) {
+        btn.disabled = false;
+        icon.className = 'bi bi-x-circle';
+        icon.style.color = '#dc3545';
+        text.innerText = 'ล้มเหลว';
+        text.style.color = '#dc3545';
+        text.style.fontWeight = 'bold';
+        setTimeout(function() {
+          icon.className = 'bi bi-arrow-clockwise';
+          icon.style.color = '';
+          text.innerText = 'รีเฟรช';
+          text.style.color = '';
+          text.style.fontWeight = '';
+        }, 2000);
+      }
+    })
+    .getTaskData();
+}
+
+// =====================================================
+// Summary badges
+// =====================================================
+function taskRenderSummary() {
+  var counts = { 'รอดำเนินการ': 0, 'กำลังดำเนินการ': 0, 'เสร็จสิ้น': 0 };
+  taskData.forEach(function(r) {
+    var s = r[7] || 'รอดำเนินการ';
+    if (counts[s] !== undefined) counts[s]++;
+  });
+  var html =
+    '<div class="col-4"><div class="rounded p-2 text-center" style="background:#f8f9fa;">' +
+      '<div class="fw-bold" style="color:#6c757d;">' + counts['รอดำเนินการ'] + '</div>' +
+      '<div class="small text-muted">รอดำเนินการ</div></div></div>' +
+    '<div class="col-4"><div class="rounded p-2 text-center" style="background:#e7f9fd;">' +
+      '<div class="fw-bold" style="color:#0dcaf0;">' + counts['กำลังดำเนินการ'] + '</div>' +
+      '<div class="small text-muted">กำลังดำเนินการ</div></div></div>' +
+    '<div class="col-4"><div class="rounded p-2 text-center" style="background:#d1e7dd;">' +
+      '<div class="fw-bold" style="color:#198754;">' + counts['เสร็จสิ้น'] + '</div>' +
+      '<div class="small text-muted">เสร็จสิ้น</div></div></div>';
+  document.getElementById('taskSummaryRow').innerHTML = html;
+}
+
+// =====================================================
+// Filter & Render
+// =====================================================
+function taskGetFiltered() {
+  var fStatus   = document.getElementById('taskFilterStatus').value;
+  var fPriority = document.getElementById('taskFilterPriority').value;
+  return taskData.filter(function(r) {
+    if (fStatus   && r[7] !== fStatus)   return false;
+    if (fPriority && r[6] !== fPriority) return false;
+    return true;
+  });
+}
+
+function taskChangePage(dir) {
+  var filtered = taskGetFiltered();
+  var maxPage = Math.max(0, Math.ceil(filtered.length / TASK_PER_PAGE) - 1);
+  taskCurrentPage = Math.min(maxPage, Math.max(0, taskCurrentPage + dir));
+  taskRender();
+}
+
+function taskRender() {
+  var list = document.getElementById('taskList');
+  var filtered = taskGetFiltered();
+  taskRenderSummary();
+
+  if (!filtered.length) {
+    list.innerHTML = '<p class="text-center text-muted py-5">' +
+      '<i class="bi bi-clipboard2-x fs-1 d-block mb-2 opacity-25"></i>ไม่มีรายการงาน</p>';
+    document.getElementById('taskPageInfo').innerText = '-';
+    document.getElementById('taskPrevBtn').disabled = true;
+    document.getElementById('taskNextBtn').disabled = true;
+    document.getElementById('taskPagRow').style.display = 'none';
+    return;
+  }
+
+  // เรียงลำดับ: สูงก่อน, รอก่อน, วันครบกำหนดน้อยก่อน
+  var priorityOrder = { 'สูง': 0, 'กลาง': 1, 'ต่ำ': 2 };
+  var statusOrder   = { 'รอดำเนินการ': 0, 'กำลังดำเนินการ': 1, 'เสร็จสิ้น': 2 };
+  filtered.sort(function(a, b) {
+    var so = (statusOrder[a[7]] || 0) - (statusOrder[b[7]] || 0);
+    if (so !== 0) return so;
+    var po = (priorityOrder[a[6]] || 1) - (priorityOrder[b[6]] || 1);
+    if (po !== 0) return po;
+    var da = a[5] ? new Date(a[5]) : new Date('9999-12-31');
+    var db = b[5] ? new Date(b[5]) : new Date('9999-12-31');
+    return da - db;
+  });
+
+  var totalPages = Math.ceil(filtered.length / TASK_PER_PAGE);
+  if (taskCurrentPage >= totalPages) taskCurrentPage = totalPages - 1;
+  var start = taskCurrentPage * TASK_PER_PAGE;
+  var page  = filtered.slice(start, start + TASK_PER_PAGE);
+
+  document.getElementById('taskPageInfo').innerText =
+    'หน้า ' + (taskCurrentPage + 1) + '/' + totalPages + ' (' + filtered.length + ' งาน)';
+  document.getElementById('taskPrevBtn').disabled = taskCurrentPage <= 0;
+  document.getElementById('taskNextBtn').disabled = taskCurrentPage >= totalPages - 1;
+  document.getElementById('taskPagRow').style.display = totalPages > 1 ? 'flex' : 'none';
+
+  var today = new Date(); today.setHours(0,0,0,0);
+  var html = '';
+  page.forEach(function(r) {
+    // r: [0]id [1]createdDate [2]title [3]desc [4]assignee [5]dueDate [6]priority [7]status [8]note
+    var id       = r[0];
+    var created  = r[1] || '';
+    var title    = r[2] || '';
+    var desc     = r[3] || '';
+    var assignee = r[4] || '';
+    var dueDate  = r[5] || '';
+    var priority = r[6] || 'กลาง';
+    var status   = r[7] || 'รอดำเนินการ';
+    var note     = r[8] || '';
+
+    var isOverdue = false;
+    var dueTxt = '';
+    if (dueDate) {
+      var due = new Date(dueDate);
+      due.setHours(0,0,0,0);
+      var diff = Math.round((due - today) / 86400000);
+      var parts = dueDate.split('-');
+      var dueFmt = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]))
+        .toLocaleDateString('th-TH', {day:'2-digit', month:'short', year:'numeric'});
+      if (status !== 'เสร็จสิ้น') {
+        if (diff < 0)      { isOverdue = true; dueTxt = '<span class="task-overdue"><i class="bi bi-exclamation-circle me-1"></i>เกินกำหนด ' + Math.abs(diff) + ' วัน (' + dueFmt + ')</span>'; }
+        else if (diff === 0){ dueTxt = '<span class="text-warning fw-bold"><i class="bi bi-clock me-1"></i>ครบกำหนดวันนี้</span>'; }
+        else if (diff <= 3) { dueTxt = '<span class="text-warning"><i class="bi bi-calendar-event me-1"></i>' + dueFmt + ' (อีก ' + diff + ' วัน)</span>'; }
+        else                 { dueTxt = '<span class="text-muted small"><i class="bi bi-calendar3 me-1"></i>' + dueFmt + '</span>'; }
+      } else {
+        dueTxt = '<span class="text-muted small"><i class="bi bi-calendar3 me-1"></i>' + dueFmt + '</span>';
+      }
+    }
+
+    var delBtn = taskIsAdmin
+      ? '<button class="btn btn-sm btn-outline-danger ms-1 py-0 px-2" style="font-size:0.75rem;" ' +
+        'onclick="event.stopPropagation();taskConfirmDelete(\'' + id + '\')">' +
+        '<i class="bi bi-trash"></i></button>'
+      : '';
+
+    var doneBtn = (status !== 'เสร็จสิ้น')
+      ? '<button class="btn btn-sm btn-outline-success py-0 px-2 ms-1" style="font-size:0.75rem;" ' +
+        'onclick="event.stopPropagation();taskMarkDone(\'' + id + '\')" title="ทำเครื่องหมายเสร็จสิ้น">' +
+        '<i class="bi bi-check2"></i></button>'
+      : '';
+
+    html += '<div class="task-card priority-' + priority + ' status-' + status + '" ' +
+            'onclick="taskShowDetail(\'' + id + '\')">';
+    html += '<div class="d-flex justify-content-between align-items-start">';
+    html += '<div class="flex-grow-1 me-2">';
+    html += '<div class="fw-bold mb-1" style="font-size:0.95rem;">' + taskEscape(title) + '</div>';
+    if (assignee) {
+      html += '<div class="small text-muted mb-1"><i class="bi bi-person me-1"></i>' + taskEscape(assignee) + '</div>';
+    }
+    if (dueTxt) html += '<div class="mb-1">' + dueTxt + '</div>';
+    if (desc) {
+      html += '<div class="small text-muted text-truncate" style="max-width:400px;">' + taskEscape(desc) + '</div>';
+    }
+    html += '</div>';
+    html += '<div class="d-flex flex-column align-items-end gap-1">';
+    html += '<span class="badge badge-priority-' + priority + ' mb-1">' + priority + '</span>';
+    html += '<span class="badge badge-status-' + status + '">' + status + '</span>';
+    html += '<div class="d-flex mt-1">' + doneBtn + delBtn + '</div>';
+    html += '</div></div></div>';
+  });
+
+  list.innerHTML = html;
+}
+
+// =====================================================
+// บันทึก / แก้ไขงาน
+// =====================================================
+function taskSave() {
+  var title = document.getElementById('taskTitle').value.trim();
+  if (!title) { taskNotify('กรุณาระบุหัวข้องาน', 'error'); return; }
+
+  var btn = document.getElementById('taskSaveBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>กำลังบันทึก...';
+
+  var editId = document.getElementById('taskEditId').value;
+  var payload = {
+    editId:    editId || '',
+    title:     title,
+    desc:      document.getElementById('taskDesc').value.trim(),
+    assignee:  document.getElementById('taskAssignee').value.trim(),
+    dueDate:   document.getElementById('taskDueDate').value,
+    priority:  document.getElementById('taskPriority').value,
+    status:    document.getElementById('taskStatus').value,
+    note:      document.getElementById('taskNote').value.trim()
+  };
+
+  google.script.run
+    .withSuccessHandler(function(resStr) {
+      var res = JSON.parse(resStr);
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-floppy me-1"></i>บันทึกงาน';
+      if (res.status === 'success') {
+        taskNotify(editId ? 'แก้ไขงานสำเร็จ' : 'เพิ่มงานสำเร็จ');
+        taskCancelEdit();
+        taskLoadData();
+      } else {
+        taskNotify(res.message || 'เกิดข้อผิดพลาด', 'error');
+      }
+    })
+    .withFailureHandler(function(err) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-floppy me-1"></i>บันทึกงาน';
+      taskNotify('เกิดข้อผิดพลาด: ' + err.message, 'error');
+    })
+    .saveTaskData(payload);
+}
+
+function taskCancelEdit() {
+  document.getElementById('taskEditId').value = '';
+  document.getElementById('taskTitle').value = '';
+  document.getElementById('taskDesc').value = '';
+  document.getElementById('taskAssignee').value = '';
+  document.getElementById('taskDueDate').value = '';
+  document.getElementById('taskPriority').value = 'กลาง';
+  document.getElementById('taskStatus').value = 'รอดำเนินการ';
+  document.getElementById('taskNote').value = '';
+  document.getElementById('taskFormTitle').innerHTML =
+    '<i class="bi bi-plus-circle me-1"></i>เพิ่มงานใหม่';
+  document.getElementById('taskCancelEditBtn').style.display = 'none';
+  document.getElementById('taskSaveBtn').innerHTML =
+    '<i class="bi bi-floppy me-1"></i>บันทึกงาน';
+}
+
+// =====================================================
+// Mark done (เปลี่ยนสถานะเป็นเสร็จสิ้น)
+// =====================================================
+function taskMarkDone(id) {
+  var row = taskData.find(function(r) { return r[0] === id; });
+  if (!row) return;
+  var payload = {
+    editId:   id,
+    title:    row[2],
+    desc:     row[3],
+    assignee: row[4],
+    dueDate:  row[5],
+    priority: row[6],
+    status:   'เสร็จสิ้น',
+    note:     row[8]
+  };
+  google.script.run
+    .withSuccessHandler(function(resStr) {
+      var res = JSON.parse(resStr);
+      if (res.status === 'success') taskLoadData();
+      else taskNotify(res.message || 'เกิดข้อผิดพลาด', 'error');
+    })
+    .saveTaskData(payload);
+}
+
+// =====================================================
+// แสดงรายละเอียด
+// =====================================================
+function taskShowDetail(id) {
+  var row = taskData.find(function(r) { return r[0] === id; });
+  if (!row) return;
+  var priority = row[6] || 'กลาง';
+  var status   = row[7] || 'รอดำเนินการ';
+  var colors   = { 'สูง': '#dc3545', 'กลาง': '#fd7e14', 'ต่ำ': '#198754' };
+  var color    = colors[priority] || '#fd7e14';
+
+  document.getElementById('taskDetailHeader').style.background = color;
+  document.getElementById('taskDetailHeader').style.color = '#fff';
+  document.getElementById('taskDetailTitle').innerText = row[2] || '';
+
+  var dueTxt = row[5]
+    ? new Date(row[5]).toLocaleDateString('th-TH',{day:'2-digit',month:'long',year:'numeric'})
+    : '-';
+  var createdTxt = row[1]
+    ? new Date(row[1]).toLocaleDateString('th-TH',{day:'2-digit',month:'long',year:'numeric'})
+    : '-';
+
+  document.getElementById('taskDetailBody').innerHTML =
+    '<table class="table table-sm table-borderless mb-0">' +
+    '<tr><td class="text-muted small fw-bold" style="width:120px;">รายละเอียด</td>' +
+    '<td>' + (row[3] ? taskEscape(row[3]) : '<span class="text-muted">-</span>') + '</td></tr>' +
+    '<tr><td class="text-muted small fw-bold">ผู้รับผิดชอบ</td>' +
+    '<td>' + (row[4] ? taskEscape(row[4]) : '<span class="text-muted">-</span>') + '</td></tr>' +
+    '<tr><td class="text-muted small fw-bold">วันครบกำหนด</td><td>' + dueTxt + '</td></tr>' +
+    '<tr><td class="text-muted small fw-bold">ความสำคัญ</td>' +
+    '<td><span class="badge badge-priority-' + priority + '">' + priority + '</span></td></tr>' +
+    '<tr><td class="text-muted small fw-bold">สถานะ</td>' +
+    '<td><span class="badge badge-status-' + status + '">' + status + '</span></td></tr>' +
+    '<tr><td class="text-muted small fw-bold">หมายเหตุ</td>' +
+    '<td>' + (row[8] ? taskEscape(row[8]) : '<span class="text-muted">-</span>') + '</td></tr>' +
+    '<tr><td class="text-muted small fw-bold">วันที่สร้าง</td><td>' + createdTxt + '</td></tr>' +
+    '</table>';
+
+  document.getElementById('taskDetailEditBtn').onclick = function() {
+    bootstrap.Modal.getInstance(document.getElementById('taskDetailModal')).hide();
+    taskFillEdit(id);
+  };
+  new bootstrap.Modal(document.getElementById('taskDetailModal')).show();
+}
+
+function taskFillEdit(id) {
+  var row = taskData.find(function(r) { return r[0] === id; });
+  if (!row) return;
+  document.getElementById('taskEditId').value       = id;
+  document.getElementById('taskTitle').value        = row[2] || '';
+  document.getElementById('taskDesc').value         = row[3] || '';
+  document.getElementById('taskAssignee').value     = row[4] || '';
+  document.getElementById('taskDueDate').value      = row[5] || '';
+  document.getElementById('taskPriority').value     = row[6] || 'กลาง';
+  document.getElementById('taskStatus').value       = row[7] || 'รอดำเนินการ';
+  document.getElementById('taskNote').value         = row[8] || '';
+  document.getElementById('taskFormTitle').innerHTML =
+    '<i class="bi bi-pencil me-1"></i>แก้ไขงาน';
+  document.getElementById('taskCancelEditBtn').style.display = 'inline-block';
+  document.getElementById('taskSaveBtn').innerHTML =
+    '<i class="bi bi-floppy me-1"></i>อัปเดตงาน';
+  document.getElementById('taskTitle').focus();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// =====================================================
+// ลบงาน
+// =====================================================
+function taskConfirmDelete(id) {
+  taskDeleteTargetId = id;
+  new bootstrap.Modal(document.getElementById('taskDeleteModal')).show();
+}
+
+// =====================================================
+// Admin
+// =====================================================
+function taskLoginAdmin() {
+  document.getElementById('taskAdminPwd').value = '';
+  document.getElementById('taskLoginError').style.display = 'none';
+  new bootstrap.Modal(document.getElementById('taskAdminModal')).show();
+  document.getElementById('taskAdminModal').addEventListener('shown.bs.modal', function() {
+    document.getElementById('taskAdminPwd').focus();
+  }, { once: true });
+}
+
+function taskConfirmLogin() {
+  var p = document.getElementById('taskAdminPwd').value;
+  if (!p) return;
+  google.script.run
+    .withSuccessHandler(function(ok) {
+      if (ok) {
+        taskIsAdmin = true;
+        taskAdminPass = p;
+        bootstrap.Modal.getInstance(document.getElementById('taskAdminModal')).hide();
+        document.getElementById('taskAdminBtn').style.display = 'none';
+        document.getElementById('taskLogoutBtn').style.display = 'inline-block';
+        taskRender();
+      } else {
+        document.getElementById('taskLoginError').style.display = 'block';
+        document.getElementById('taskAdminPwd').value = '';
+        document.getElementById('taskAdminPwd').focus();
+      }
+    }).verifyAdmin(p);
+}
+
+function taskLogout() {
+  taskIsAdmin = false;
+  taskAdminPass = '';
+  document.getElementById('taskAdminBtn').style.display = 'inline-block';
+  document.getElementById('taskLogoutBtn').style.display = 'none';
+  taskRender();
+}
+
+// =====================================================
+// Utility
+// =====================================================
+function taskEscape(str) {
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+</script>

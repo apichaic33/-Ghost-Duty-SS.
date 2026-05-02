@@ -1,0 +1,36 @@
+<style>
+  body { background: #f0f4f8; font-family: 'Sarabun', sans-serif; }
+  .module-card {
+    border: none; border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer; text-decoration: none; color: inherit;
+  }
+  .module-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.14);
+  }
+
+  /* -----------------------------------------------
+   .header-banner และ .card ถูกลบออกจากที่นี่แล้ว
+   เพราะแต่ละโมดูล (CouponApp, PassengerApp, ImageApp)
+   กำหนด background/border ผ่าน inline style เองทั้งหมด
+   ถ้าปล่อยไว้จะทับ inline style และทำให้ layout พัง
+  ----------------------------------------------- */
+
+  .locked-input { background-color: #e9ecef !important; font-weight: bold; }
+  .day-header { background: #343a40; color: #fff; padding: 5px 15px; border-radius: 5px; font-size: 0.85rem; margin-top: 15px; }
+  .week-header { background: #0d6efd; color: #fff; padding: 8px 15px; border-radius: 5px; margin-top: 20px; font-weight: bold; }
+  .report-book-badge { font-size: 0.875rem !important; padding: 4px 10px !important; font-weight: bold; border-radius: 6px; display: inline-block; }
+  .range-info { background: #f8f9fa; border: 1px solid #dee2e6; padding: 3px 8px; border-radius: 6px; font-size: 0.85rem; color: #495057; font-weight: 500; display: inline-block; }
+  .cat-table { width: 100%; border-collapse: collapse; margin-top: 8px; border: 1px solid #dee2e6; background: #fff; }
+  .cat-table th { background: #f8f9fa; color: #495057; font-weight: bold; text-align: center; border: 1px solid #dee2e6; padding: 4px; font-size: 0.875rem; }
+  .cat-table td { text-align: center; border: 1px solid #dee2e6; padding: 6px; font-weight: bold; color: #0d6efd; font-size: 0.95rem; }
+  .btn-edit { color: #0d6efd; cursor: pointer; margin-right: 10px; font-size: 1.1rem; }
+  .btn-delete { color: #dc3545; cursor: pointer; margin-right: 8px; font-size: 1.1rem; }
+  .admin-box { background: #fff9c4; border: 1px dashed #fbc02d; padding: 15px; border-radius: 10px; display: none; }
+  .validation-badge { font-size: 1rem; font-weight: bold; padding: 10px; border-radius: 12px; display: inline-block; margin-bottom: 15px; width: 100%; }
+  .report-flex-row { display: flex; flex-wrap: wrap; gap: 15px; }
+  .report-col { flex: 1; min-width: 300px; }
+  .start-loading { color: #6c757d; font-style: italic; }
+</style>
