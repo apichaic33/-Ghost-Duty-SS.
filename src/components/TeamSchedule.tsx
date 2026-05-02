@@ -138,7 +138,6 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
     mDays.filter((d: Date) => getShift(m, format(d, 'yyyy-MM-dd')) === code).length;
 
   const openRequestForm = (type: 'swap' | 'cover', popup: SwapPopup) => {
-    const today = format(new Date(), 'yyyy-MM-dd');
     const defaultReturn = format(addMonths(new Date(), 1), 'yyyy-MM-dd');
     setSwapPopup(null);
     setRequestForm({
@@ -146,7 +145,7 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
       targetMember: popup.targetMember,
       targetDate: popup.targetDate,
       targetShift: popup.targetShift,
-      requesterDate: today,
+      requesterDate: popup.targetDate,
       returnDate: defaultReturn,
       submitting: false,
     });
