@@ -224,10 +224,10 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
         updatedAt: new Date().toISOString(),
         updatedBy: 'admin',
       });
-      if (editingShift.member.email) {
+      if (editingShift.member.email || true) {
         emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
           subject: `Admin แก้ไขกะของคุณ วันที่ ${editingShift.date}`,
-          to_email: editingShift.member.email,
+          to_email: editingShift.member.email || ADMIN_EMAIL,
           message: `กะของคุณวันที่ ${editingShift.date} ถูกแก้ไขเป็น ${code} โดย Admin`,
         }, EMAILJS_PUBLIC_KEY).catch(() => {});
       }
