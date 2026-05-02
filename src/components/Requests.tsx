@@ -81,8 +81,9 @@ export default function Requests({ member }: RequestsProps) {
         const typeLabel = req.type === 'swap' ? 'สลับกะ' : 'ควงกะ';
         emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
           subject: `[ระบบยำกะผี] คำขอ${typeLabel}ของคุณได้รับการ${label}`,
+          from_name: 'ระบบยำกะผี',
           to_email: member.email || ADMIN_EMAIL,
-          message: `ประเภท: คำขอ${typeLabel}\nผู้ขอ: ${req.requesterName}\nวันที่ขอ: ${req.requesterDate} (กะ ${req.requesterShift})${req.targetDate ? `\nวันที่แลก: ${req.targetDate} (กะ ${req.targetShift || '—'})` : ''}\nสถานะ: ${label} โดย ${member.name}\n\n---\nระบบยำกะผี — แจ้งเตือนอัตโนมัติ`,
+          message: `ประเภท: คำขอ${typeLabel}\nผู้ขอ: ${req.requesterName}\nวันที่ขอ: ${req.requesterDate} (กะ ${req.requesterShift})${req.targetDate ? `\nวันที่แลก: ${req.targetDate} (กะ ${req.targetShift || '—'})` : ''}\nสถานะ: ${label} โดย ${member.name}\n\nตรวจสอบ: https://gen-lang-client-0528383957.web.app`,
         }, EMAILJS_PUBLIC_KEY).catch(() => {});
       }
     } catch (err: any) {
