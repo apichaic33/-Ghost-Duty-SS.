@@ -78,22 +78,25 @@ export default function Settings({ member, setMember }: SettingsProps) {
 
       let imported = 0, updated = 0;
       for (const m of json.members) {
-        const found = existing.find((ex: Member) => ex.uid === m.empId || ex.id === m.empId);
+        const cleanPos = (m.position || '').replace(/\.$/, '').trim();
+        const found =
+          existing.find((ex: Member) => ex.uid === m.empId || ex.id === m.empId) ||
+          existing.find((ex: Member) => ex.name.trim().toLowerCase() === m.name.trim().toLowerCase());
         if (found) {
           await updateDoc(doc(db, 'members', found.id), {
             name: m.name,
-            ...(m.position && { position: m.position }),
+            ...(cleanPos && { position: cleanPos }),
             ...(m.department && { station: m.department }),
           });
           updated++;
         } else {
           await setDoc(doc(db, 'members', m.empId), {
-            uid: m.empId, name: m.name,
-            position: m.position || undefined,
+            uid: m.empId, empId: m.empId, name: m.name,
+            ...(cleanPos && { position: cleanPos }),
             station: m.department || '', zone: '',
             quotaA: 0, quotaH: 0, quotaX: 4,
             shiftPattern: '', cycleStartDate: today, role: 'member',
-          });
+          }, { merge: true });
           imported++;
         }
       }
