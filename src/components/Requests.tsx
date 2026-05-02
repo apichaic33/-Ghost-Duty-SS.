@@ -12,6 +12,7 @@ import { useShiftProperties } from '../hooks/useShiftProperties';
 const EMAILJS_SERVICE_ID = 'service_yamka';
 const EMAILJS_TEMPLATE_ID = 'template_nfo6sld';
 const EMAILJS_PUBLIC_KEY = 'YY8IVNkVN-qhgglkU';
+const ADMIN_EMAIL = 'ApichaiC.583986@outlook.co.th';
 
 interface RequestsProps {
   member: Member;
