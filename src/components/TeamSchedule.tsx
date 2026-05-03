@@ -588,27 +588,31 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
       {requestForm && (() => {
         const liveReqShift = getShiftCode(member, requestForm.requesterDate, allShifts);
         const liveRetShift = getShiftCode(member, requestForm.returnDate, allShifts);
-        const aShiftOnTargetDate = getShiftCode(member, requestForm.targetDate, allShifts);
-        const bShiftOnRequesterDate = requestForm.type === 'swap_holiday'
-          ? getShiftCode(requestForm.targetMember, requestForm.requesterDate, allShifts)
-          : '';
         const isSameDate = requestForm.requesterDate === requestForm.targetDate;
         const reqIsOff = OFF_SHIFTS.includes(liveReqShift);
         const retIsOff = OFF_SHIFTS.includes(liveRetShift);
+        const hasHoliday = requestForm.type === 'swap' && (
+          OFF_SHIFTS.includes(requestForm.targetShift) !== OFF_SHIFTS.includes(liveReqShift)
+        );
+        const maxReturnDate = format(endOfMonth(addMonths(new Date(), 1)), 'yyyy-MM-dd');
+        const returnDateValid = requestForm.returnDate <= maxReturnDate;
         const coverCheck = (requestForm.type === 'cover' || requestForm.type === 'cover_holiday')
           ? checkConsecutive(liveReqShift, requestForm.targetShift) : null;
+        const bShiftOnReturnDate = requestForm.type === 'cover'
+          ? getShiftCode(requestForm.targetMember, requestForm.returnDate, allShifts) : '';
+        const coverReturnCheck = requestForm.type === 'cover'
+          ? checkConsecutive(liveRetShift, bShiftOnReturnDate) : null;
         const typeLabel: Record<string, string> = {
-          swap: 'สลับกะทั่วไป', swap_holiday: 'สลับวันหยุด',
-          cover: 'ขอให้ควงกะ', cover_holiday: 'ขอให้ควงกะ + คืนวันหยุด',
+          swap: 'สลับกะ', cover: 'ควงกะ', cover_holiday: 'ควงกะ + คืนวันหยุด',
         };
         const canSubmit = !requestForm.submitting && (
-          requestForm.type === 'swap' ? !reqIsOff :
-          requestForm.type === 'swap_holiday' ? reqIsOff :
-          requestForm.type === 'cover' ? (coverCheck?.valid === true) :
-          (coverCheck?.valid === true && retIsOff)
+          requestForm.type === 'swap'
+            ? (!hasHoliday || (retIsOff && returnDateValid))
+            : requestForm.type === 'cover'
+              ? (coverCheck?.valid === true && coverReturnCheck?.valid === true)
+              : (coverCheck?.valid === true && retIsOff)
         );
         const btnColor = requestForm.type === 'swap' ? 'bg-orange-600 hover:bg-orange-700'
-          : requestForm.type === 'swap_holiday' ? 'bg-blue-600 hover:bg-blue-700'
           : requestForm.type === 'cover_holiday' ? 'bg-teal-600 hover:bg-teal-700'
           : 'bg-purple-600 hover:bg-purple-700';
 
