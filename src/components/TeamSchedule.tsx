@@ -192,6 +192,8 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
         payload.targetDate = targetDate;
         payload.targetShift = targetShift;
       } else {
+        payload.targetDate = targetDate;
+        payload.targetShift = targetShift;
         payload.returnDate = returnDate;
       }
       await addDoc(collection(db, 'swapRequests'), payload);
