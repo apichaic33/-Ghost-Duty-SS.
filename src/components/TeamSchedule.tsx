@@ -27,7 +27,7 @@ interface SwapPopup {
 }
 
 interface RequestForm {
-  type: 'swap' | 'swap_holiday' | 'cover' | 'cover_holiday';
+  type: 'swap' | 'cover' | 'cover_holiday';
   targetMember: Member;
   targetDate: string;
   targetShift: string;
