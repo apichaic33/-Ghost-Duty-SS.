@@ -97,6 +97,30 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
     for (const sw of approvedSwaps) {
       if (sw.requesterId && sw.requesterDate) map.set(`${sw.requesterId}_${sw.requesterDate}`, sw);
       if (sw.targetId && sw.targetDate) map.set(`${sw.targetId}_${sw.targetDate}`, sw);
+      if (sw.type === 'cover' && sw.targetId && sw.requesterDate)
+        map.set(`${sw.targetId}_${sw.requesterDate}`, sw);
+    }
+    return map;
+  }, [approvedSwaps]);
+
+  // Maps memberId_date → effective shift code after approved swaps/covers
+  // cover cells use "COVER:ownShift|coveredShift" format
+  const effectiveShiftMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const sw of approvedSwaps) {
+      if (sw.type === 'swap') {
+        if (sw.requesterId && sw.requesterDate && sw.targetShift)
+          map.set(`${sw.requesterId}_${sw.requesterDate}`, sw.targetShift);
+        if (sw.targetId && sw.targetDate && sw.requesterShift)
+          map.set(`${sw.targetId}_${sw.targetDate}`, sw.requesterShift);
+      } else if (sw.type === 'cover') {
+        if (sw.requesterId && sw.requesterDate)
+          map.set(`${sw.requesterId}_${sw.requesterDate}`, 'X');
+        if (sw.targetId && sw.targetDate && sw.targetShift)
+          map.set(`${sw.targetId}_${sw.targetDate}`, `COVER:${sw.targetShift}|${sw.requesterShift || '?'}`);
+        if (sw.targetId && sw.requesterDate && sw.targetDate && sw.targetDate !== sw.requesterDate)
+          map.set(`${sw.targetId}_${sw.requesterDate}`, `COVER2:${sw.requesterShift || '?'}`);
+      }
     }
     return map;
   }, [approvedSwaps]);
