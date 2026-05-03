@@ -152,7 +152,7 @@ export default function Requests({ member }: RequestsProps) {
       toast.success(`${label}คำขอเรียบร้อย`);
 
       if (req.requesterId) {
-        const typeLabel = req.type === 'swap' ? 'สลับกะ' : 'ควงกะ';
+        const typeLabel = req.type === 'swap' ? 'สลับกะ' : req.type === 'cover' ? 'ควงกะ' : 'ควงกะ+คืนวันหยุด';
         emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
           subject: `[ระบบยำกะผี] คำขอ${typeLabel}ของคุณได้รับการ${label}`,
           from_name: 'ระบบยำกะผี',
