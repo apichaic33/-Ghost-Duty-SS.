@@ -629,7 +629,7 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
             <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl p-5 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
               <div className="flex justify-between items-center mb-4">
                 <div>
-                  <p className="text-xs text-gray-400 uppercase font-bold">{typeLabel[requestForm.type]}</p>
+                  <p className="text-xs text-gray-400 uppercase font-bold">{requestForm.type === 'swap' ? 'สลับกะ' : 'ควงกะ'}</p>
                   <p className="font-bold text-gray-800 text-sm mt-0.5">กับ {requestForm.targetMember.name}</p>
                 </div>
                 <button onClick={() => setRequestForm(null)} className="text-gray-400 hover:text-gray-600"><CloseIcon size={18} /></button>
