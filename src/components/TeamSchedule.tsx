@@ -210,7 +210,7 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
   };
 
   const openRequestForm = (type: 'swap' | 'cover' | 'cover_holiday', popup: SwapPopup) => {
-    const defaultReturn = format(addMonths(new Date(), 1), 'yyyy-MM-dd');
+    const defaultReturn = format(endOfMonth(new Date()), 'yyyy-MM-dd');
     setSwapPopup(null);
     setRequestForm({
       type,
