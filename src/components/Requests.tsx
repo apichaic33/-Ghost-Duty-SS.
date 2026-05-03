@@ -93,12 +93,56 @@ export default function Requests({ member }: RequestsProps) {
             shiftCode: req.requesterShift, originalShiftCode: req.targetShift,
             updatedAt: new Date().toISOString(),
           }, { merge: true });
-        } else if (req.type === 'cover') {
+          if (req.returnDate && req.targetId) {
+            batch.set(doc(db, 'shifts', `${req.requesterId}_${req.returnDate}`), {
+              memberId: req.requesterId, date: req.returnDate,
+              shiftCode: req.returnTargetShift || req.requesterShift,
+              updatedAt: new Date().toISOString(),
+            }, { merge: true });
+            batch.set(doc(db, 'shifts', `${req.targetId}_${req.returnDate}`), {
+              memberId: req.targetId, date: req.returnDate,
+              shiftCode: req.returnShift || 'X',
+              updatedAt: new Date().toISOString(),
+            }, { merge: true });
+          }
+        } else if (req.type === 'cover' || req.type === 'cover_holiday') {
           batch.set(doc(db, 'shifts', `${req.requesterId}_${req.requesterDate}`), {
             memberId: req.requesterId, date: req.requesterDate,
-            shiftCode: req.requesterShift, isDoubleShift: true,
+            shiftCode: 'X', originalShiftCode: req.requesterShift,
             updatedAt: new Date().toISOString(),
           }, { merge: true });
+          if (req.targetId && req.targetDate) {
+            batch.set(doc(db, 'shifts', `${req.targetId}_${req.targetDate}`), {
+              memberId: req.targetId, date: req.targetDate,
+              shiftCode: req.targetShift, isDoubleShift: true,
+              updatedAt: new Date().toISOString(),
+            }, { merge: true });
+          }
+          if (req.returnDate && req.targetId) {
+            if (req.type === 'cover') {
+              batch.set(doc(db, 'shifts', `${req.requesterId}_${req.returnDate}`), {
+                memberId: req.requesterId, date: req.returnDate,
+                shiftCode: req.returnShift, isDoubleShift: true,
+                updatedAt: new Date().toISOString(),
+              }, { merge: true });
+              batch.set(doc(db, 'shifts', `${req.targetId}_${req.returnDate}`), {
+                memberId: req.targetId, date: req.returnDate,
+                shiftCode: 'X', originalShiftCode: req.returnTargetShift,
+                updatedAt: new Date().toISOString(),
+              }, { merge: true });
+            } else {
+              batch.set(doc(db, 'shifts', `${req.requesterId}_${req.returnDate}`), {
+                memberId: req.requesterId, date: req.returnDate,
+                shiftCode: req.returnTargetShift || req.requesterShift,
+                updatedAt: new Date().toISOString(),
+              }, { merge: true });
+              batch.set(doc(db, 'shifts', `${req.targetId}_${req.returnDate}`), {
+                memberId: req.targetId, date: req.returnDate,
+                shiftCode: req.returnShift || 'X',
+                updatedAt: new Date().toISOString(),
+              }, { merge: true });
+            }
+          }
         }
       }
 
