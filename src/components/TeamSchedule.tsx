@@ -407,7 +407,11 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
                         <MemberCell m={m} mDays={mDays} />
                         {mDays.map((day: Date) => {
                           const dateStr = format(day, 'yyyy-MM-dd');
-                          const code = getShift(m, dateStr);
+                          const rawEff = effectiveShiftMap.get(`${m.id}_${dateStr}`);
+                          const isCover = rawEff?.startsWith('COVER:') ?? false;
+                          const isCover2 = rawEff?.startsWith('COVER2:') ?? false;
+                          const code = (rawEff && !isCover && !isCover2) ? rawEff : getShift(m, dateStr);
+                          const coverShifts = isCover ? rawEff!.slice(6).split('|') : isCover2 ? ['', rawEff!.slice(7)] : [];
                           const swap = swapMap.get(`${m.id}_${dateStr}`);
                           return (
                             <td key={dateStr} className={`p-0.5 border-r border-gray-100 text-center ${isToday(day) ? 'bg-orange-50/20' : ''}`}>
@@ -415,14 +419,29 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
                                 onClick={() => {
                                   if (swap) { setSwapDetail(swap); return; }
                                   if (isAdmin) setEditingShift({ member: m, date: dateStr });
-                                  else if (!isSelf) setSwapPopup({ targetMember: m, targetDate: dateStr, targetShift: code });
+                                  else if (!isSelf) setSwapPopup({ targetMember: m, targetDate: dateStr, targetShift: isCover ? coverShifts[0] : code });
                                 }}
                                 disabled={!isAdmin && isSelf && !swap}
-                                className={`relative w-full h-6 flex items-center justify-center rounded text-[9px] font-bold transition-all
+                                className={`relative w-full flex items-center justify-center rounded font-bold transition-all
+                                  ${isCover || isCover2 ? 'h-8 flex-col gap-0' : 'h-6 text-[9px]'}
                                   ${(!isAdmin && isSelf && !swap) ? 'cursor-default opacity-70' : 'hover:opacity-75 active:scale-95 cursor-pointer'}`}
-                                style={isSelf ? getSelfShiftStyle(code) : getOtherShiftStyle(code)}
+                                style={isCover || isCover2
+                                  ? { backgroundColor: '#fef3c7', color: '#92400e', border: '1px solid #fcd34d', borderRadius: 4 }
+                                  : (isSelf ? getSelfShiftStyle(code) : getOtherShiftStyle(code))}
                               >
-                                {code === 'XO' ? 'X' : code}
+                                {isCover ? (
+                                  <>
+                                    <span className="text-[8px] font-bold leading-none">{coverShifts[0]}</span>
+                                    <span className="text-[7px] font-bold leading-none opacity-60">+{coverShifts[1]}</span>
+                                  </>
+                                ) : isCover2 ? (
+                                  <>
+                                    <span className="text-[7px] font-bold leading-none opacity-50">ควง</span>
+                                    <span className="text-[8px] font-bold leading-none">{coverShifts[1]}</span>
+                                  </>
+                                ) : (
+                                  code === 'XO' ? 'X' : code
+                                )}
                                 {swap && <span className="absolute top-0 right-0 w-1.5 h-1.5 rounded-full bg-green-500" />}
                               </button>
                             </td>
