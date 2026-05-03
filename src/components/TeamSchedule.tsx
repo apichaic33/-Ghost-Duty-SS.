@@ -490,57 +490,71 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
       )}
 
       {/* Member: Step 1 — choose type */}
-      {swapPopup && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-end md:items-center justify-center p-4"
-          onClick={() => setSwapPopup(null)}>
-          <div className="bg-white rounded-2xl w-full max-w-xs shadow-2xl p-5" onClick={e => e.stopPropagation()}>
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <p className="text-xs text-gray-400 uppercase font-bold">เลือกประเภทคำขอ</p>
-                <p className="font-bold text-gray-800 text-sm mt-0.5">{swapPopup.targetMember.name}</p>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  {swapPopup.targetMember.station && (
-                    <span className="text-[10px] text-indigo-600 font-bold bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded">
-                      {swapPopup.targetMember.station}
-                    </span>
-                  )}
-                  <p className="text-xs text-gray-500">{format(new Date(swapPopup.targetDate + 'T00:00:00'), 'd MMMM yyyy', { locale: th })}</p>
+      {swapPopup && (() => {
+        const tgtIsOff = OFF_SHIFTS.includes(swapPopup.targetShift);
+        return (
+          <div className="fixed inset-0 bg-black/40 z-50 flex items-end md:items-center justify-center p-4"
+            onClick={() => setSwapPopup(null)}>
+            <div className="bg-white rounded-2xl w-full max-w-xs shadow-2xl p-5" onClick={e => e.stopPropagation()}>
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <p className="text-xs text-gray-400 uppercase font-bold">เลือกประเภทคำขอ</p>
+                  <p className="font-bold text-gray-800 text-sm mt-0.5">{swapPopup.targetMember.name}</p>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    {swapPopup.targetMember.station && (
+                      <span className="text-[10px] text-indigo-600 font-bold bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded">
+                        {swapPopup.targetMember.station}
+                      </span>
+                    )}
+                    <p className="text-xs text-gray-500">{format(new Date(swapPopup.targetDate + 'T00:00:00'), 'd MMMM yyyy', { locale: th })}</p>
+                  </div>
                 </div>
+                <span className="px-3 py-1.5 rounded-lg text-sm font-bold" style={getOtherShiftStyle(swapPopup.targetShift)}>{swapPopup.targetShift}</span>
               </div>
-              <span className="px-3 py-1.5 rounded-lg text-sm font-bold" style={getOtherShiftStyle(swapPopup.targetShift)}>{swapPopup.targetShift}</span>
-            </div>
-            <div className="space-y-2">
-              <button onClick={() => openRequestForm('swap', swapPopup)}
-                className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-700 font-medium text-sm transition-colors">
-                <span className="text-lg">⇄</span>
-                <div className="text-left">
-                  <p className="font-bold">ขอสลับกะ</p>
-                  <p className="text-[10px] text-orange-500">สลับกะระหว่างกัน</p>
-                </div>
-              </button>
-              {normalizePos(member.position) === 'SS' ? (
-                <button onClick={() => openRequestForm('cover', swapPopup)}
-                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-medium text-sm transition-colors">
-                  <span className="text-lg">🔄</span>
-                  <div className="text-left">
-                    <p className="font-bold">ขอควงกะ</p>
-                    <p className="text-[10px] text-purple-500">ต้องคืนภายในเดือนถัดไป</p>
-                  </div>
-                </button>
-              ) : (
-                <div className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-gray-50 text-gray-300 text-sm cursor-not-allowed">
-                  <span className="text-lg opacity-40">🔄</span>
-                  <div className="text-left">
-                    <p className="font-bold">ขอควงกะ</p>
-                    <p className="text-[10px]">เฉพาะตำแหน่ง SS เท่านั้น</p>
-                  </div>
-                </div>
-              )}
-              <button onClick={() => setSwapPopup(null)} className="w-full py-2 text-sm text-gray-400 hover:text-gray-600">ยกเลิก</button>
+              <div className="space-y-2">
+                {tgtIsOff ? (
+                  <button onClick={() => openRequestForm('swap_holiday', swapPopup)}
+                    className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium text-sm transition-colors">
+                    <span className="text-lg">🏖️</span>
+                    <div className="text-left">
+                      <p className="font-bold">สลับวันหยุด</p>
+                      <p className="text-[10px] text-blue-500">ต้องให้วันหยุดคืนทันที (ในฟอร์มเดียวกัน)</p>
+                    </div>
+                  </button>
+                ) : (
+                  <>
+                    <button onClick={() => openRequestForm('swap', swapPopup)}
+                      className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-700 font-medium text-sm transition-colors">
+                      <span className="text-lg">⇄</span>
+                      <div className="text-left">
+                        <p className="font-bold">สลับกะทั่วไป</p>
+                        <p className="text-[10px] text-orange-500">แลกกะกัน ไม่ต้องคืน</p>
+                      </div>
+                    </button>
+                    <button onClick={() => openRequestForm('cover', swapPopup)}
+                      className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-medium text-sm transition-colors">
+                      <span className="text-lg">🔄</span>
+                      <div className="text-left">
+                        <p className="font-bold">ขอให้ควงกะ</p>
+                        <p className="text-[10px] text-purple-500">ทำงาน 2 กะต่อเนื่อง — ไม่มีคืน</p>
+                      </div>
+                    </button>
+                    <button onClick={() => openRequestForm('cover_holiday', swapPopup)}
+                      className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-700 font-medium text-sm transition-colors">
+                      <span className="text-lg">🔄🏖️</span>
+                      <div className="text-left">
+                        <p className="font-bold">ขอให้ควงกะ + คืนวันหยุด</p>
+                        <p className="text-[10px] text-teal-500">ทำงาน 2 กะ แล้วได้รับวันหยุดคืน</p>
+                      </div>
+                    </button>
+                  </>
+                )}
+                <button onClick={() => setSwapPopup(null)} className="w-full py-2 text-sm text-gray-400 hover:text-gray-600">ยกเลิก</button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Member: Step 2 — fill in dates & submit */}
       {requestForm && (() => {
