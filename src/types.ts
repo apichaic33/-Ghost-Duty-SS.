@@ -93,6 +93,8 @@ export interface SwapRequest {
   returnDate?: string;
   returnShift?: string;        // A's X/A/H shift given to B (cover_holiday)
   returnTargetShift?: string;  // B's original shift on returnDate (cover_holiday)
+  aOriginalShift?: string;     // A's original shift on targetDate (swap_holiday)
+  bOriginalShift?: string;     // B's original shift on requesterDate (swap_holiday)
   isReverseOf?: string;
   createdAt: string;
 }
