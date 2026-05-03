@@ -117,6 +117,15 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
           map.set(`${sw.requesterId}_${sw.requesterDate}`, sw.targetShift);
         if (sw.targetId && sw.targetDate && sw.requesterShift)
           map.set(`${sw.targetId}_${sw.targetDate}`, sw.requesterShift);
+      } else if (sw.type === 'swap_holiday') {
+        if (sw.requesterId && sw.targetDate)
+          map.set(`${sw.requesterId}_${sw.targetDate}`, 'X');
+        if (sw.targetId && sw.targetDate && sw.aOriginalShift)
+          map.set(`${sw.targetId}_${sw.targetDate}`, sw.aOriginalShift);
+        if (sw.requesterId && sw.requesterDate && sw.bOriginalShift)
+          map.set(`${sw.requesterId}_${sw.requesterDate}`, sw.bOriginalShift);
+        if (sw.targetId && sw.requesterDate && sw.requesterShift)
+          map.set(`${sw.targetId}_${sw.requesterDate}`, sw.requesterShift);
       } else if (sw.type === 'cover') {
         if (sw.requesterId && sw.requesterDate)
           map.set(`${sw.requesterId}_${sw.requesterDate}`, 'X');
