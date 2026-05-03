@@ -526,6 +526,7 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
       {/* Member: Step 1 — choose type */}
       {swapPopup && (() => {
         const tgtIsOff = OFF_SHIFTS.includes(swapPopup.targetShift);
+        const bothSS = normalizePos(member.position) === 'SS' && normalizePos(swapPopup.targetMember.position) === 'SS';
         return (
           <div className="fixed inset-0 bg-black/40 z-50 flex items-end md:items-center justify-center p-4"
             onClick={() => setSwapPopup(null)}>
@@ -546,39 +547,32 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
                 <span className="px-3 py-1.5 rounded-lg text-sm font-bold" style={getOtherShiftStyle(swapPopup.targetShift)}>{swapPopup.targetShift}</span>
               </div>
               <div className="space-y-2">
-                {tgtIsOff ? (
-                  <button onClick={() => openRequestForm('swap_holiday', swapPopup)}
-                    className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium text-sm transition-colors">
-                    <span className="text-lg">🏖️</span>
-                    <div className="text-left">
-                      <p className="font-bold">สลับวันหยุด</p>
-                      <p className="text-[10px] text-blue-500">ต้องให้วันหยุดคืนทันที (ในฟอร์มเดียวกัน)</p>
-                    </div>
-                  </button>
-                ) : (
+                <button onClick={() => openRequestForm('swap', swapPopup)}
+                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-700 font-medium text-sm transition-colors">
+                  <span className="text-lg">⇄</span>
+                  <div className="text-left">
+                    <p className="font-bold">สลับกะ</p>
+                    <p className="text-[10px] text-orange-500">
+                      {tgtIsOff ? 'แลกกะกับวันหยุด — ต้องระบุวันคืนทันที' : 'แลกกะทำงานกัน'}
+                    </p>
+                  </div>
+                </button>
+                {bothSS && (
                   <>
-                    <button onClick={() => openRequestForm('swap', swapPopup)}
-                      className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-700 font-medium text-sm transition-colors">
-                      <span className="text-lg">⇄</span>
-                      <div className="text-left">
-                        <p className="font-bold">สลับกะทั่วไป</p>
-                        <p className="text-[10px] text-orange-500">แลกกะกัน ไม่ต้องคืน</p>
-                      </div>
-                    </button>
                     <button onClick={() => openRequestForm('cover', swapPopup)}
                       className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-medium text-sm transition-colors">
                       <span className="text-lg">🔄</span>
                       <div className="text-left">
-                        <p className="font-bold">ขอให้ควงกะ</p>
-                        <p className="text-[10px] text-purple-500">ทำงาน 2 กะต่อเนื่อง — ไม่มีคืน</p>
+                        <p className="font-bold">ควงกะ</p>
+                        <p className="text-[10px] text-purple-500">ควงให้กัน — คืนด้วยการควงกลับ (SS เท่านั้น)</p>
                       </div>
                     </button>
                     <button onClick={() => openRequestForm('cover_holiday', swapPopup)}
                       className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-700 font-medium text-sm transition-colors">
                       <span className="text-lg">🔄🏖️</span>
                       <div className="text-left">
-                        <p className="font-bold">ขอให้ควงกะ + คืนวันหยุด</p>
-                        <p className="text-[10px] text-teal-500">ทำงาน 2 กะ แล้วได้รับวันหยุดคืน</p>
+                        <p className="font-bold">ควงกะ + คืนวันหยุด</p>
+                        <p className="text-[10px] text-teal-500">ควงให้ — คืนด้วยวันหยุดแทนการควง (SS เท่านั้น)</p>
                       </div>
                     </button>
                   </>
