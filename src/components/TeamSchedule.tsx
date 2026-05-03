@@ -103,6 +103,10 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
       if (sw.targetId && sw.targetDate) map.set(`${sw.targetId}_${sw.targetDate}`, sw);
       if (sw.type === 'cover' && sw.targetId && sw.requesterDate)
         map.set(`${sw.targetId}_${sw.requesterDate}`, sw);
+      if (sw.type === 'swap_holiday') {
+        if (sw.requesterId && sw.targetDate) map.set(`${sw.requesterId}_${sw.targetDate}`, sw);
+        if (sw.targetId && sw.requesterDate) map.set(`${sw.targetId}_${sw.requesterDate}`, sw);
+      }
     }
     return map;
   }, [approvedSwaps]);
