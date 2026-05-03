@@ -223,7 +223,7 @@ export default function SpecialSchedule({ member, group }: SpecialScheduleProps)
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-500">ประเภท</span>
-                <span className="font-bold">{swapDetail.type === 'swap' ? 'สลับกะ' : 'ควงกะ'}</span>
+                <span className="font-bold">{swapDetail.type === 'swap' ? 'สลับกะ' : swapDetail.type === 'cover' ? 'ควงกะ' : 'ควงกะ+คืนวันหยุด'}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">ผู้ขอ</span>
