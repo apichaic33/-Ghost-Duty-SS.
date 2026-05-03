@@ -641,9 +641,7 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
                   <TwoCol
                     leftLabel="คุณ"
                     leftContent={<>
-                      <input type="date" value={requestForm.requesterDate}
-                        onChange={e => setRequestForm(f => f ? { ...f, requesterDate: e.target.value } : null)}
-                        className="w-full border border-orange-200 rounded-lg px-1 py-1.5 text-[10px] text-center focus:ring-2 focus:ring-orange-500 outline-none bg-white mb-2" />
+                      <p className="text-sm font-bold text-orange-700 py-1.5 mb-2">{format(new Date(requestForm.requesterDate + 'T00:00:00'), 'd MMM yy', { locale: th })}</p>
                       <span className="inline-block px-3 py-1.5 rounded-lg text-base font-bold" style={getSelfShiftStyle(liveReqShift)}>{liveReqShift}</span>
                     </>}
                     rightLabel={requestForm.targetMember.name.split(' ')[0]}
