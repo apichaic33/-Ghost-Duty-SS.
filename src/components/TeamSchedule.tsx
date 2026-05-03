@@ -199,53 +199,44 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
       return;
     }
 
-    if (type === 'cover') {
-      const now = new Date();
-      const maxReturn = new Date(now.getFullYear(), now.getMonth() + 2, 0);
-      if (new Date(returnDate) > maxReturn) {
-        toast.error('วันคืนกะต้องอยู่ภายในเดือนถัดไป');
-        return;
-      }
-      if (new Date(returnDate) <= new Date(requesterDate)) {
-        toast.error('วันคืนกะต้องอยู่หลังวันควงกะ');
-        return;
-      }
-    }
-
     const requesterShift = getShiftCode(member, requesterDate, allShifts);
-
     setRequestForm(f => f ? { ...f, submitting: true } : null);
+
     try {
       const payload: Record<string, unknown> = {
-        requesterId: member.id,
-        requesterName: member.name,
-        targetId: targetMember.id,
-        targetName: targetMember.name,
-        type,
-        requesterDate,
-        requesterShift,
-        status: 'pending',
-        createdAt: new Date().toISOString(),
+        requesterId: member.id, requesterName: member.name,
+        targetId: targetMember.id, targetName: targetMember.name,
+        type, requesterDate, requesterShift,
+        status: 'pending', createdAt: new Date().toISOString(),
       };
-      if (type === 'swap') {
+
+      if (type === 'swap' || type === 'swap_holiday') {
         payload.targetDate = targetDate;
         payload.targetShift = targetShift;
-      } else {
+      } else if (type === 'cover' || type === 'cover_holiday') {
         payload.targetDate = targetDate;
         payload.targetShift = targetShift;
-        payload.returnDate = returnDate;
+        if (type === 'cover_holiday') {
+          const returnShift = getShiftCode(member, returnDate, allShifts);
+          const returnTargetShift = getShiftCode(targetMember, returnDate, allShifts);
+          payload.returnDate = returnDate;
+          payload.returnShift = returnShift;
+          payload.returnTargetShift = returnTargetShift;
+        }
       }
+
       await addDoc(collection(db, 'swapRequests'), payload);
 
-      {
-        const label = type === 'swap' ? 'สลับกะ' : 'ควงกะ';
-        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-          subject: `[ระบบยำกะผี] คำขอ${label}ใหม่จาก ${member.name}`,
-          from_name: 'ระบบยำกะผี',
-          to_email: targetMember.email || ADMIN_EMAIL,
-          message: `ประเภท: คำขอ${label}\nผู้ขอ: ${member.name}\nส่งถึง: ${targetMember.name}\nวันที่ขอ: ${requesterDate} (กะ ${requesterShift})${type === 'swap' && targetDate ? `\nวันที่แลก: ${targetDate} (กะ ${targetShift || '—'})` : ''}\nสถานะ: รอการอนุมัติ\n\nตรวจสอบ: https://gen-lang-client-0528383957.web.app`,
-        }, EMAILJS_PUBLIC_KEY).catch(() => {});
-      }
+      const typeLabel: Record<string, string> = {
+        swap: 'สลับกะ', swap_holiday: 'สลับวันหยุด',
+        cover: 'ควงกะ', cover_holiday: 'ควงกะ + คืนวันหยุด',
+      };
+      emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        subject: `[ระบบยำกะผี] คำขอ${typeLabel[type]}ใหม่จาก ${member.name}`,
+        from_name: 'ระบบยำกะผี',
+        to_email: targetMember.email || ADMIN_EMAIL,
+        message: `ประเภท: ${typeLabel[type]}\nผู้ขอ: ${member.name}\nส่งถึง: ${targetMember.name}\nวันที่: ${requesterDate} (กะ ${requesterShift})\nสถานะ: รอการอนุมัติ\n\nตรวจสอบ: https://gen-lang-client-0528383957.web.app`,
+      }, EMAILJS_PUBLIC_KEY).catch(() => {});
 
       toast.success('ส่งคำขอเรียบร้อยแล้ว');
       setRequestForm(null);
