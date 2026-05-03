@@ -662,60 +662,37 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
                       <span className="inline-block px-3 py-1.5 rounded-lg text-base font-bold" style={getOtherShiftStyle(requestForm.targetShift)}>{requestForm.targetShift}</span>
                     </>}
                   />
-                  {!reqIsOff && (
+                  {!hasHoliday && (
                     <div className={`rounded-lg px-3 py-2 text-xs font-medium ${isSameDate ? 'bg-blue-50 text-blue-700' : 'bg-amber-50 text-amber-700'}`}>
                       {isSameDate
                         ? `สลับกะ ${liveReqShift} ↔ ${requestForm.targetShift} วันที่ ${format(new Date(requestForm.targetDate + 'T00:00:00'), 'd MMMM', { locale: th })}`
                         : `คุณให้กะ ${liveReqShift} วัน ${format(new Date(requestForm.requesterDate + 'T00:00:00'), 'd MMM', { locale: th })} — ${requestForm.targetMember.name.split(' ')[0]} ให้กะ ${requestForm.targetShift} วัน ${format(new Date(requestForm.targetDate + 'T00:00:00'), 'd MMM', { locale: th })}`}
                     </div>
                   )}
-                  {reqIsOff && <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-xs text-red-700">⚠️ วันที่เลือกของคุณเป็นวัน{liveReqShift} — กรุณาเลือกวันที่ทำงาน</div>}
+                  {hasHoliday && (
+                    <div className="border-t border-dashed border-blue-100 pt-3 space-y-2">
+                      <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wide">วันคืนวันหยุด <span className="font-normal text-gray-400 normal-case">(ไม่เกินเดือนถัดไป)</span></p>
+                      <div className="flex items-center gap-2">
+                        <input type="date" value={requestForm.returnDate} max={maxReturnDate}
+                          onChange={e => setRequestForm(f => f ? { ...f, returnDate: e.target.value } : null)}
+                          className="flex-1 border border-blue-200 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none" />
+                        <span className="px-2 py-1.5 rounded-lg text-sm font-bold shrink-0" style={getSelfShiftStyle(liveRetShift)}>{liveRetShift}</span>
+                      </div>
+                      {retIsOff && returnDateValid
+                        ? <p className="text-[10px] text-blue-600">✓ คืนวันหยุด {liveRetShift} ให้ {requestForm.targetMember.name.split(' ')[0]} วัน {format(new Date(requestForm.returnDate + 'T00:00:00'), 'd MMM', { locale: th })}</p>
+                        : !retIsOff
+                          ? <p className="text-[10px] text-red-500">⚠️ ต้องเลือกวันหยุดของคุณ (X/A/H) เพื่อคืน</p>
+                          : <p className="text-[10px] text-red-500">⚠️ ต้องคืนภายในเดือนถัดไป (ก่อน {format(new Date(maxReturnDate + 'T00:00:00'), 'd MMM yy', { locale: th })})</p>
+                      }
+                    </div>
+                  )}
                 </div>
               )}
 
-              {/* ===== SWAP HOLIDAY ===== */}
-              {requestForm.type === 'swap_holiday' && (
+              {/* ===== COVER ===== */}
+              {requestForm.type === 'cover' && (
                 <div className="space-y-3">
-                  <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wide">วันที่ขอ</p>
-                  <TwoCol
-                    leftLabel="ผู้ขอแลก"
-                    leftContent={<>
-                      <p className="text-[10px] text-gray-500 font-medium py-1.5 mb-2">{format(new Date(requestForm.targetDate + 'T00:00:00'), 'd MMM yy', { locale: th })}</p>
-                      <span className="inline-block px-3 py-1.5 rounded-lg text-base font-bold" style={getSelfShiftStyle(aShiftOnTargetDate)}>{aShiftOnTargetDate}</span>
-                    </>}
-                    rightLabel="ผู้ให้แลก"
-                    rightContent={<>
-                      <p className="text-[10px] text-gray-500 font-medium py-1.5 mb-2">{format(new Date(requestForm.targetDate + 'T00:00:00'), 'd MMM yy', { locale: th })}</p>
-                      <span className="inline-block px-3 py-1.5 rounded-lg text-base font-bold" style={getOtherShiftStyle(requestForm.targetShift)}>{requestForm.targetShift}</span>
-                    </>}
-                  />
-                  <div className="border-t border-dashed border-blue-100 pt-3">
-                    <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wide mb-2">วันคืน</p>
-                    <TwoCol
-                      leftLabel="คืนวันหยุด (ผู้ขอแลก)"
-                      leftContent={<>
-                        <input type="date" value={requestForm.requesterDate}
-                          onChange={e => setRequestForm(f => f ? { ...f, requesterDate: e.target.value } : null)}
-                          className="w-full border border-orange-200 rounded-lg px-1 py-1.5 text-[10px] text-center focus:ring-2 focus:ring-orange-500 outline-none bg-white mb-2" />
-                        <span className="inline-block px-3 py-1.5 rounded-lg text-base font-bold" style={getSelfShiftStyle(liveReqShift)}>{liveReqShift}</span>
-                      </>}
-                      rightLabel="รับคืนวันหยุด (ผู้ให้แลก)"
-                      rightContent={<>
-                        <p className="text-[10px] text-gray-500 font-medium py-1.5 mb-2">{format(new Date(requestForm.requesterDate + 'T00:00:00'), 'd MMM yy', { locale: th })}</p>
-                        <span className="inline-block px-3 py-1.5 rounded-lg text-base font-bold" style={getOtherShiftStyle(bShiftOnRequesterDate)}>{bShiftOnRequesterDate || '—'}</span>
-                      </>}
-                    />
-                  </div>
-                  {reqIsOff
-                    ? <div className="bg-blue-50 rounded-lg px-3 py-2 text-xs text-blue-700 font-medium">✓ สลับวันหยุด: คุณรับ {requestForm.targetShift} วัน {format(new Date(requestForm.targetDate + 'T00:00:00'), 'd MMM', { locale: th })} — คืนวันหยุด {liveReqShift} ให้ {requestForm.targetMember.name.split(' ')[0]} วัน {format(new Date(requestForm.requesterDate + 'T00:00:00'), 'd MMM', { locale: th })}</div>
-                    : <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-xs text-red-700">⚠️ วันคืนต้องเป็นวันหยุดของคุณ (X/A/H)</div>
-                  }
-                </div>
-              )}
-
-              {/* ===== COVER / COVER_HOLIDAY ===== */}
-              {(requestForm.type === 'cover' || requestForm.type === 'cover_holiday') && (
-                <div className="space-y-3">
+                  <p className="text-[10px] font-bold text-purple-600 uppercase tracking-wide">วันที่ {requestForm.targetMember.name.split(' ')[0]} ควงให้คุณ</p>
                   <TwoCol
                     arrow="+"
                     leftLabel="กะที่ขอให้ควง (กะคุณ)"
@@ -730,30 +707,84 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
                     rightContent={<>
                       <p className="text-[10px] text-gray-500 font-medium py-1.5 mb-2">{format(new Date(requestForm.targetDate + 'T00:00:00'), 'd MMM yy', { locale: th })}</p>
                       <span className="inline-block px-3 py-1.5 rounded-lg text-base font-bold" style={getOtherShiftStyle(requestForm.targetShift)}>{requestForm.targetShift}</span>
-                      <p className="text-[9px] text-gray-400 mt-1">ควงต่อเนื่อง</p>
+                      <p className="text-[9px] text-gray-400 mt-1">ควงต่อ</p>
                     </>}
                   />
                   {coverCheck === null
                     ? <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2 text-xs text-yellow-700">⚠️ ยังไม่มีข้อมูลเวลากะ — ไปที่ ตั้งค่า → ทะเบียนรหัสกะ เพื่อใส่เวลาเข้า-ออก</div>
                     : coverCheck.valid
-                      ? <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-2 text-xs text-green-700">✓ กะต่อเนื่องกัน — {requestForm.targetMember.name.split(' ')[0]} จะควง {coverCheck.order === 'B_first' ? `${requestForm.targetShift}+${liveReqShift}` : `${liveReqShift}+${requestForm.targetShift}`}{coverCheck.crossDay ? ' (ข้ามวัน)' : ''}</div>
-                      : <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-xs text-red-700">⚠️ กะ {liveReqShift} + {requestForm.targetShift} ไม่ต่อเนื่องกัน — กรุณาเลือกวันที่กะต่อกัน</div>
+                      ? <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-2 text-xs text-green-700">✓ กะต่อเนื่อง — {requestForm.targetMember.name.split(' ')[0]} ควง {coverCheck.order === 'B_first' ? `${requestForm.targetShift}+${liveReqShift}` : `${liveReqShift}+${requestForm.targetShift}`}{coverCheck.crossDay ? ' (ข้ามวัน)' : ''}</div>
+                      : <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-xs text-red-700">⚠️ กะ {liveReqShift} + {requestForm.targetShift} ไม่ต่อเนื่อง — กรุณาเลือกวันที่กะต่อกัน</div>
                   }
-                  {requestForm.type === 'cover_holiday' && (
-                    <div className="border-t border-gray-100 pt-3 space-y-2">
-                      <p className="text-[10px] font-bold text-teal-600 uppercase">วันหยุดที่คืนให้ {requestForm.targetMember.name.split(' ')[0]}</p>
-                      <div className="flex items-center gap-2">
+                  <div className="border-t border-dashed border-purple-100 pt-3">
+                    <p className="text-[10px] font-bold text-purple-600 uppercase tracking-wide mb-2">วันที่คุณควงคืนให้ {requestForm.targetMember.name.split(' ')[0]}</p>
+                    <TwoCol
+                      arrow="+"
+                      leftLabel="กะคุณ (ควงแทน)"
+                      leftContent={<>
                         <input type="date" value={requestForm.returnDate}
                           onChange={e => setRequestForm(f => f ? { ...f, returnDate: e.target.value } : null)}
-                          className="flex-1 border border-teal-200 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-teal-500 outline-none" />
-                        <span className="px-2 py-1.5 rounded-lg text-sm font-bold shrink-0" style={getSelfShiftStyle(liveRetShift)}>{liveRetShift}</span>
-                      </div>
-                      {retIsOff
-                        ? <p className="text-[10px] text-teal-600">✓ คุณให้วันหยุด {liveRetShift} วัน {format(new Date(requestForm.returnDate + 'T00:00:00'), 'd MMM', { locale: th })} ให้ {requestForm.targetMember.name.split(' ')[0]}</p>
-                        : <p className="text-[10px] text-red-500">⚠️ ต้องเลือกวันหยุดของคุณ (X/A/H) เพื่อคืนให้</p>
-                      }
+                          className="w-full border border-purple-200 rounded-lg px-1 py-1.5 text-[10px] text-center focus:ring-2 focus:ring-purple-500 outline-none bg-white mb-2" />
+                        <span className="inline-block px-3 py-1.5 rounded-lg text-base font-bold" style={getSelfShiftStyle(liveRetShift)}>{liveRetShift}</span>
+                        <p className="text-[9px] text-purple-400 mt-1">{requestForm.targetMember.name.split(' ')[0]} จะได้หยุด</p>
+                      </>}
+                      rightLabel={`กะ${requestForm.targetMember.name.split(' ')[0]} (เดิม)`}
+                      rightContent={<>
+                        <p className="text-[10px] text-gray-500 font-medium py-1.5 mb-2">{format(new Date(requestForm.returnDate + 'T00:00:00'), 'd MMM yy', { locale: th })}</p>
+                        <span className="inline-block px-3 py-1.5 rounded-lg text-base font-bold" style={getOtherShiftStyle(bShiftOnReturnDate)}>{bShiftOnReturnDate || '—'}</span>
+                        <p className="text-[9px] text-gray-400 mt-1">ควงต่อ</p>
+                      </>}
+                    />
+                    {coverReturnCheck === null
+                      ? <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2 text-xs text-yellow-700 mt-2">⚠️ ยังไม่มีข้อมูลเวลากะ (วันคืน)</div>
+                      : coverReturnCheck.valid
+                        ? <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-2 text-xs text-green-700 mt-2">✓ กะต่อเนื่อง (วันคืน) — คุณควง {coverReturnCheck.order === 'B_first' ? `${bShiftOnReturnDate}+${liveRetShift}` : `${liveRetShift}+${bShiftOnReturnDate}`}{coverReturnCheck.crossDay ? ' (ข้ามวัน)' : ''}</div>
+                        : <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-xs text-red-700 mt-2">⚠️ กะ {liveRetShift} + {bShiftOnReturnDate} ไม่ต่อเนื่อง (วันคืน)</div>
+                    }
+                  </div>
+                </div>
+              )}
+
+              {/* ===== COVER_HOLIDAY ===== */}
+              {requestForm.type === 'cover_holiday' && (
+                <div className="space-y-3">
+                  <p className="text-[10px] font-bold text-teal-600 uppercase tracking-wide">วันที่ {requestForm.targetMember.name.split(' ')[0]} ควงให้คุณ</p>
+                  <TwoCol
+                    arrow="+"
+                    leftLabel="กะที่ขอให้ควง (กะคุณ)"
+                    leftContent={<>
+                      <input type="date" value={requestForm.requesterDate}
+                        onChange={e => setRequestForm(f => f ? { ...f, requesterDate: e.target.value } : null)}
+                        className="w-full border border-orange-200 rounded-lg px-1 py-1.5 text-[10px] text-center focus:ring-2 focus:ring-orange-500 outline-none bg-white mb-2" />
+                      <span className="inline-block px-3 py-1.5 rounded-lg text-base font-bold" style={getSelfShiftStyle(liveReqShift)}>{liveReqShift}</span>
+                      <p className="text-[9px] text-orange-400 mt-1">คุณจะได้หยุด</p>
+                    </>}
+                    rightLabel={`กะ${requestForm.targetMember.name.split(' ')[0]}`}
+                    rightContent={<>
+                      <p className="text-[10px] text-gray-500 font-medium py-1.5 mb-2">{format(new Date(requestForm.targetDate + 'T00:00:00'), 'd MMM yy', { locale: th })}</p>
+                      <span className="inline-block px-3 py-1.5 rounded-lg text-base font-bold" style={getOtherShiftStyle(requestForm.targetShift)}>{requestForm.targetShift}</span>
+                      <p className="text-[9px] text-gray-400 mt-1">ควงต่อ</p>
+                    </>}
+                  />
+                  {coverCheck === null
+                    ? <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2 text-xs text-yellow-700">⚠️ ยังไม่มีข้อมูลเวลากะ — ไปที่ ตั้งค่า → ทะเบียนรหัสกะ เพื่อใส่เวลาเข้า-ออก</div>
+                    : coverCheck.valid
+                      ? <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-2 text-xs text-green-700">✓ กะต่อเนื่อง — {requestForm.targetMember.name.split(' ')[0]} ควง {coverCheck.order === 'B_first' ? `${requestForm.targetShift}+${liveReqShift}` : `${liveReqShift}+${requestForm.targetShift}`}{coverCheck.crossDay ? ' (ข้ามวัน)' : ''}</div>
+                      : <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-xs text-red-700">⚠️ กะ {liveReqShift} + {requestForm.targetShift} ไม่ต่อเนื่อง — กรุณาเลือกวันที่กะต่อกัน</div>
+                  }
+                  <div className="border-t border-dashed border-teal-100 pt-3 space-y-2">
+                    <p className="text-[10px] font-bold text-teal-600 uppercase tracking-wide">วันหยุดที่คืนให้ {requestForm.targetMember.name.split(' ')[0]}</p>
+                    <div className="flex items-center gap-2">
+                      <input type="date" value={requestForm.returnDate}
+                        onChange={e => setRequestForm(f => f ? { ...f, returnDate: e.target.value } : null)}
+                        className="flex-1 border border-teal-200 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-teal-500 outline-none" />
+                      <span className="px-2 py-1.5 rounded-lg text-sm font-bold shrink-0" style={getSelfShiftStyle(liveRetShift)}>{liveRetShift}</span>
                     </div>
-                  )}
+                    {retIsOff
+                      ? <p className="text-[10px] text-teal-600">✓ คืนวันหยุด {liveRetShift} ให้ {requestForm.targetMember.name.split(' ')[0]} วัน {format(new Date(requestForm.returnDate + 'T00:00:00'), 'd MMM', { locale: th })}</p>
+                      : <p className="text-[10px] text-red-500">⚠️ ต้องเลือกวันหยุดของคุณ (X/A/H) เพื่อคืนให้</p>
+                    }
+                  </div>
                 </div>
               )}
 
