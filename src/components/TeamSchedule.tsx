@@ -558,24 +558,14 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
                   </div>
                 </button>
                 {bothSS && (
-                  <>
-                    <button onClick={() => openRequestForm('cover', swapPopup)}
-                      className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-medium text-sm transition-colors">
-                      <span className="text-lg">🔄</span>
-                      <div className="text-left">
-                        <p className="font-bold">ควงกะ</p>
-                        <p className="text-[10px] text-purple-500">ควงให้กัน — คืนด้วยการควงกลับ (SS เท่านั้น)</p>
-                      </div>
-                    </button>
-                    <button onClick={() => openRequestForm('cover_holiday', swapPopup)}
-                      className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-700 font-medium text-sm transition-colors">
-                      <span className="text-lg">🔄🏖️</span>
-                      <div className="text-left">
-                        <p className="font-bold">ควงกะ + คืนวันหยุด</p>
-                        <p className="text-[10px] text-teal-500">ควงให้ — คืนด้วยวันหยุดแทนการควง (SS เท่านั้น)</p>
-                      </div>
-                    </button>
-                  </>
+                  <button onClick={() => openRequestForm('cover', swapPopup)}
+                    className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-medium text-sm transition-colors">
+                    <span className="text-lg">🔄</span>
+                    <div className="text-left">
+                      <p className="font-bold">ควงกะ</p>
+                      <p className="text-[10px] text-purple-500">ควงให้กัน — เลือกวิธีคืนในขั้นถัดไป (SS เท่านั้น)</p>
+                    </div>
+                  </button>
                 )}
                 <button onClick={() => setSwapPopup(null)} className="w-full py-2 text-sm text-gray-400 hover:text-gray-600">ยกเลิก</button>
               </div>
