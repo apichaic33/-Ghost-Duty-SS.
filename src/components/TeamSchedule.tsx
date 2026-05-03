@@ -209,7 +209,7 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
     return { valid: false, crossDay: false, order: 'A_first' };
   };
 
-  const openRequestForm = (type: 'swap' | 'swap_holiday' | 'cover' | 'cover_holiday', popup: SwapPopup) => {
+  const openRequestForm = (type: 'swap' | 'cover' | 'cover_holiday', popup: SwapPopup) => {
     const defaultReturn = format(addMonths(new Date(), 1), 'yyyy-MM-dd');
     setSwapPopup(null);
     setRequestForm({
