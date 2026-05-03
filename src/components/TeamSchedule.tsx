@@ -121,22 +121,42 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
           map.set(`${sw.requesterId}_${sw.requesterDate}`, sw.targetShift);
         if (sw.targetId && sw.targetDate && sw.requesterShift)
           map.set(`${sw.targetId}_${sw.targetDate}`, sw.requesterShift);
-      } else if (sw.type === 'swap_holiday') {
-        if (sw.requesterId && sw.targetDate)
-          map.set(`${sw.requesterId}_${sw.targetDate}`, 'X');
-        if (sw.targetId && sw.targetDate && sw.aOriginalShift)
-          map.set(`${sw.targetId}_${sw.targetDate}`, sw.aOriginalShift);
-        if (sw.requesterId && sw.requesterDate && sw.bOriginalShift)
-          map.set(`${sw.requesterId}_${sw.requesterDate}`, sw.bOriginalShift);
-        if (sw.targetId && sw.requesterDate && sw.requesterShift)
-          map.set(`${sw.targetId}_${sw.requesterDate}`, sw.requesterShift);
+        if (sw.returnDate) {
+          if (sw.requesterId && sw.returnTargetShift)
+            map.set(`${sw.requesterId}_${sw.returnDate}`, sw.returnTargetShift);
+          if (sw.targetId && sw.returnShift)
+            map.set(`${sw.targetId}_${sw.returnDate}`, sw.returnShift);
+        }
       } else if (sw.type === 'cover') {
+        // วันที่ 1: B ควงให้ A, A ได้หยุด
         if (sw.requesterId && sw.requesterDate)
           map.set(`${sw.requesterId}_${sw.requesterDate}`, 'X');
         if (sw.targetId && sw.targetDate && sw.targetShift)
           map.set(`${sw.targetId}_${sw.targetDate}`, `COVER:${sw.targetShift}|${sw.requesterShift || '?'}`);
         if (sw.targetId && sw.requesterDate && sw.targetDate && sw.targetDate !== sw.requesterDate)
           map.set(`${sw.targetId}_${sw.requesterDate}`, `COVER2:${sw.requesterShift || '?'}`);
+        // วันที่ 2: A ควงคืนให้ B, B ได้หยุด
+        if (sw.returnDate) {
+          if (sw.targetId)
+            map.set(`${sw.targetId}_${sw.returnDate}`, 'X');
+          if (sw.requesterId && sw.returnShift && sw.returnTargetShift)
+            map.set(`${sw.requesterId}_${sw.returnDate}`, `COVER:${sw.returnShift}|${sw.returnTargetShift}`);
+        }
+      } else if (sw.type === 'cover_holiday') {
+        // วันที่ 1: B ควงให้ A, A ได้หยุด
+        if (sw.requesterId && sw.requesterDate)
+          map.set(`${sw.requesterId}_${sw.requesterDate}`, 'X');
+        if (sw.targetId && sw.targetDate && sw.targetShift)
+          map.set(`${sw.targetId}_${sw.targetDate}`, `COVER:${sw.targetShift}|${sw.requesterShift || '?'}`);
+        if (sw.targetId && sw.requesterDate && sw.targetDate && sw.targetDate !== sw.requesterDate)
+          map.set(`${sw.targetId}_${sw.requesterDate}`, `COVER2:${sw.requesterShift || '?'}`);
+        // วันคืน: A ทำแทน B, B ได้วันหยุด
+        if (sw.returnDate) {
+          if (sw.requesterId && sw.returnTargetShift)
+            map.set(`${sw.requesterId}_${sw.returnDate}`, sw.returnTargetShift);
+          if (sw.targetId && sw.returnShift)
+            map.set(`${sw.targetId}_${sw.returnDate}`, sw.returnShift);
+        }
       }
     }
     return map;
