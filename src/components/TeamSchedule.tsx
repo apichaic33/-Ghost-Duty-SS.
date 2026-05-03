@@ -246,28 +246,24 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
       if (type === 'swap') {
         payload.targetDate = targetDate;
         payload.targetShift = targetShift;
-      } else if (type === 'swap_holiday') {
-        payload.targetDate = targetDate;
-        payload.targetShift = targetShift;
-        payload.aOriginalShift = getShiftCode(member, targetDate, allShifts);
-        payload.bOriginalShift = getShiftCode(targetMember, requesterDate, allShifts);
+        const hasHol = OFF_SHIFTS.includes(targetShift) !== OFF_SHIFTS.includes(requesterShift);
+        if (hasHol) {
+          payload.returnDate = returnDate;
+          payload.returnShift = getShiftCode(member, returnDate, allShifts);
+          payload.returnTargetShift = getShiftCode(targetMember, returnDate, allShifts);
+        }
       } else if (type === 'cover' || type === 'cover_holiday') {
         payload.targetDate = targetDate;
         payload.targetShift = targetShift;
-        if (type === 'cover_holiday') {
-          const returnShift = getShiftCode(member, returnDate, allShifts);
-          const returnTargetShift = getShiftCode(targetMember, returnDate, allShifts);
-          payload.returnDate = returnDate;
-          payload.returnShift = returnShift;
-          payload.returnTargetShift = returnTargetShift;
-        }
+        payload.returnDate = returnDate;
+        payload.returnShift = getShiftCode(member, returnDate, allShifts);
+        payload.returnTargetShift = getShiftCode(targetMember, returnDate, allShifts);
       }
 
       await addDoc(collection(db, 'swapRequests'), payload);
 
       const typeLabel: Record<string, string> = {
-        swap: 'สลับกะ', swap_holiday: 'สลับวันหยุด',
-        cover: 'ควงกะ', cover_holiday: 'ควงกะ + คืนวันหยุด',
+        swap: 'สลับกะ', cover: 'ควงกะ', cover_holiday: 'ควงกะ + คืนวันหยุด',
       };
       emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
         subject: `[ระบบยำกะผี] คำขอ${typeLabel[type]}ใหม่จาก ${member.name}`,
