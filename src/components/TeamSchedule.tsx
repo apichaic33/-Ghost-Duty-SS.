@@ -73,7 +73,10 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
       query(collection(db, 'swapRequests'), where('status', '==', 'approved')),
       snap => setApprovedSwaps(snap.docs.map(d => ({ id: d.id, ...d.data() } as SwapRequest)))
     );
-    return () => { unsubMembers(); unsubShifts(); unsubSwaps(); };
+    const unsubProps = onSnapshot(collection(db, 'shiftProperties'), snap => {
+      setShiftProps(snap.docs.map(d => ({ id: d.id, ...d.data() } as ShiftProperty)));
+    });
+    return () => { unsubMembers(); unsubShifts(); unsubSwaps(); unsubProps(); };
   }, []);
 
   const shiftsMap = useMemo(() => {
