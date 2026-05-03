@@ -83,7 +83,7 @@ export interface SwapRequest {
   requesterName: string;
   targetId?: string;
   targetName?: string;
-  type: 'swap' | 'swap_holiday' | 'cover' | 'cover_holiday';
+  type: 'swap' | 'cover' | 'cover_holiday';
   status: 'pending' | 'approved' | 'rejected' | 'cancelled';
   requesterDate: string;
   targetDate?: string;
@@ -91,10 +91,8 @@ export interface SwapRequest {
   targetShift?: string;
   reason?: string;
   returnDate?: string;
-  returnShift?: string;        // A's X/A/H shift given to B (cover_holiday)
-  returnTargetShift?: string;  // B's original shift on returnDate (cover_holiday)
-  aOriginalShift?: string;     // A's original shift on targetDate (swap_holiday)
-  bOriginalShift?: string;     // B's original shift on requesterDate (swap_holiday)
+  returnShift?: string;        // A's holiday (swap/cover_holiday) or A's shift for cover return
+  returnTargetShift?: string;  // B's shift on returnDate
   isReverseOf?: string;
   createdAt: string;
 }
