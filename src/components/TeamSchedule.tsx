@@ -560,6 +560,10 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
       {requestForm && (() => {
         const liveReqShift = getShiftCode(member, requestForm.requesterDate, allShifts);
         const liveRetShift = getShiftCode(member, requestForm.returnDate, allShifts);
+        const aShiftOnTargetDate = getShiftCode(member, requestForm.targetDate, allShifts);
+        const bShiftOnRequesterDate = requestForm.type === 'swap_holiday'
+          ? getShiftCode(requestForm.targetMember, requestForm.requesterDate, allShifts)
+          : '';
         const isSameDate = requestForm.requesterDate === requestForm.targetDate;
         const reqIsOff = OFF_SHIFTS.includes(liveReqShift);
         const retIsOff = OFF_SHIFTS.includes(liveRetShift);
