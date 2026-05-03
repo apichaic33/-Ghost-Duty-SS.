@@ -101,11 +101,11 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
     for (const sw of approvedSwaps) {
       if (sw.requesterId && sw.requesterDate) map.set(`${sw.requesterId}_${sw.requesterDate}`, sw);
       if (sw.targetId && sw.targetDate) map.set(`${sw.targetId}_${sw.targetDate}`, sw);
-      if (sw.type === 'cover' && sw.targetId && sw.requesterDate)
+      if ((sw.type === 'cover' || sw.type === 'cover_holiday') && sw.targetId && sw.requesterDate)
         map.set(`${sw.targetId}_${sw.requesterDate}`, sw);
-      if (sw.type === 'swap_holiday') {
-        if (sw.requesterId && sw.targetDate) map.set(`${sw.requesterId}_${sw.targetDate}`, sw);
-        if (sw.targetId && sw.requesterDate) map.set(`${sw.targetId}_${sw.requesterDate}`, sw);
+      if (sw.returnDate) {
+        if (sw.requesterId) map.set(`${sw.requesterId}_${sw.returnDate}`, sw);
+        if (sw.targetId) map.set(`${sw.targetId}_${sw.returnDate}`, sw);
       }
     }
     return map;
