@@ -321,7 +321,7 @@ export default function Requests({ member }: RequestsProps) {
             </div>
             <div>
               <p className="font-bold text-gray-800 text-sm">
-                {req.type === 'swap' ? 'สลับกะ' : 'ควงกะ'}
+                {req.type === 'swap' ? 'สลับกะ' : req.type === 'cover' ? 'ควงกะ' : 'ควงกะ+คืนวันหยุด'}
                 {(req as any).isReverseOf && (
                   <span className="ml-1.5 text-[10px] font-normal text-blue-500 bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded-full">แลกคืน</span>
                 )}
