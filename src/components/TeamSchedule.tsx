@@ -591,9 +591,6 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
           ? getShiftCode(requestForm.targetMember, requestForm.returnDate, allShifts) : '';
         const coverReturnCheck = requestForm.type === 'cover'
           ? checkConsecutive(liveRetShift, bShiftOnReturnDate) : null;
-        const typeLabel: Record<string, string> = {
-          swap: 'สลับกะ', cover: 'ควงกะ', cover_holiday: 'ควงกะ + คืนวันหยุด',
-        };
         const canSubmit = !requestForm.submitting && (
           requestForm.type === 'swap'
             ? (!hasHoliday || (retIsOff && returnDateValid))
