@@ -229,7 +229,7 @@ export default function Requests({ member }: RequestsProps) {
           </div>
           <div>
             <p className="font-bold text-gray-800 text-sm">
-              {req.type === 'swap' ? 'คำขอสลับกะ' : 'คำขอควงกะ'}
+              {req.type === 'swap' ? 'คำขอสลับกะ' : req.type === 'cover' ? 'คำขอควงกะ' : 'คำขอควงกะ+คืนวันหยุด'}
             </p>
             <p className="text-xs text-gray-500">
               {showActions
