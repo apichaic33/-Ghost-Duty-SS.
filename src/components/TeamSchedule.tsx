@@ -729,9 +729,9 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
                         />
                         {coverReturnCheck === null
                           ? <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2 text-xs text-yellow-700">⚠️ ยังไม่มีข้อมูลเวลากะ (วันคืน)</div>
-                          : coverReturnCheck.valid
-                            ? <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-2 text-xs text-green-700">✓ กะต่อเนื่อง (วันคืน) — คุณควง {coverReturnCheck.order === 'B_first' ? `${bShiftOnReturnDate}+${liveRetShift}` : `${liveRetShift}+${bShiftOnReturnDate}`}{coverReturnCheck.crossDay ? ' (ข้ามวัน)' : ''}</div>
-                            : <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-xs text-red-700">⚠️ กะ {liveRetShift} + {bShiftOnReturnDate} ไม่ต่อเนื่อง (วันคืน)</div>
+                          : !coverReturnCheck.valid
+                            ? <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-xs text-red-700">⚠️ กะ {liveRetShift} + {bShiftOnReturnDate} ไม่ต่อเนื่อง (วันคืน)</div>
+                            : null
                         }
                       </>
                     ) : (
