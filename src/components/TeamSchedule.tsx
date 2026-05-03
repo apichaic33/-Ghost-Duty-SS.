@@ -210,9 +210,14 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
         status: 'pending', createdAt: new Date().toISOString(),
       };
 
-      if (type === 'swap' || type === 'swap_holiday') {
+      if (type === 'swap') {
         payload.targetDate = targetDate;
         payload.targetShift = targetShift;
+      } else if (type === 'swap_holiday') {
+        payload.targetDate = targetDate;
+        payload.targetShift = targetShift;
+        payload.aOriginalShift = getShiftCode(member, targetDate, allShifts);
+        payload.bOriginalShift = getShiftCode(targetMember, requesterDate, allShifts);
       } else if (type === 'cover' || type === 'cover_holiday') {
         payload.targetDate = targetDate;
         payload.targetShift = targetShift;
