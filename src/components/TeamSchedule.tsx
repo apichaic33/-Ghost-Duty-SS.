@@ -165,7 +165,18 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
   const getUsage = (m: Member, code: string, mDays: Date[]) =>
     mDays.filter((d: Date) => getShift(m, format(d, 'yyyy-MM-dd')) === code).length;
 
-  const openRequestForm = (type: 'swap' | 'cover', popup: SwapPopup) => {
+  const OFF_SHIFTS = ['X', 'A', 'H', 'XO'];
+
+  const checkConsecutive = (codeA: string, codeB: string): { valid: boolean; crossDay: boolean; order: 'A_first' | 'B_first' } | null => {
+    const pA = shiftProps.find(p => p.id === codeA);
+    const pB = shiftProps.find(p => p.id === codeB);
+    if (!pA?.endTime || !pB?.startTime || !pA?.startTime || !pB?.endTime) return null;
+    if (pA.endTime === pB.startTime) return { valid: true, crossDay: pA.isOvernight || false, order: 'A_first' };
+    if (pB.endTime === pA.startTime) return { valid: true, crossDay: pB.isOvernight || false, order: 'B_first' };
+    return { valid: false, crossDay: false, order: 'A_first' };
+  };
+
+  const openRequestForm = (type: 'swap' | 'swap_holiday' | 'cover' | 'cover_holiday', popup: SwapPopup) => {
     const defaultReturn = format(addMonths(new Date(), 1), 'yyyy-MM-dd');
     setSwapPopup(null);
     setRequestForm({
