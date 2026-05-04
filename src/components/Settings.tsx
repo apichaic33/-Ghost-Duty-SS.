@@ -388,19 +388,33 @@ export default function Settings({ member, setMember }: SettingsProps) {
                     <div>
                       <label className="block text-[10px] text-gray-400 mb-1">เวลาเข้างาน</label>
                       <input
-                        type="time"
-                        defaultValue={newShiftProp.startTime || ''}
-                        onChange={e => setNewShiftProp(prev => ({ ...prev, startTime: e.target.value }))}
-                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-orange-500"
+                        type="text"
+                        inputMode="numeric"
+                        placeholder="06:00"
+                        maxLength={5}
+                        value={newShiftProp.startTime || ''}
+                        onChange={e => {
+                          let v = e.target.value.replace(/[^0-9]/g, '');
+                          if (v.length >= 3) v = v.slice(0, 2) + ':' + v.slice(2, 4);
+                          setNewShiftProp(prev => ({ ...prev, startTime: v }));
+                        }}
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-orange-500 font-mono"
                       />
                     </div>
                     <div>
                       <label className="block text-[10px] text-gray-400 mb-1">เวลาออกงาน</label>
                       <input
-                        type="time"
-                        defaultValue={newShiftProp.endTime || ''}
-                        onChange={e => setNewShiftProp(prev => ({ ...prev, endTime: e.target.value }))}
-                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-orange-500"
+                        type="text"
+                        inputMode="numeric"
+                        placeholder="14:00"
+                        maxLength={5}
+                        value={newShiftProp.endTime || ''}
+                        onChange={e => {
+                          let v = e.target.value.replace(/[^0-9]/g, '');
+                          if (v.length >= 3) v = v.slice(0, 2) + ':' + v.slice(2, 4);
+                          setNewShiftProp(prev => ({ ...prev, endTime: v }));
+                        }}
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-orange-500 font-mono"
                       />
                     </div>
                   </div>
