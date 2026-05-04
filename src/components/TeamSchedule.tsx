@@ -580,10 +580,12 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
         const liveRetShift = getShiftCode(member, requestForm.returnDate, allShifts);
         const isSameDate = requestForm.requesterDate === requestForm.targetDate;
         const retIsOff = OFF_SHIFTS.includes(liveRetShift);
-        const hasHoliday = requestForm.type === 'swap' && (
-          OFF_SHIFTS.includes(requestForm.targetShift) !== OFF_SHIFTS.includes(liveReqShift)
-        );
+        const tgtIsOff = OFF_SHIFTS.includes(requestForm.targetShift);
+        const reqIsOff = OFF_SHIFTS.includes(liveReqShift);
+        const bothOff = tgtIsOff && reqIsOff;
+        const hasHoliday = requestForm.type === 'swap' && (tgtIsOff !== reqIsOff);
         const maxReturnDate = format(endOfMonth(addMonths(new Date(), 1)), 'yyyy-MM-dd');
+        const minDate = format(new Date(), 'yyyy-MM-dd');
         const returnDateValid = requestForm.returnDate <= maxReturnDate;
         const coverCheck = (requestForm.type === 'cover' || requestForm.type === 'cover_holiday')
           ? checkConsecutive(liveReqShift, requestForm.targetShift) : null;
@@ -593,7 +595,7 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
           ? checkConsecutive(liveRetShift, bShiftOnReturnDate) : null;
         const canSubmit = !requestForm.submitting && (
           requestForm.type === 'swap'
-            ? (!hasHoliday || (retIsOff && returnDateValid))
+            ? (!bothOff && (!hasHoliday || (retIsOff && returnDateValid)))
             : requestForm.type === 'cover'
               ? (coverCheck?.valid === true && coverReturnCheck?.valid === true)
               : (coverCheck?.valid === true && retIsOff)
