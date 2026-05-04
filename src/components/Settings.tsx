@@ -337,7 +337,7 @@ export default function Settings({ member, setMember }: SettingsProps) {
 
               <div className="space-y-4">
                 {/* Add form */}
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 space-y-3">
+                <div key={shiftFormKey} className="bg-gray-50 rounded-xl p-4 border border-gray-100 space-y-3">
                   <p className="text-[10px] font-bold text-gray-500 uppercase">เพิ่มรหัสกะใหม่</p>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
