@@ -36,12 +36,19 @@ export default function Settings({ member, setMember }: SettingsProps) {
   }, [member.role]);
 
   const handleAddShiftProp = async () => {
-    if (!newShiftProp.id || !newShiftProp.name) return;
+    const id = (newShiftProp.id || '').trim().toUpperCase();
+    const name = (newShiftProp.name || '').trim();
+    if (!id) { toast.error('กรุณากรอกรหัสกะ'); return; }
+    if (!name) { toast.error('กรุณากรอกชื่อเรียก'); return; }
+    if (auth.currentUser?.isAnonymous) {
+      toast.error('ต้องเข้าสู่ระบบด้วย Google เพื่อจัดการทะเบียนรหัสกะ');
+      return;
+    }
     const group = newShiftProp.group || 'main';
     const isMain = group === 'main';
     try {
-      await setDoc(doc(db, 'shiftProperties', newShiftProp.id.toUpperCase()), {
-        name: newShiftProp.name,
+      await setDoc(doc(db, 'shiftProperties', id), {
+        name,
         color: newShiftProp.color || '#ea580c',
         timeSlot: newShiftProp.timeSlot || 'morning',
         isMain,
@@ -52,7 +59,14 @@ export default function Settings({ member, setMember }: SettingsProps) {
       });
       setNewShiftProp({ id: '', name: '', color: '#ea580c', timeSlot: 'morning', isMain: true, group: 'main', startTime: '', endTime: '', isOvernight: false });
       toast.success('เพิ่มรหัสกะสำเร็จ');
-    } catch { toast.error('เกิดข้อผิดพลาด'); }
+    } catch (err: any) {
+      console.error('[handleAddShiftProp]', err?.code, err?.message);
+      if (err?.code === 'permission-denied') {
+        toast.error('ไม่มีสิทธิ์ — กรุณาเข้าสู่ระบบด้วย Google (Admin)');
+      } else {
+        toast.error(`เกิดข้อผิดพลาด: ${err?.code || err?.message || 'unknown'}`);
+      }
+    }
   };
 
   const handleSaveGasUrl = async () => {
