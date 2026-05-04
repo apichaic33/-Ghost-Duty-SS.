@@ -59,6 +59,7 @@ export default function Settings({ member, setMember }: SettingsProps) {
         isOvernight: newShiftProp.isOvernight || false,
       });
       setNewShiftProp({ id: '', name: '', color: '#ea580c', timeSlot: 'morning', isMain: true, group: 'main', startTime: '', endTime: '', isOvernight: false });
+      setShiftFormKey(k => k + 1);
       toast.success('เพิ่มรหัสกะสำเร็จ');
     } catch (err: any) {
       console.error('[handleAddShiftProp]', err?.code, err?.message);
