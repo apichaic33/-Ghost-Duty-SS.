@@ -205,7 +205,7 @@ export default function Requests({ member }: RequestsProps) {
       emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
         subject: `[ระบบยำกะผี] คำขอแลกคืนกะจาก ${member.name}`,
         from_name: 'ระบบยำกะผี',
-        to_email: (iAmRequester ? req.targetName : req.requesterName) ? ADMIN_EMAIL : ADMIN_EMAIL,
+        to_email: ADMIN_EMAIL,
         message: `ประเภท: คำขอแลกคืนกะ\nผู้ขอ: ${member.name}\nส่งถึง: ${newReq.targetName}\nวันที่ขอคืน: ${newReq.requesterDate} (กะ ${newReq.requesterShift})\nวันที่แลก: ${newReq.targetDate} (กะ ${newReq.targetShift})\n\nตรวจสอบ: https://gen-lang-client-0528383957.web.app`,
       }, EMAILJS_PUBLIC_KEY).catch(() => {});
     } catch (err: any) {
