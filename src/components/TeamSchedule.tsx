@@ -712,7 +712,9 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
                     </>}
                   />
                   {coverCheck === null
-                    ? <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2 text-xs text-yellow-700">⚠️ ยังไม่มีข้อมูลเวลากะ — ไปที่ ตั้งค่า → ทะเบียนรหัสกะ เพื่อใส่เวลาเข้า-ออก</div>
+                    ? reqIsOff
+                      ? <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-xs text-red-700">⚠️ กะวันที่ขอเป็นวันหยุด — เลือกวันที่มีกะทำงาน</div>
+                      : <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2 text-xs text-yellow-700">⚠️ ยังไม่มีข้อมูลเวลากะ — ไปที่ ตั้งค่า → ทะเบียนรหัสกะ เพื่อใส่เวลาเข้า-ออก</div>
                     : !coverCheck.valid
                       ? <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-xs text-red-700">⚠️ กะ {liveReqShift} + {requestForm.targetShift} ไม่ต่อเนื่อง — กรุณาเลือกวันที่กะต่อกัน</div>
                       : null
