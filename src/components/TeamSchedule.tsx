@@ -727,7 +727,7 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
                           arrow="+"
                           leftLabel="กะคุณ"
                           leftContent={<>
-                            <input type="date" value={requestForm.returnDate}
+                            <input type="date" value={requestForm.returnDate} min={minDate}
                               onChange={e => setRequestForm(f => f ? { ...f, returnDate: e.target.value } : null)}
                               className="w-full border border-purple-200 rounded-lg px-1 py-1.5 text-[10px] text-center focus:ring-2 focus:ring-purple-500 outline-none bg-white mb-2" />
                             <span className="inline-block px-3 py-1.5 rounded-lg text-base font-bold" style={getSelfShiftStyle(liveRetShift)}>{liveRetShift}</span>
