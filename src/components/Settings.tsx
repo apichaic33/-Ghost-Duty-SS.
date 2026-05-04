@@ -496,8 +496,16 @@ export default function Settings({ member, setMember }: SettingsProps) {
                                   <div className="flex items-center gap-2 pl-8">
                                     <span className="text-[10px] text-gray-400 w-12 shrink-0">เวลา</span>
                                     <input
-                                      type="time"
+                                      type="text"
+                                      inputMode="numeric"
+                                      placeholder="06:00"
+                                      maxLength={5}
                                       defaultValue={prop.startTime || ''}
+                                      onChange={e => {
+                                        let v = e.target.value.replace(/[^0-9]/g, '');
+                                        if (v.length >= 3) v = v.slice(0, 2) + ':' + v.slice(2, 4);
+                                        e.target.value = v;
+                                      }}
                                       onBlur={async e => {
                                         if (e.target.value !== (prop.startTime || '')) {
                                           try {
@@ -506,12 +514,20 @@ export default function Settings({ member, setMember }: SettingsProps) {
                                           } catch { toast.error('เกิดข้อผิดพลาด'); }
                                         }
                                       }}
-                                      className="border border-gray-200 rounded px-2 py-1 text-[10px] outline-none focus:ring-1 focus:ring-orange-400 w-24"
+                                      className="border border-gray-200 rounded px-2 py-1 text-[10px] outline-none focus:ring-1 focus:ring-orange-400 w-20 font-mono"
                                     />
                                     <span className="text-[10px] text-gray-400">–</span>
                                     <input
-                                      type="time"
+                                      type="text"
+                                      inputMode="numeric"
+                                      placeholder="14:00"
+                                      maxLength={5}
                                       defaultValue={prop.endTime || ''}
+                                      onChange={e => {
+                                        let v = e.target.value.replace(/[^0-9]/g, '');
+                                        if (v.length >= 3) v = v.slice(0, 2) + ':' + v.slice(2, 4);
+                                        e.target.value = v;
+                                      }}
                                       onBlur={async e => {
                                         if (e.target.value !== (prop.endTime || '')) {
                                           try {
@@ -520,7 +536,7 @@ export default function Settings({ member, setMember }: SettingsProps) {
                                           } catch { toast.error('เกิดข้อผิดพลาด'); }
                                         }
                                       }}
-                                      className="border border-gray-200 rounded px-2 py-1 text-[10px] outline-none focus:ring-1 focus:ring-orange-400 w-24"
+                                      className="border border-gray-200 rounded px-2 py-1 text-[10px] outline-none focus:ring-1 focus:ring-orange-400 w-20 font-mono"
                                     />
                                     <label className="flex items-center gap-1 text-[10px] text-gray-500 cursor-pointer select-none">
                                       <input
