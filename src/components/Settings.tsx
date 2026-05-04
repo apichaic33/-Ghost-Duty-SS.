@@ -265,6 +265,12 @@ export default function Settings({ member, setMember }: SettingsProps) {
 
       {member.role === 'admin' && (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 max-w-2xl">
+          {auth.currentUser?.isAnonymous && (
+            <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-medium rounded-xl px-4 py-3 mb-6">
+              <AlertTriangle size={14} className="shrink-0" />
+              <span>คุณเข้าสู่ระบบด้วย PIN — ฟีเจอร์ Admin บางส่วนต้องการ <strong>เข้าสู่ระบบด้วย Google</strong> เพื่อแก้ไขข้อมูล</span>
+            </div>
+          )}
           {/* GAS URL */}
           <div className="flex items-start space-x-4 mb-6 pb-6 border-b border-gray-100">
             <div className="p-2 bg-green-50 text-green-600 rounded-lg">
