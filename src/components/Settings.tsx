@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { doc, updateDoc, collection, onSnapshot, setDoc, deleteDoc, getDoc, getDocs } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
 import { Member, NotificationPreferences, ShiftProperty, ShiftTimeSlot, ShiftGroup, SHIFT_GROUPS } from '../types';
 import { toast } from 'sonner';
-import { Bell, User, CheckCircle2, XCircle, Settings as SettingsIcon, Plus, Trash2, Link, RefreshCw, Database } from 'lucide-react';
+import { Bell, User, CheckCircle2, XCircle, Settings as SettingsIcon, Plus, Trash2, Link, RefreshCw, Database, AlertTriangle } from 'lucide-react';
 
 interface SettingsProps {
   member: Member;
