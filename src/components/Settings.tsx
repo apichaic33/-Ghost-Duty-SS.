@@ -22,6 +22,7 @@ export default function Settings({ member, setMember }: SettingsProps) {
   const [gasUrlSaving, setGasUrlSaving] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [syncResult, setSyncResult] = useState<{ imported: number; updated: number } | null>(null);
+  const [shiftFormKey, setShiftFormKey] = useState(0);
 
   useEffect(() => {
     if (member.role === 'admin') {
