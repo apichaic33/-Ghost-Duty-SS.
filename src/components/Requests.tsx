@@ -352,6 +352,16 @@ export default function Requests({ member }: RequestsProps) {
                 </div>
               </>
             )}
+            {req.returnDate && (
+              <>
+                <ArrowRightLeft size={12} className="text-gray-300" />
+                <div className="text-center">
+                  <p className="text-[10px] font-bold text-purple-400 uppercase mb-0.5">{req.type === 'cover_holiday' ? 'คืนวันหยุด' : 'วันคืน'}</p>
+                  <span className="px-2 py-0.5 rounded font-bold border bg-purple-50 text-purple-700 border-purple-200">คืน</span>
+                  <p className="text-gray-500 mt-0.5">{formatDate(req.returnDate)}</p>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="flex items-center gap-2">
