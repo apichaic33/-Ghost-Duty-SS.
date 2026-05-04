@@ -748,7 +748,7 @@ export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
                     ) : (
                       <>
                         <div className="flex items-center gap-2">
-                          <input type="date" value={requestForm.returnDate}
+                          <input type="date" value={requestForm.returnDate} min={minDate} max={maxReturnDate}
                             onChange={e => setRequestForm(f => f ? { ...f, returnDate: e.target.value } : null)}
                             className="flex-1 border border-teal-200 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-teal-500 outline-none" />
                           <span className="px-2 py-1.5 rounded-lg text-sm font-bold shrink-0" style={getSelfShiftStyle(liveRetShift)}>{liveRetShift}</span>
