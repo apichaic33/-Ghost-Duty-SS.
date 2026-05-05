@@ -18,6 +18,7 @@ const ADMIN_EMAIL = 'ApichaiC.583986@outlook.co.th';
 interface TeamScheduleProps {
   member: Member;
   isAdmin: boolean;
+  memberMode?: boolean; // admin acts as member: swap/cover enabled, no edit modal
 }
 
 interface SwapPopup {
