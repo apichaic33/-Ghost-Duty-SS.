@@ -85,7 +85,7 @@ export interface SwapRequest {
   targetId?: string;
   targetName?: string;
   type: 'swap' | 'cover' | 'cover_holiday';
-  status: 'pending' | 'approved' | 'rejected' | 'cancelled';
+  status: 'pending' | 'approved' | 'rejected' | 'cancelled' | 'reversed';
   requesterDate: string;
   targetDate?: string;
   requesterShift: string;
