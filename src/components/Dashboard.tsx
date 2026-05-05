@@ -331,7 +331,7 @@ export default function Dashboard({ member }: DashboardProps) {
                   </div>
                 </button>
               )}
-              {selShift.original && (['H', 'A', 'XO'] as ShiftCode[]).includes(selShift.code) && (
+              {selShift.original && selShift.manualMark === true && (['H', 'A', 'XO'] as ShiftCode[]).includes(selShift.code) && (
                 <button onClick={() => revertShift(selectedDay)}
                   className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium text-sm transition-colors">
                   <span className="text-lg">↩️</span>
