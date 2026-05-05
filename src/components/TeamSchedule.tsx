@@ -52,6 +52,7 @@ export default function TeamSchedule({ member, isAdmin, memberMode = false }: Te
   const [requestForm, setRequestForm] = useState<RequestForm | null>(null);
   const [approvedSwaps, setApprovedSwaps] = useState<SwapRequest[]>([]);
   const [swapDetail, setSwapDetail] = useState<SwapRequest | null>(null);
+  const [confirmReverse, setConfirmReverse] = useState(false);
   const [shiftProps, setShiftProps] = useState<ShiftProperty[]>([]);
 
   const rangeStart = startOfMonth(new Date());
