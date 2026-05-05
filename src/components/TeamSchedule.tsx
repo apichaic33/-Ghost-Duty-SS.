@@ -340,7 +340,7 @@ export default function TeamSchedule({ member, isAdmin, memberMode = false }: Te
         <div>
           <h2 className="text-2xl font-bold text-gray-800">กะทั้งหมด</h2>
           <p className="text-sm text-gray-500">
-            {isAdmin ? 'ดูและแก้ไขตารางกะของทุกตำแหน่ง' : `ตำแหน่ง ${member.position || '—'}`}
+            {isAdmin && !memberMode ? 'ดูและแก้ไขตารางกะของทุกตำแหน่ง' : `ตำแหน่ง ${member.position || '—'}`}
           </p>
         </div>
         <button onClick={() => { setLoading(true); setTimeout(() => setLoading(false), 400); }}
