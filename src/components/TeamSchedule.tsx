@@ -778,7 +778,7 @@ export default function TeamSchedule({ member, isAdmin, memberMode = false }: Te
         );
       })()}
       {/* Swap Detail Modal */}
-      {swapDetail && (
+      {showSwap && swapDetail && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-end md:items-center justify-center p-4"
           onClick={() => setSwapDetail(null)}>
           <div className="bg-white rounded-2xl w-full max-w-xs shadow-2xl p-5" onClick={e => e.stopPropagation()}>
