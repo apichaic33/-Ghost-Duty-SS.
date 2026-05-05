@@ -67,6 +67,7 @@ export interface Shift {
   shiftCode: ShiftCode;
   originalShiftCode?: ShiftCode;
   isDoubleShift?: boolean;
+  manualMark?: boolean; // true = set by user via Dashboard (H/A/XO), false/undefined = from swap approval
   updatedAt: string;
 }
 
