@@ -502,8 +502,8 @@ export default function TeamSchedule({ member, isAdmin, memberMode = false }: Te
         );
       })}
 
-      {/* Admin: Edit Shift Modal */}
-      {editingShift && (
+      {/* Admin: Edit Shift Modal — only in edit mode (not memberMode) */}
+      {isAdmin && !memberMode && editingShift && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl">
             <div className="flex justify-between items-center mb-4">
