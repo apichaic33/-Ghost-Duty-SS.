@@ -36,44 +36,42 @@ export default function Requests({ member }: RequestsProps) {
       where('requesterId', '==', member.id),
       where('status', '==', 'pending')
     );
-    const q3 = query(
-      collection(db, 'swapRequests'),
-      where('requesterId', '==', member.id),
-      where('status', '==', 'approved')
-    );
-    const q4 = query(
-      collection(db, 'swapRequests'),
-      where('targetId', '==', member.id),
-      where('status', '==', 'approved')
-    );
+    const mkQ = (field: 'requesterId' | 'targetId', status: string) =>
+      query(collection(db, 'swapRequests'), where(field, '==', member.id), where('status', '==', status));
 
-    const unsub1 = onSnapshot(q1, snap =>
+    const unsub1 = onSnapshot(mkQ('targetId', 'pending'), snap =>
       setIncoming(snap.docs.map(d => ({ id: d.id, ...d.data() } as SwapRequest))
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt)))
     );
-    const unsub2 = onSnapshot(q2, snap =>
+    const unsub2 = onSnapshot(mkQ('requesterId', 'pending'), snap =>
       setOutgoing(snap.docs.map(d => ({ id: d.id, ...d.data() } as SwapRequest))
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt)))
     );
 
-    // Merge approved from both queries, deduplicate by id
-    let approvedAsRequester: SwapRequest[] = [];
-    let approvedAsTarget: SwapRequest[] = [];
-    const mergeHistory = () => {
-      const all = [...approvedAsRequester, ...approvedAsTarget];
-      const unique = Array.from(new Map(all.map(r => [r.id, r])).values());
-      setHistory(unique.sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 30));
+    let buckets: Record<string, SwapRequest[]> = {
+      approvedReq: [], approvedTgt: [],
+      reversedReq: [], reversedTgt: [],
+      rejectedReq: [], cancelledReq: [],
     };
-    const unsub3 = onSnapshot(q3, snap => {
-      approvedAsRequester = snap.docs.map(d => ({ id: d.id, ...d.data() } as SwapRequest));
-      mergeHistory();
-    });
-    const unsub4 = onSnapshot(q4, snap => {
-      approvedAsTarget = snap.docs.map(d => ({ id: d.id, ...d.data() } as SwapRequest));
-      mergeHistory();
-    });
+    const mergeHistory = () => {
+      const all = Object.values(buckets).flat();
+      const unique = Array.from(new Map(all.map(r => [r.id, r])).values());
+      setHistory(unique.sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 60));
+    };
+    const listen = (key: string, field: 'requesterId' | 'targetId', status: string) =>
+      onSnapshot(mkQ(field, status), snap => {
+        buckets[key] = snap.docs.map(d => ({ id: d.id, ...d.data() } as SwapRequest));
+        mergeHistory();
+      });
 
-    return () => { unsub1(); unsub2(); unsub3(); unsub4(); };
+    const unsub3 = listen('approvedReq', 'requesterId', 'approved');
+    const unsub4 = listen('approvedTgt', 'targetId', 'approved');
+    const unsub5 = listen('reversedReq', 'requesterId', 'reversed');
+    const unsub6 = listen('reversedTgt', 'targetId', 'reversed');
+    const unsub7 = listen('rejectedReq', 'requesterId', 'rejected');
+    const unsub8 = listen('cancelledReq', 'requesterId', 'cancelled');
+
+    return () => { unsub1(); unsub2(); unsub3(); unsub4(); unsub5(); unsub6(); unsub7(); unsub8(); };
   }, [member.id]);
 
   const handleAction = async (req: SwapRequest, action: 'approved' | 'rejected') => {
