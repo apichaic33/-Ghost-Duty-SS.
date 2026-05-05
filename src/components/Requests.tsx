@@ -319,7 +319,7 @@ export default function Requests({ member }: RequestsProps) {
   const HistoryCard: React.FC<{ req: SwapRequest }> = ({ req }) => {
     const iAmRequester = req.requesterId === member.id;
     const counterpart = iAmRequester ? req.targetName : req.requesterName;
-    const canReverse = req.type === 'swap' && req.targetId && req.targetDate;
+    const canReverse = req.type === 'swap' && req.targetId && req.targetDate && !(req as any).isReverseOf;
 
     return (
       <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
