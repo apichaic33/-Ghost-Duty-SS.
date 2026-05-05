@@ -386,8 +386,8 @@ export default function TeamSchedule({ member, isAdmin, memberMode = false }: Te
         </div>
       )}
 
-      {/* Non-admin: show own station + position info only (no tab switching) */}
-      {!isAdmin && (
+      {/* Show own station + position info in member mode */}
+      {(!isAdmin || memberMode) && (
         <div className="flex items-center gap-2">
           {member.station && (
             <span className="text-xs text-indigo-600 font-bold bg-indigo-50 border border-indigo-200 px-2.5 py-1 rounded-lg">
