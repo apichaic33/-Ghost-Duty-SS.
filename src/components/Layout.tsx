@@ -16,6 +16,7 @@ export default function Layout({ children, activeTab, setActiveTab, isAdmin, has
   const tabs = [
     { id: 'dashboard', label: 'ตารางกะ', icon: Calendar },
     { id: 'team', label: 'กะทั้งหมด', icon: Users },
+    { id: 'team-edit', label: 'แก้ไขกะ', icon: Pencil, adminOnly: true },
     { id: 'special', label: 'ตารางกะพิเศษ', icon: Star, pairOnly: true },
     { id: 'requests', label: 'คำขอสลับกะ', icon: MessageSquare },
     { id: 'members', label: 'จัดการสมาชิก', icon: Users, adminOnly: true },
