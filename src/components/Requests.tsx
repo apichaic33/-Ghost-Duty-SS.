@@ -385,15 +385,17 @@ export default function Requests({ member }: RequestsProps) {
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="px-3 py-1.5 bg-green-50 text-green-600 border border-green-200 text-xs font-bold rounded-full">
-              อนุมัติแล้ว
-            </span>
-            {canReverse && (
-              <button onClick={() => handleReverseSwap(req)}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-blue-600 hover:bg-blue-50 border border-blue-200 rounded-full transition-colors">
-                <RotateCcw size={13} />
-                ขอแลกคืน
-              </button>
+            {req.status === 'approved' && (
+              <span className="px-3 py-1.5 bg-green-50 text-green-600 border border-green-200 text-xs font-bold rounded-full">อนุมัติแล้ว</span>
+            )}
+            {req.status === 'reversed' && (
+              <span className="px-3 py-1.5 bg-blue-50 text-blue-600 border border-blue-200 text-xs font-bold rounded-full">คืนกะแล้ว</span>
+            )}
+            {req.status === 'rejected' && (
+              <span className="px-3 py-1.5 bg-red-50 text-red-600 border border-red-200 text-xs font-bold rounded-full">ถูกปฏิเสธ</span>
+            )}
+            {req.status === 'cancelled' && (
+              <span className="px-3 py-1.5 bg-gray-50 text-gray-500 border border-gray-200 text-xs font-bold rounded-full">ยกเลิกแล้ว</span>
             )}
           </div>
         </div>
