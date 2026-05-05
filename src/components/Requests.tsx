@@ -81,18 +81,27 @@ export default function Requests({ member }: RequestsProps) {
       const batch = writeBatch(db);
       batch.update(doc(db, 'swapRequests', req.id), { status: action });
 
+      const isReverse = !!(req as any).isReverseOf;
+
       if (action === 'approved') {
         if (req.type === 'swap' && req.targetId && req.targetDate) {
-          batch.set(doc(db, 'shifts', `${req.requesterId}_${req.requesterDate}`), {
+          const reqDoc: any = {
             memberId: req.requesterId, date: req.requesterDate,
-            shiftCode: req.targetShift, originalShiftCode: req.requesterShift,
+            shiftCode: req.targetShift,
+            originalShiftCode: isReverse ? deleteField() : req.requesterShift,
             updatedAt: new Date().toISOString(),
-          }, { merge: true });
-          batch.set(doc(db, 'shifts', `${req.targetId}_${req.targetDate}`), {
+          };
+          batch.set(doc(db, 'shifts', `${req.requesterId}_${req.requesterDate}`), reqDoc, { merge: true });
+          const tgtDoc: any = {
             memberId: req.targetId, date: req.targetDate,
-            shiftCode: req.requesterShift, originalShiftCode: req.targetShift,
+            shiftCode: req.requesterShift,
+            originalShiftCode: isReverse ? deleteField() : req.targetShift,
             updatedAt: new Date().toISOString(),
-          }, { merge: true });
+          };
+          batch.set(doc(db, 'shifts', `${req.targetId}_${req.targetDate}`), tgtDoc, { merge: true });
+          if (isReverse) {
+            batch.update(doc(db, 'swapRequests', (req as any).isReverseOf), { status: 'reversed' });
+          }
           if (req.returnDate && req.targetId) {
             batch.set(doc(db, 'shifts', `${req.requesterId}_${req.returnDate}`), {
               memberId: req.requesterId, date: req.returnDate,
