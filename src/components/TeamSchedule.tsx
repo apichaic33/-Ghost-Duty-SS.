@@ -303,6 +303,45 @@ export default function TeamSchedule({ member, isAdmin, memberMode = false }: Te
     } catch { toast.error('เกิดข้อผิดพลาด'); }
   };
 
+  useEffect(() => { setConfirmReverse(false); }, [swapDetail?.id]);
+
+  const handleReverseSwapDirect = async (sw: SwapRequest) => {
+    try {
+      const batch = writeBatch(db);
+      batch.set(doc(db, 'shifts', `${sw.requesterId}_${sw.requesterDate}`), {
+        memberId: sw.requesterId, date: sw.requesterDate,
+        shiftCode: sw.requesterShift,
+        originalShiftCode: deleteField(),
+        manualMark: deleteField(),
+        updatedAt: new Date().toISOString(),
+      } as any, { merge: true });
+      if (sw.targetId && sw.targetDate) {
+        if (sw.type === 'swap' && sw.targetShift) {
+          batch.set(doc(db, 'shifts', `${sw.targetId}_${sw.targetDate}`), {
+            memberId: sw.targetId, date: sw.targetDate,
+            shiftCode: sw.targetShift,
+            originalShiftCode: deleteField(),
+            manualMark: deleteField(),
+            updatedAt: new Date().toISOString(),
+          } as any, { merge: true });
+        } else {
+          batch.delete(doc(db, 'shifts', `${sw.targetId}_${sw.targetDate}`));
+        }
+      }
+      if (sw.returnDate) {
+        batch.delete(doc(db, 'shifts', `${sw.requesterId}_${sw.returnDate}`));
+        if (sw.targetId) batch.delete(doc(db, 'shifts', `${sw.targetId}_${sw.returnDate}`));
+      }
+      batch.update(doc(db, 'swapRequests', sw.id), { status: 'reversed' });
+      await batch.commit();
+      setSwapDetail(null);
+      toast.success('คืนกะเดิมเรียบร้อยแล้ว');
+    } catch (err: any) {
+      console.error('[handleReverseSwapDirect]', err);
+      toast.error(`ผิดพลาด: ${err?.message || 'unknown'}`);
+    }
+  };
+
   const MemberCell = ({ m, mDays }: { m: Member; mDays: Date[] }) => {
     const isSelf = m.id === member.id;
     const isDiffStation = !isSelf && m.station !== member.station;
