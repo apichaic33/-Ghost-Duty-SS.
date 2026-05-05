@@ -456,14 +456,17 @@ export default function TeamSchedule({ member, isAdmin, memberMode = false }: Te
                             <td key={dateStr} className={`p-0.5 border-r border-gray-100 text-center ${isToday(day) ? 'bg-orange-50/20' : ''}`}>
                               <button
                                 onClick={() => {
-                                  if (swap) { setSwapDetail(swap); return; }
-                                  if (isAdmin) setEditingShift({ member: m, date: dateStr });
-                                  else if (!isSelf) setSwapPopup({ targetMember: m, targetDate: dateStr, targetShift: isCover ? coverShifts[0] : code });
+                                  if (showSwap) {
+                                    if (swap) { setSwapDetail(swap); return; }
+                                    if (!isSelf) setSwapPopup({ targetMember: m, targetDate: dateStr, targetShift: isCover ? coverShifts[0] : code });
+                                  } else {
+                                    setEditingShift({ member: m, date: dateStr });
+                                  }
                                 }}
-                                disabled={!isAdmin && isSelf && !swap}
+                                disabled={showSwap && isSelf && !swap}
                                 className={`relative w-full flex items-center justify-center rounded font-bold transition-all
                                   ${isCover || isCover2 ? 'h-8 flex-col gap-0' : 'h-6 text-[9px]'}
-                                  ${(!isAdmin && isSelf && !swap) ? 'cursor-default opacity-70' : 'hover:opacity-75 active:scale-95 cursor-pointer'}`}
+                                  ${(showSwap && isSelf && !swap) ? 'cursor-default opacity-70' : 'hover:opacity-75 active:scale-95 cursor-pointer'}`}
                                 style={isCover || isCover2
                                   ? { backgroundColor: '#fef3c7', color: '#92400e', border: '1px solid #fcd34d', borderRadius: 4 }
                                   : (isSelf ? getSelfShiftStyle(code) : getOtherShiftStyle(code))}
