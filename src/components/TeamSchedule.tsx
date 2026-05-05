@@ -526,7 +526,7 @@ export default function TeamSchedule({ member, isAdmin, memberMode = false }: Te
       )}
 
       {/* Member: Step 1 — choose type */}
-      {swapPopup && (() => {
+      {showSwap && swapPopup && (() => {
         const tgtIsOff = OFF_SHIFTS.includes(swapPopup.targetShift);
         const bothSS = normalizePos(member.position) === 'SS' && normalizePos(swapPopup.targetMember.position) === 'SS';
         return (
