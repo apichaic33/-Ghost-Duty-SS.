@@ -349,8 +349,8 @@ export default function TeamSchedule({ member, isAdmin, memberMode = false }: Te
         </button>
       </div>
 
-      {/* Admin: Zone → Station → Position tabs */}
-      {isAdmin && (
+      {/* Admin: Zone → Station → Position tabs — edit mode only */}
+      {isAdmin && !memberMode && (
         <div className="space-y-2">
           {/* Zone tabs */}
           <div className="flex flex-wrap gap-1">
