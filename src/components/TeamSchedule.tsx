@@ -37,7 +37,8 @@ interface RequestForm {
   submitting: boolean;
 }
 
-export default function TeamSchedule({ member, isAdmin }: TeamScheduleProps) {
+export default function TeamSchedule({ member, isAdmin, memberMode = false }: TeamScheduleProps) {
+  const showSwap = !isAdmin || memberMode; // member behavior: swap/cover/green dots enabled
   const { getShiftStyle, getOtherShiftStyle, getSelfShiftStyle } = useShiftProperties();
   const [members, setMembers] = useState<Member[]>([]);
   const [allShifts, setAllShifts] = useState<Shift[]>([]);
