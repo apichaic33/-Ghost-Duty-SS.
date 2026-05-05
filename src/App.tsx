@@ -253,7 +253,8 @@ export default function App() {
         onSignOut={handleSignOut}
       >
         {activeTab === 'dashboard' && <Dashboard member={member} />}
-        {activeTab === 'team' && <TeamSchedule member={member} isAdmin={member.role === 'admin'} />}
+        {activeTab === 'team' && <TeamSchedule member={member} isAdmin={member.role === 'admin'} memberMode={true} />}
+        {activeTab === 'team-edit' && member.role === 'admin' && <TeamSchedule member={member} isAdmin={true} memberMode={false} />}
         {activeTab === 'special' && pairGroup && <SpecialSchedule member={member} group={pairGroup} />}
         {activeTab === 'requests' && <Requests member={member} />}
         {activeTab === 'members' && member.role === 'admin' && <Members />}
