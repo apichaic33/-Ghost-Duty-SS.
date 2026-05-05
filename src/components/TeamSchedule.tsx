@@ -577,7 +577,7 @@ export default function TeamSchedule({ member, isAdmin, memberMode = false }: Te
       })()}
 
       {/* Member: Step 2 — fill in dates & submit */}
-      {requestForm && (() => {
+      {showSwap && requestForm && (() => {
         const liveReqShift = getShiftCode(member, requestForm.requesterDate, allShifts);
         const liveRetShift = getShiftCode(member, requestForm.returnDate, allShifts);
         const isSameDate = requestForm.requesterDate === requestForm.targetDate;
