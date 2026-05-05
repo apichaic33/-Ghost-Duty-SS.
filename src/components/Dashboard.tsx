@@ -75,9 +75,9 @@ export default function Dashboard({ member }: DashboardProps) {
     new Map(shifts.map(s => [s.date, s])),
   [shifts]);
 
-  const getShift = (dateStr: string): { code: ShiftCode; original?: ShiftCode; isDouble?: boolean } => {
+  const getShift = (dateStr: string): { code: ShiftCode; original?: ShiftCode; isDouble?: boolean; manualMark?: boolean } => {
     const ex = shiftsMap.get(dateStr);
-    if (ex) return { code: ex.shiftCode, original: ex.originalShiftCode, isDouble: ex.isDoubleShift };
+    if (ex) return { code: ex.shiftCode, original: ex.originalShiftCode, isDouble: ex.isDoubleShift, manualMark: ex.manualMark };
     return { code: (generatedMap.get(dateStr) as ShiftCode) || 'X' };
   };
 
