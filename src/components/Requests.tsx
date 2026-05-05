@@ -193,44 +193,6 @@ export default function Requests({ member }: RequestsProps) {
     }
   };
 
-  const handleReverseSwap = async (req: SwapRequest) => {
-    if (!req.targetId || !req.targetDate || !req.targetShift) {
-      toast.error('ไม่สามารถขอแลกคืนได้ — ข้อมูลไม่ครบ');
-      return;
-    }
-    try {
-      const iAmRequester = req.requesterId === member.id;
-      // ถ้าฉันเป็นคนขอเดิม: ฉันมีกะของอีกฝ่าย (req.targetShift) อยู่ที่วันของฉัน (req.requesterDate)
-      // ถ้าฉันเป็น target เดิม: ฉันมีกะของอีกฝ่าย (req.requesterShift) อยู่ที่วันของฉัน (req.targetDate)
-      const newReq = {
-        requesterId:    member.id,
-        requesterName:  member.name,
-        targetId:       iAmRequester ? req.targetId   : req.requesterId,
-        targetName:     iAmRequester ? req.targetName : req.requesterName,
-        type:           'swap' as const,
-        status:         'pending' as const,
-        requesterDate:  iAmRequester ? req.requesterDate : req.targetDate,
-        requesterShift: iAmRequester ? req.targetShift  : req.requesterShift,
-        targetDate:     iAmRequester ? req.targetDate   : req.requesterDate,
-        targetShift:    iAmRequester ? req.requesterShift : req.targetShift,
-        isReverseOf:    req.id,
-        createdAt:      new Date().toISOString(),
-      };
-      await addDoc(collection(db, 'swapRequests'), newReq);
-      toast.success('ส่งคำขอแลกคืนกะเรียบร้อย');
-
-      emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-        subject: `[ระบบยำกะผี] คำขอแลกคืนกะจาก ${member.name}`,
-        from_name: 'ระบบยำกะผี',
-        to_email: ADMIN_EMAIL,
-        message: `ประเภท: คำขอแลกคืนกะ\nผู้ขอ: ${member.name}\nส่งถึง: ${newReq.targetName}\nวันที่ขอคืน: ${newReq.requesterDate} (กะ ${newReq.requesterShift})\nวันที่แลก: ${newReq.targetDate} (กะ ${newReq.targetShift})\n\nตรวจสอบ: https://gen-lang-client-0528383957.web.app`,
-      }, EMAILJS_PUBLIC_KEY).catch(() => {});
-    } catch (err: any) {
-      console.error('[handleReverseSwap]', err?.code, err?.message, err);
-      toast.error(`ผิดพลาด: ${err?.code || err?.message || 'unknown'}`);
-    }
-  };
-
   const formatDate = (d: string) => {
     try { return format(new Date(d + 'T00:00:00'), 'd MMM yyyy', { locale: th }); }
     catch { return d; }
