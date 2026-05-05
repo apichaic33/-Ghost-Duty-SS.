@@ -484,7 +484,7 @@ export default function TeamSchedule({ member, isAdmin, memberMode = false }: Te
                                 ) : (
                                   code === 'XO' ? 'X' : code
                                 )}
-                                {swap && <span className="absolute top-0 right-0 w-1.5 h-1.5 rounded-full bg-green-500" />}
+                                {showSwap && swap && <span className="absolute top-0 right-0 w-1.5 h-1.5 rounded-full bg-green-500" />}
                               </button>
                             </td>
                           );
