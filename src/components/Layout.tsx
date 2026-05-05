@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LogOut, Calendar, Users, Settings, MessageSquare, LayoutGrid, Menu, X, Star } from 'lucide-react';
+import { LogOut, Calendar, Users, Settings, MessageSquare, LayoutGrid, Menu, X, Star, Pencil } from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
