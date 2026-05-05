@@ -89,6 +89,7 @@ export default function Dashboard({ member }: DashboardProps) {
         date: dateStr,
         shiftCode: newCode,
         originalShiftCode: code !== newCode ? code : (original || code),
+        manualMark: true,
         updatedAt: new Date().toISOString()
       }, { merge: true });
       toast.success(`ใส่ ${newCode} วันที่ ${dateStr}`);
