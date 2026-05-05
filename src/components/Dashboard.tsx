@@ -106,6 +106,7 @@ export default function Dashboard({ member }: DashboardProps) {
         date: dateStr,
         shiftCode: original,
         originalShiftCode: null,
+        manualMark: deleteField() as any,
         updatedAt: new Date().toISOString()
       }, { merge: true });
       toast.success(`คืนกะเดิม ${original}`);
