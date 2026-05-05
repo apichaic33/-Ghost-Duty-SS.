@@ -327,14 +327,17 @@ export default function Requests({ member }: RequestsProps) {
   const HistoryCard: React.FC<{ req: SwapRequest }> = ({ req }) => {
     const iAmRequester = req.requesterId === member.id;
     const counterpart = iAmRequester ? req.targetName : req.requesterName;
-    const canReverse = req.type === 'swap' && req.targetId && req.targetDate && !(req as any).isReverseOf;
+    const iconClass = req.status === 'reversed' ? 'bg-blue-50 text-blue-600'
+      : req.status === 'rejected' ? 'bg-red-50 text-red-500'
+      : req.status === 'cancelled' ? 'bg-gray-50 text-gray-400'
+      : 'bg-green-50 text-green-600';
 
     return (
       <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div className="flex items-center space-x-3">
-            <div className="p-2.5 rounded-full bg-green-50 text-green-600">
-              <Check size={18} />
+            <div className={`p-2.5 rounded-full ${iconClass}`}>
+              {req.status === 'reversed' ? <RotateCcw size={18} /> : req.status === 'rejected' || req.status === 'cancelled' ? <X size={18} /> : <Check size={18} />}
             </div>
             <div>
               <p className="font-bold text-gray-800 text-sm">
