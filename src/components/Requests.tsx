@@ -89,6 +89,7 @@ export default function Requests({ member }: RequestsProps) {
             memberId: req.requesterId, date: req.requesterDate,
             shiftCode: req.targetShift,
             originalShiftCode: isReverse ? deleteField() : req.requesterShift,
+            manualMark: deleteField(),
             updatedAt: new Date().toISOString(),
           };
           batch.set(doc(db, 'shifts', `${req.requesterId}_${req.requesterDate}`), reqDoc, { merge: true });
@@ -96,6 +97,7 @@ export default function Requests({ member }: RequestsProps) {
             memberId: req.targetId, date: req.targetDate,
             shiftCode: req.requesterShift,
             originalShiftCode: isReverse ? deleteField() : req.targetShift,
+            manualMark: deleteField(),
             updatedAt: new Date().toISOString(),
           };
           batch.set(doc(db, 'shifts', `${req.targetId}_${req.targetDate}`), tgtDoc, { merge: true });
