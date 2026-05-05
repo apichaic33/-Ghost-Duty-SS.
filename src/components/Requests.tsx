@@ -108,50 +108,58 @@ export default function Requests({ member }: RequestsProps) {
             batch.set(doc(db, 'shifts', `${req.requesterId}_${req.returnDate}`), {
               memberId: req.requesterId, date: req.returnDate,
               shiftCode: req.returnTargetShift || req.requesterShift,
+              manualMark: deleteField(),
               updatedAt: new Date().toISOString(),
-            }, { merge: true });
+            } as any, { merge: true });
             batch.set(doc(db, 'shifts', `${req.targetId}_${req.returnDate}`), {
               memberId: req.targetId, date: req.returnDate,
               shiftCode: req.returnShift || 'X',
+              manualMark: deleteField(),
               updatedAt: new Date().toISOString(),
-            }, { merge: true });
+            } as any, { merge: true });
           }
         } else if (req.type === 'cover' || req.type === 'cover_holiday') {
           batch.set(doc(db, 'shifts', `${req.requesterId}_${req.requesterDate}`), {
             memberId: req.requesterId, date: req.requesterDate,
             shiftCode: 'X', originalShiftCode: req.requesterShift,
+            manualMark: deleteField(),
             updatedAt: new Date().toISOString(),
-          }, { merge: true });
+          } as any, { merge: true });
           if (req.targetId && req.targetDate) {
             batch.set(doc(db, 'shifts', `${req.targetId}_${req.targetDate}`), {
               memberId: req.targetId, date: req.targetDate,
               shiftCode: req.targetShift, isDoubleShift: true,
+              manualMark: deleteField(),
               updatedAt: new Date().toISOString(),
-            }, { merge: true });
+            } as any, { merge: true });
           }
           if (req.returnDate && req.targetId) {
             if (req.type === 'cover') {
               batch.set(doc(db, 'shifts', `${req.requesterId}_${req.returnDate}`), {
                 memberId: req.requesterId, date: req.returnDate,
                 shiftCode: req.returnShift, isDoubleShift: true,
+                manualMark: deleteField(),
                 updatedAt: new Date().toISOString(),
-              }, { merge: true });
+              } as any, { merge: true });
               batch.set(doc(db, 'shifts', `${req.targetId}_${req.returnDate}`), {
                 memberId: req.targetId, date: req.returnDate,
                 shiftCode: 'X', originalShiftCode: req.returnTargetShift,
+                manualMark: deleteField(),
                 updatedAt: new Date().toISOString(),
-              }, { merge: true });
+              } as any, { merge: true });
             } else {
               batch.set(doc(db, 'shifts', `${req.requesterId}_${req.returnDate}`), {
                 memberId: req.requesterId, date: req.returnDate,
                 shiftCode: req.returnTargetShift || req.requesterShift,
+                manualMark: deleteField(),
                 updatedAt: new Date().toISOString(),
-              }, { merge: true });
+              } as any, { merge: true });
               batch.set(doc(db, 'shifts', `${req.targetId}_${req.returnDate}`), {
                 memberId: req.targetId, date: req.returnDate,
                 shiftCode: req.returnShift || 'X',
+                manualMark: deleteField(),
                 updatedAt: new Date().toISOString(),
-              }, { merge: true });
+              } as any, { merge: true });
             }
           }
         }
