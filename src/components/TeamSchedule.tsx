@@ -858,6 +858,33 @@ export default function TeamSchedule({ member, isAdmin, memberMode = false }: Te
                 </div>
               )}
             </div>
+            {(swapDetail.requesterId === member.id || swapDetail.targetId === member.id) && (
+              <div className="mt-4 pt-3 border-t border-gray-100">
+                {!confirmReverse ? (
+                  <button
+                    onClick={() => setConfirmReverse(true)}
+                    className="w-full py-2.5 text-sm font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl transition-colors flex items-center justify-center gap-2"
+                  >
+                    <RotateCcw size={14} />
+                    ขอแลกคืน
+                  </button>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-xs text-center text-gray-600 font-medium">คืนกะเดิมของทั้งสองฝ่ายใช่ไหม?</p>
+                    <div className="flex gap-2">
+                      <button onClick={() => setConfirmReverse(false)}
+                        className="flex-1 py-2 text-sm text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors">
+                        ยกเลิก
+                      </button>
+                      <button onClick={() => handleReverseSwapDirect(swapDetail)}
+                        className="flex-1 py-2 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-lg font-bold transition-colors">
+                        ยืนยัน
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
